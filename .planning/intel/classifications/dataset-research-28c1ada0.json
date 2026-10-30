@@ -1,0 +1,28 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/dataset_research.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Reference Dataset & Free Open-Source Architecture Research",
+  "summary": "Research on structuring the hackathon's five-scheme reference dataset and selecting free, open-source LLM, TTS, and ASR tooling across three prototype milestones.",
+  "scope": [
+    "reference dataset",
+    "PM-KISAN",
+    "PMFBY",
+    "synthetic demo schemes",
+    "eligibility rules",
+    "official exclusions",
+    "required documents",
+    "Kannada metadata",
+    "data/schemes_dataset.json",
+    "rules_engine.py",
+    "LLM engines",
+    "Kannada TTS",
+    "Kannada ASR",
+    "three-milestone toolchain"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 2,
+  "notes": "Type and precedence taken from manifest (authoritative). Content is explanatory research: dataset analysis, an illustrative JSON schema example, and free-tool recommendations per milestone. No ADR status/decision-record structure and no user stories or acceptance criteria, so it yields context only; the schema shown is illustrative rather than a binding contract."
+}

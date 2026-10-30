@@ -1,0 +1,29 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/ROADMAP.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "ROADMAP.md — Krishi Mitra",
+  "summary": "Four-phase milestone roadmap for Krishi Mitra: scheme rule engine, Kannada text chat, voice output, and full bimodal voice AI UI.",
+  "scope": [
+    "Krishi Mitra",
+    "PM-KISAN",
+    "PMFBY",
+    "Demo Micro-Irrigation",
+    "Demo Agri Equipment",
+    "Demo Soil Improvement",
+    "deterministic rule engine",
+    "Kannada NLU",
+    "conversation state",
+    "Edge-TTS",
+    "Sarvam AI",
+    "Groq Whisper ASR",
+    "React + Vite frontend",
+    "bimodal voice UI",
+    "3-stage evolutionary prototyping"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": "Type set by MANIFEST_TYPE=DOC (manifest_override). Content carries PRD-like 'Must-Haves' checklist language, but the document is a phase/progress roadmap, so the manifest classification stands."
+}

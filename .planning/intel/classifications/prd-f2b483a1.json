@@ -1,0 +1,24 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/prd.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Product Requirements Document (PRD) — Krishi Mitra (ಕೃಷಿ ಮಿತ್ರ)",
+  "summary": "PRD for Krishi Mitra, a Kannada-language voice AI assistant evaluating farmer scheme eligibility across three progressive prototypes.",
+  "scope": [
+    "Krishi Mitra",
+    "Kannada text and voice interaction",
+    "scheme eligibility evaluation",
+    "PM-KISAN",
+    "PMFBY",
+    "synthetic demo schemes (micro-irrigation, equipment, soil improvement)",
+    "Kannada TTS (Edge-TTS, Sarvam Bulbul)",
+    "Kannada ASR (Groq Whisper-large-v3, Sarvam Saaras)",
+    "React + Vite + TailwindCSS frontend",
+    "progressive 3-stage delivery model"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

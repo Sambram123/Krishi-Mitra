@@ -1,0 +1,22 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/DECISIONS.md",
+  "type": "ADR",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "DECISIONS.md — Architecture & Technical Decision Records (ADR)",
+  "summary": "Two accepted ADRs: decoupling conversational LLM dialogue from a deterministic rule engine, and bimodal voice-plus-visual-card feedback.",
+  "scope": [
+    "conversational AI layer",
+    "decision engine",
+    "LLM hallucination control",
+    "deterministic rule engine",
+    "scheme matching",
+    "Kannada voice responses",
+    "bimodal feedback",
+    "visual cards"
+  ],
+  "cross_refs": [],
+  "locked": true,
+  "precedence": 0,
+  "notes": ""
+}

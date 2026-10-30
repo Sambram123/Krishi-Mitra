@@ -1,0 +1,33 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/phases/02-text-to-text-nlu-prototype/02-AI-SPEC.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "AI-SPEC — Phase 2: Text-to-Text Conversational Prototype (Kannada NLU)",
+  "summary": "AI design contract for Phase 2 Kannada NLU: Gemini structured extraction, dialogue state, evaluation strategy, guardrails, and monitoring.",
+  "scope": [
+    "Kannada NLU",
+    "FarmerAgriculturalProfile extraction",
+    "ConversationState",
+    "missing-slot detection",
+    "google-genai (Gemini 2.5 Flash)",
+    "Pydantic v2 schemas",
+    "Ollama fallback",
+    "Promptfoo / pytest evaluation",
+    "Arize Phoenix tracing",
+    "online and offline guardrails",
+    "DPDP Act 2023 / Aadhaar handling"
+  ],
+  "cross_refs": [
+    "ADR-001",
+    "ADR-002",
+    "prd.md",
+    "architecture.md",
+    "requirements.md",
+    "dataset_research.md",
+    "schemes_knowledge_base.md",
+    "voice_interaction_design.md"
+  ],
+  "locked": false,
+  "precedence": 1
+}

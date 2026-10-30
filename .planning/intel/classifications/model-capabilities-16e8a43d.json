@@ -1,0 +1,24 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/model_capabilities.yaml",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Model Capabilities Registry",
+  "summary": "Optional guidance registry defining model capability categories, illustrative model profiles, and per-phase model recommendations for GSD workflows.",
+  "scope": [
+    "model capabilities",
+    "thinking_mode",
+    "long_context",
+    "tools",
+    "speed_tier",
+    "fast_coder profile",
+    "standard profile",
+    "reasoning profile",
+    "phase recommendations",
+    "model selection guidance"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 3,
+  "notes": "Type declared by manifest (MANIFEST_TYPE: DOC) — authoritative, heuristics skipped. Content is optional YAML guidance with no decision record, requirements, or technical contract, consistent with DOC."
+}
