@@ -4,7 +4,7 @@ Pure Python deterministic normalizer for rural Kannada crop names, land units, a
 Zero LLM dependencies — all mathematical conversions and canonical dictionaries are explicit.
 """
 
-from typing import List, Optional, Dict, Any
+from typing import List, Optional, Dict, Any, Set
 from backend.nlu.schemas import LandSize, ExtractOut
 
 # Exact canonical crop names aligned with backend/rules_engine.py and data/schemes_dataset.json
@@ -56,6 +56,38 @@ CROP_CANONICAL_MAP: Dict[str, str] = {
     "mekke jola": "Maize",
     "ಮೆಕ್ಕೆ ಜೋಳ": "Maize",
     "corn": "Maize",
+}
+
+# District name bilingual synonym map for evidence verification
+DISTRICT_SYNONYMS: Dict[str, Set[str]] = {
+    "kalaburagi": {"kalaburagi", "gulbarga", "ಕಲಬುರಗಿ", "ಗುಲ್ಬರ್ಗ"},
+    "belagavi": {"belagavi", "belgaum", "ಬೆಳಗಾವಿ"},
+    "dharwad": {"dharwad", "ಧಾರವಾಡ"},
+    "mandya": {"mandya", "ಮಂಡ್ಯ"},
+    "mysuru": {"mysuru", "mysore", "ಮೈಸೂರು"},
+    "tumakuru": {"tumakuru", "tumkur", "ತುಮಕೂರು"},
+    "hassan": {"hassan", "ಹಾಸನ"},
+    "ballari": {"ballari", "bellary", "ಬಳ್ಳಾರಿ"},
+    "raichur": {"raichur", "ರಾಯಚೂರು"},
+    "koppal": {"koppal", "ಕೊಪ್ಪಳ"},
+    "vijayapura": {"vijayapura", "bijapur", "ವಿಜಯಪುರ"},
+    "bagalkote": {"bagalkote", "bagalkot", "ಬಾಗಲಕೋಟೆ"},
+    "haveri": {"haveri", "ಹಾವೇರಿ"},
+    "gadag": {"gadag", "ಗದಗ"},
+    "shivamogga": {"shivamogga", "shimoga", "ಶಿವಮೊಗ್ಗ"},
+    "chikkamagaluru": {"chikkamagaluru", "ಚಿಕ್ಕಮಗಳೂರು"},
+    "chitradurga": {"chitradurga", "ಚಿತ್ರದುರ್ಗ"},
+    "davanagere": {"davanagere", "ದಾವಣಗೆರೆ"},
+    "kolar": {"kolar", "ಕೋಲಾರ"},
+    "chikkaballapura": {"chikkaballapura", "ಚಿಕ್ಕಬಳ್ಳಾಪುರ"},
+    "ramanagara": {"ramanagara", "ರಾಮನಗರ"},
+    "bengaluru": {"bengaluru", "bangalore", "ಬೆಂಗಳೂರು"},
+    "udupi": {"udupi", "ಉಡುಪಿ"},
+    "dakshina kannada": {"dakshina kannada", "ದಕ್ಷಿಣ ಕನ್ನಡ", "ಮಂಗಳೂರು", "mangalore"},
+    "uttara kannada": {"uttara kannada", "ಉತ್ತರ ಕನ್ನಡ", "ಕಾರವಾರ", "karwar"},
+    "kodagu": {"kodagu", "ಕೊಡಗು", "coorg"},
+    "chamarajanagar": {"chamarajanagar", "ಚಾಮರಾಜನಗರ"},
+    "yadgir": {"yadgir", "ಯಾದಗಿರಿ"},
 }
 
 # Irrigation source to water availability mapping
@@ -110,6 +142,23 @@ def canonicalize_crops(crops_local: List[str]) -> List[str]:
 def is_land_size_sane(acres: float) -> bool:
     """Enforces sanity guardrail: acres must fall within [0.01, 100.0]."""
     return 0.01 <= acres <= 100.0
+
+
+def check_district_evidence(district: str, transcript: str) -> bool:
+    """Checks if a district (or its Kannada/English synonyms) appears in the transcript."""
+    cleaned = district.strip().lower()
+    transcript_clean = transcript.lower()
+
+    if cleaned in transcript_clean:
+        return True
+
+    # Check synonyms
+    for canon_dist, syns in DISTRICT_SYNONYMS.items():
+        if cleaned == canon_dist or cleaned in syns:
+            if any(s in transcript_clean for s in syns):
+                return True
+
+    return False
 
 
 def extraction_to_farmer_profile_fields(extract: ExtractOut) -> Dict[str, Any]:
