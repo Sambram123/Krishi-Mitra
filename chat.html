@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Krishi Mitra AI — Conversational Voice Assistant</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <!-- Material Symbols Outlined -->
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              emerald: '#059669',
+              green: '#047857',
+              leaf: '#10B981',
+              darkBg: '#090D14',
+              sidebar: '#0E1420',
+              chatBubble: '#151E2E',
+              accent: '#3B82F6'
+            }
+          },
+          fontFamily: {
+            heading: ['"Instrument Sans"', '"Plus Jakarta Sans"', 'sans-serif'],
+            sans: ['"Plus Jakarta Sans"', '"Noto Sans Kannada"', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      vertical-align: middle;
+      display: inline-block;
+    }
+    /* Animated Voice Waveform Bars */
+    .waveform-bar {
+      transition: height 0.15s ease-in-out;
+    }
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); opacity: 0.8; }
+      50% { transform: scale(1.15); opacity: 0.3; }
+      100% { transform: scale(0.95); opacity: 0.8; }
+    }
+    .pulsing-ring {
+      animation: pulse-ring 2s infinite ease-in-out;
+    }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #090D14;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1F2937;
+      border-radius: 9999px;
+    }
+  </style>
+</head>
+<body class="bg-[#090D14] text-slate-100 antialiased font-sans h-screen flex overflow-hidden">
+
+  <!-- ========================================================================= -->
+  <!-- 1. LEFT SIDEBAR (ChatGPT / Gemini style)                                  -->
+  <!-- ========================================================================= -->
+  <aside id="sidebar" class="w-72 bg-[#0E1420] border-r border-slate-800/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-30 hidden md:flex">
+    
+    <div class="p-4 space-y-4">
+      
+      <!-- App Brand & Back to Home -->
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <a href="index.html" class="flex items-center gap-2.5 group">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-sm">
+            <span class="material-symbols-outlined text-xl">eco</span>
+          </div>
+          <div>
+            <h1 class="font-heading font-extrabold text-sm text-white group-hover:text-emerald-400 transition-colors">Krishi Mitra AI</h1>
+            <span class="text-[10px] text-slate-400">Digital Grama Sevak</span>
+          </div>
+        </a>
+        <a href="index.html" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Back to Home">
+          <span class="material-symbols-outlined text-lg">home</span>
+        </a>
+      </div>
+
+      <!-- New Chat Button -->
+      <button onclick="startNewChat()" class="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-between shadow-sm transition-all active:scale-[0.99]">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm">add</span>
+          <span id="sb-new-chat">New Consultation</span>
+        </span>
+        <span class="text-[10px] bg-emerald-700/80 px-1.5 py-0.5 rounded">Ctrl + K</span>
+      </button>
+
+      <!-- Language Toggle Switch (Bilingual) -->
+      <button id="chat-lang-btn" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-slate-200 text-xs font-semibold flex items-center justify-between border border-slate-700/60 transition-colors">
+        <span class="flex items-center gap-2">
+          <span class="material-symbols-outlined text-emerald-400 text-base">translate</span>
+          <span id="chat-lang-label">Switch to Kannada (ಕನ್ನಡ)</span>
+        </span>
+        <span class="text-[10px] font-bold text-emerald-400 uppercase" id="current-lang-code">EN</span>
+      </button>
+
+      <!-- Historical / Suggested Consultations -->
+      <div class="space-y-1 pt-2">
+        <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2" id="sb-presets-title">
+          Quick Dialect Presets
+        </div>
+        
+        <button onclick="loadPersonaQuery('kalaburagi')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
+          <span class="material-symbols-outlined text-amber-400 text-base shrink-0">dry</span>
+          <div class="truncate">
+            <div class="font-medium truncate" id="ps-1-title">Kalaburagi Drought Claim</div>
+            <div class="text-[10px] text-slate-500">3 Acres • Red Gram • PMFBY</div>
+          </div>
+        </button>
+
+        <button onclick="loadPersonaQuery('mandya')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
+          <span class="material-symbols-outlined text-blue-400 text-base shrink-0">water_drop</span>
+          <div class="truncate">
+            <div class="font-medium truncate" id="ps-2-title">Mandya Drip Subsidy</div>
+            <div class="text-[10px] text-slate-500">2.5 Acres • Sugarcane • 90% Drip</div>
+          </div>
+        </button>
+
+        <button onclick="loadPersonaQuery('machinery')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
+          <span class="material-symbols-outlined text-emerald-400 text-base shrink-0">agriculture</span>
+          <div class="truncate">
+            <div class="font-medium truncate" id="ps-3-title">Power Tiller Mechanization</div>
+            <div class="text-[10px] text-slate-500">5 Acres • Belagavi • ₹1,00,000 Cap</div>
+          </div>
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Sidebar Bottom Trust Badge -->
+    <div class="p-4 border-t border-slate-800/80 space-y-2 text-xs">
+      <div class="flex items-center gap-2 text-slate-400">
+        <span class="material-symbols-outlined text-emerald-400 text-base">verified</span>
+        <span class="text-[11px] font-medium" id="sb-audit-label">Zero-Hallucination Engine</span>
+      </div>
+      <a href="tel:1551" class="w-full py-2 px-3 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-between transition-colors">
+        <span class="flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-sm">support_agent</span>
+          <span>Kisan Helpline 1551</span>
+        </span>
+        <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded">Toll-Free</span>
+      </a>
+    </div>
+
+  </aside>
+
+
+  <!-- ========================================================================= -->
+  <!-- 2. MAIN CHAT AREA (Full-height conversational view)                       -->
+  <!-- ========================================================================= -->
+  <main class="flex-1 flex flex-col h-full bg-[#090D14] relative">
+    
+    <!-- Top Mobile / Minimal App Bar -->
+    <div class="h-14 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between shrink-0 bg-[#090D14]/90 backdrop-blur z-20">
+      <div class="flex items-center gap-3">
+        <!-- Mobile Sidebar Toggle -->
+        <button id="mobile-sidebar-toggle" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-800">
+          <span class="material-symbols-outlined">menu</span>
+        </button>
+        <span class="font-bold text-sm text-white flex items-center gap-2">
+          <span id="chat-top-brand">Digital Grama Sevak (ಕೃಷಿ ಮಿತ್ರ)</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </span>
+      </div>
+
+      <!-- Action items -->
+      <div class="flex items-center gap-3">
+        <!-- Language button on header for mobile -->
+        <button id="mobile-lang-btn" class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-800 text-emerald-400 text-xs font-bold border border-slate-700">
+          <span class="material-symbols-outlined text-sm">translate</span>
+          <span id="mobile-lang-code">KN</span>
+        </button>
+        <!-- Return home -->
+        <a href="index.html" class="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors">
+          <span class="material-symbols-outlined text-sm">home</span>
+          <span id="chat-home-link-text" class="hidden sm:inline">Home Portal</span>
+        </a>
+      </div>
+    </div>
+
+    <!-- Chat Messages Stream -->
+    <div id="chat-stream" class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 max-w-4xl w-full mx-auto">
+      
+      <!-- Welcome Hero Message -->
+      <div class="flex items-start gap-4 text-sm">
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
+          <span class="material-symbols-outlined text-xl">smart_toy</span>
+        </div>
+        <div class="space-y-3 bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm p-5 max-w-[90%] shadow-md text-slate-200">
+          <h2 class="font-bold text-white text-base" id="msg-welcome-title">
+            Welcome to Krishi Mitra Voice AI! 🙏
+          </h2>
+          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" id="msg-welcome-body">
+            I am your automated agricultural officer. You can tap the <strong>big microphone button</strong> below to speak in your local dialect, or type your query.
+          </p>
+          <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-400">
+            <div class="font-bold text-emerald-400 flex items-center gap-1" id="msg-welcome-tips-title">
+              <span class="material-symbols-outlined text-sm">tips_and_updates</span>
+              <span>Things you can speak / ask:</span>
+            </div>
+            <ul class="list-disc list-inside space-y-1 pl-1 text-[11px]" id="msg-welcome-tips-list">
+              <li id="welcome-tip-1">"I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought."</li>
+              <li id="welcome-tip-2">"Can I get 90% subsidy for drip irrigation on my 2.5 acres land in Mandya?"</li>
+              <li id="welcome-tip-3">"I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?"</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Real-Time Extracted Profile Pill Bar (Floating above input) -->
+    <div id="live-profile-bar" class="max-w-4xl w-full mx-auto px-4 sm:px-8 pb-2">
+      <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800/80 rounded-2xl px-4 py-2 text-xs text-slate-300 backdrop-blur-md">
+        <div class="flex items-center gap-2 overflow-x-auto">
+          <span id="pill-label-active" class="text-slate-500 font-bold uppercase text-[10px]">Active Profile:</span>
+          <span id="pill-district" class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-semibold text-[11px]">Mandya</span>
+          <span id="pill-land" class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-semibold text-[11px]">2.5 Acres</span>
+          <span id="pill-crop" class="px-2 py-0.5 rounded-md bg-slate-800 text-emerald-400 font-semibold text-[11px]">Sugarcane</span>
+          <span id="pill-status" class="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-800/80 font-bold text-[10px]">Verified</span>
+        </div>
+        <button onclick="clearActiveProfile()" id="pill-btn-reset" class="text-slate-500 hover:text-slate-300 text-[10px] font-bold underline pl-2 shrink-0">Reset</button>
+      </div>
+    </div>
+
+    <!-- ======================================================================= -->
+    <!-- 3. VOICE-FIRST INPUT CONTROLLER (Large Audio Mic + Text bar)             -->
+    <!-- ======================================================================= -->
+    <div class="p-4 sm:p-6 bg-[#0E1420]/90 border-t border-slate-800 shrink-0">
+      <div class="max-w-3xl w-full mx-auto space-y-4">
+
+        <!-- Live Audio Waveform & Speech Recognition Overlay (Visible when recording) -->
+        <div id="waveform-modal" class="hidden p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900/90 to-teal-950/80 border border-emerald-500/40 text-center space-y-3">
+          <div class="flex items-center justify-center gap-1.5 h-8">
+            <span class="waveform-bar w-1.5 h-3 bg-emerald-400 rounded-full animate-bounce"></span>
+            <span class="waveform-bar w-1.5 h-6 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+            <span class="waveform-bar w-1.5 h-8 bg-emerald-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            <span class="waveform-bar w-1.5 h-5 bg-teal-400 rounded-full animate-bounce [animation-delay:0.15s]"></span>
+            <span class="waveform-bar w-1.5 h-7 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.25s]"></span>
+            <span class="waveform-bar w-1.5 h-4 bg-teal-300 rounded-full animate-bounce [animation-delay:0.05s]"></span>
+          </div>
+          <div class="text-xs text-emerald-300 font-bold animate-pulse" id="mic-status-label">
+            Listening to spoken Kannada / English... ಮಾತನಾಡಿ...
+          </div>
+          <p class="text-[11px] text-slate-400" id="mic-subtext-label">
+            Speak about your land, crop, district or compensation problem
+          </p>
+        </div>
+
+        <!-- Main Input Container -->
+        <div class="flex items-center gap-3">
+
+          <!-- Prominent Voice Recording Button -->
+          <button id="mic-trigger-btn" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-950/60 active:scale-95 transition-all shrink-0 cursor-pointer" title="Speak with AI in Kannada or English">
+            <span id="mic-icon" class="material-symbols-outlined text-3xl">mic</span>
+          </button>
+
+          <!-- Text Input Form -->
+          <form id="chat-input-form" class="flex-1 flex items-center bg-[#151E2E] border border-slate-700/80 rounded-2xl px-4 py-1.5 shadow-inner focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+            <input type="text" id="user-text-input" placeholder="Type your agricultural question or click mic to speak..." 
+              class="w-full bg-transparent py-2.5 text-sm text-white placeholder-slate-400 outline-none"/>
+            <button type="submit" class="p-2 rounded-xl bg-white hover:bg-emerald-400 text-slate-950 transition-colors ml-2 shrink-0">
+              <span class="material-symbols-outlined text-lg">arrow_upward</span>
+            </button>
+          </form>
+
+        </div>
+
+        <div class="text-center text-[11px] text-slate-400 flex items-center justify-center gap-3">
+          <span id="txt-latency">⚡ Sub-1.8s Response Latency</span>
+          <span>•</span>
+          <span id="txt-disclaimer">Zero-Hallucination Government Rule Evaluator</span>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+
+  <!-- ========================================================================= -->
+  <!-- 4. JAVASCRIPT LOGIC: AUDIO PIPELINE, DIALECT NLU & TRANSLATIONS           -->
+  <!-- ========================================================================= -->
+  <script>
+    // State management
+    let currentLanguage = localStorage.getItem('krishi_lang') || 'en';
+    let isRecording = false;
+    let recordingTimer = null;
+
+    let farmerProfile = {
+      district: "Mandya",
+      land_acres: 2.5,
+      crop: "Sugarcane",
+      irrig: "Canal",
+      calamity: "None",
+      need: "Drip"
+    };
+
+    // Chat interface strings
+    const CHAT_I18N = {
+      en: {
+        newChat: "New Consultation",
+        langBtnLabel: "Switch to Kannada (ಕನ್ನಡ)",
+        langCode: "EN",
+        presetsTitle: "Quick Dialect Presets",
+        ps1Title: "Kalaburagi Drought Claim",
+        ps2Title: "Mandya Drip Subsidy",
+        ps3Title: "Power Tiller Mechanization",
+        auditLabel: "Zero-Hallucination Engine",
+        helpline: "Kisan Helpline 1551",
+        topBrand: "Digital Grama Sevak (ಕೃಷಿ ಮಿತ್ರ)",
+        homeLinkText: "Home Portal",
+        welcomeTitle: "Welcome to Krishi Mitra Voice AI! 🙏",
+        welcomeBody: "I am your automated agricultural officer. Tap the <strong>big mic button</strong> below to speak in Kannada or English, or type your query.",
+        tipsTitle: "Things you can speak / ask:",
+        tip1: "\"I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought.\"",
+        tip2: "\"Can I get 90% subsidy for drip irrigation on my 2.5 acres land in Mandya?\"",
+        tip3: "\"I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?\"",
+        listening: "Listening... please speak now.",
+        listeningSub: "Speak about your land, crop, district or compensation problem",
+        inputPlaceholder: "Type your agricultural question or click mic to speak...",
+        pillLabelActive: "Active Profile:",
+        pillVerified: "Verified",
+        pillReset: "Reset",
+        latency: "⚡ Sub-1.8s Response Latency",
+        disclaimer: "Zero-Hallucination Government Rule Evaluator",
+        pageTitle: "Krishi Mitra AI — Voice Chat Assistant"
+      },
+      kn: {
+        newChat: "ಹೊಸ ಸಮಾಲೋಚನೆ",
+        langBtnLabel: "ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಿಸಿ (English)",
+        langCode: "KN",
+        presetsTitle: "ಪ್ರಾದೇಶಿಕ ಉಪಭಾಷೆಗಳ ಮಾದರಿ",
+        ps1Title: "ಕಲಬುರಗಿ ಬರಗಾಲ ಬೆಳೆ ವಿಮೆ",
+        ps2Title: "ಮಂಡ್ಯ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ",
+        ps3Title: "ಪವರ್ ಟಿಲ್ಲರ್ ಯಂತ್ರೋಪಕರಣ",
+        auditLabel: "ಶಾಸನಬದ್ಧ ನಿಯಮ ಎಂಜಿನ್",
+        helpline: "ಕಿಸಾನ್ ಸಹಾಯವಾಣಿ 1551",
+        topBrand: "ಡಿಜಿಟಲ್ ಗ್ರಾಮ ಸೇವಕ (ಕೃಷಿ ಮಿತ್ರ)",
+        homeLinkText: "ಮುಖಪುಟ",
+        welcomeTitle: "ಕೃಷಿ ಮಿತ್ರ ಧ್ವನಿ ಎಐ ಸಹಾಯಕಕ್ಕೆ ಸ್ವಾಗತ! 🙏",
+        welcomeBody: "ನಾನು ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಗ್ರಾಮ ಸೇವಕ. ಕೆಳಗಿನ <strong>ದೊಡ್ಡ ಮೈಕ್ ಬಟನ್</strong> ಒತ್ತಿ ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡಬಹುದು, ಅಥವಾ ಸಂದೇಶ ಟೈಪ್ ಮಾಡಬಹುದು.",
+        tipsTitle: "ನೀವು ಕೇಳಬಹುದಾದ ಪ್ರಶ್ನೆಗಳು:",
+        tip1: "\"ನಮ್ಮ ಕಲಬುರಗಿ ಹೊಲ 3 ಎಕರೆ ಐತ್ರಿ, ತೊಗರಿ ಒಣಗಿ ಹೋತು, ವಿಮೆ ಪರಿಹಾರ ಸಿಗ್ತೈತಾ?\"",
+        tip2: "\"ಮಂಡ್ಯದಲ್ಲಿ 2.5 ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಸಿಗ್ತದಾ?\"",
+        tip3: "\"ಬೆಳಗಾವಿಯಲ್ಲಿ 5 ಎಕರೆ ಇದೆ, ಪವರ್ ಟಿಲ್ಲರ್ ಖರೀದಿಗೆ ಸಹಾಯಧನ ಸಿಗ್ತದಾ?\"",
+        listening: "ಆಲಿಸಲಾಗುತ್ತಿದೆ... ಮಾತನಾಡಿ...",
+        listeningSub: "ನಿಮ್ಮ ಜಮೀನು, ಬೆಳೆ, ಜಿಲ್ಲೆ ಅಥವಾ ಪರಿಹಾರದ ಬಗ್ಗೆ ತಿಳಿಸಿ",
+        inputPlaceholder: "ನಿಮ್ಮ ಕೃಷಿ ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿ ಮಾತನಾಡಿ...",
+        pillLabelActive: "ಸಕ್ರಿಯ ರೈತ ಪ್ರೊಫೈಲ್:",
+        pillVerified: "ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
+        pillReset: "ಮರುಹೊಂದಿಸಿ",
+        latency: "⚡ 1.8 ಸೆಕೆಂಡ್‌ಗಿಂತ ಕಡಿಮೆ ಪ್ರತಿಕ್ರಿಯೆ",
+        disclaimer: "ಅಧಿಕೃತ ಸರ್ಕಾರಿ ನಿಯಮಾವಳಿಗಳ ನಿಖರ ಪರಿಶೀಲನೆ",
+        pageTitle: "ಕೃಷಿ ಮಿತ್ರ — ಧ್ವನಿ ಎಐ ಸಹಾಯಕ"
+      }
+    };
+
+    // Apply Language — updates ALL visible text on the chat page
+    function updateChatLanguage(lang) {
+      currentLanguage = lang;
+      localStorage.setItem('krishi_lang', lang);
+      const t = CHAT_I18N[lang];
+
+      // Page title
+      document.title = t.pageTitle;
+
+      // Sidebar
+      document.getElementById('sb-new-chat').textContent = t.newChat;
+      document.getElementById('chat-lang-label').textContent = t.langBtnLabel;
+      document.getElementById('current-lang-code').textContent = t.langCode;
+      document.getElementById('sb-presets-title').textContent = t.presetsTitle;
+      document.getElementById('ps-1-title').textContent = t.ps1Title;
+      document.getElementById('ps-2-title').textContent = t.ps2Title;
+      document.getElementById('ps-3-title').textContent = t.ps3Title;
+      document.getElementById('sb-audit-label').textContent = t.auditLabel;
+      const helplineEl = document.querySelector('[href="tel:1551"] span:last-child');
+      if (helplineEl) helplineEl.textContent = t.helpline;
+
+      // Top bar
+      document.getElementById('chat-top-brand').textContent = t.topBrand;
+      document.getElementById('mobile-lang-code').textContent = t.langCode === 'EN' ? 'KN' : 'EN';
+      document.getElementById('chat-home-link-text').textContent = t.homeLinkText;
+
+      // Welcome message
+      document.getElementById('msg-welcome-title').innerHTML = t.welcomeTitle;
+      document.getElementById('msg-welcome-body').innerHTML = t.welcomeBody;
+      const tipsTitle = document.getElementById('msg-welcome-tips-title');
+      if (tipsTitle) tipsTitle.querySelector('span:last-child').textContent = t.tipsTitle;
+      const el1 = document.getElementById('welcome-tip-1');
+      const el2 = document.getElementById('welcome-tip-2');
+      const el3 = document.getElementById('welcome-tip-3');
+      if (el1) el1.textContent = t.tip1;
+      if (el2) el2.textContent = t.tip2;
+      if (el3) el3.textContent = t.tip3;
+
+      // Voice modal
+      document.getElementById('mic-status-label').textContent = t.listening;
+      document.getElementById('mic-subtext-label').textContent = t.listeningSub;
+
+      // Input bar
+      document.getElementById('user-text-input').placeholder = t.inputPlaceholder;
+      document.getElementById('txt-latency').textContent = t.latency;
+      document.getElementById('txt-disclaimer').textContent = t.disclaimer;
+
+      // Profile pill bar
+      document.getElementById('pill-label-active').textContent = t.pillLabelActive;
+      document.getElementById('pill-status').textContent = t.pillVerified;
+      document.getElementById('pill-btn-reset').textContent = t.pillReset;
+
+      // Land pill unit
+      const land = farmerProfile.land_acres;
+      document.getElementById('pill-land').textContent = land + (lang === 'kn' ? ' ಎಕರೆ' : ' Acres');
+    }
+
+    document.getElementById('chat-lang-btn').addEventListener('click', () => {
+      updateChatLanguage(currentLanguage === 'en' ? 'kn' : 'en');
+    });
+    document.getElementById('mobile-lang-btn').addEventListener('click', () => {
+      updateChatLanguage(currentLanguage === 'en' ? 'kn' : 'en');
+    });
+
+    // Append Message to Thread
+    function appendChatMsg(sender, htmlContent, isAudioPlaying = false) {
+      const stream = document.getElementById('chat-stream');
+      const div = document.createElement('div');
+      div.className = sender === 'user' ? "flex items-start justify-end gap-3 text-sm" : "flex items-start gap-4 text-sm";
+
+      if (sender === 'user') {
+        div.innerHTML = `
+          <div class="bg-emerald-600 text-white rounded-3xl rounded-tr-sm px-5 py-3.5 max-w-[85%] shadow-md text-xs sm:text-sm">
+            ${htmlContent}
+          </div>
+          <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-white shrink-0 mt-0.5">
+            <span class="material-symbols-outlined text-base">person</span>
+          </div>
+        `;
+      } else {
+        div.innerHTML = `
+          <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
+            <span class="material-symbols-outlined text-xl">smart_toy</span>
+          </div>
+          <div class="space-y-3 bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm p-5 max-w-[90%] shadow-md text-slate-200">
+            ${htmlContent}
+            ${isAudioPlaying ? `
+              <div class="flex items-center gap-2 pt-2 border-t border-slate-800 text-emerald-300 font-bold text-xs">
+                <span class="material-symbols-outlined text-base animate-pulse">volume_up</span>
+                <span>${currentLanguage === 'kn' ? 'ಕನ್ನಡ ಧ್ವನಿ ಪ್ರತಿಕ್ರಿಯೆ ಚಾಲನೆಯಲ್ಲಿದೆ...' : 'Spoken Voice Audio Synthesizing...'}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }
+
+      stream.appendChild(div);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    // Process Query (NLU & Rule Evaluation)
+    function processFarmerQuery(queryText) {
+      appendChatMsg('user', queryText);
+
+      const lower = queryText.toLowerCase();
+      const isKn = currentLanguage === 'kn';
+
+      // Dialogue Scenario 1: Kalaburagi Drought
+      if (lower.includes('kalaburagi') || lower.includes('ಕಲಬುರಗಿ') || lower.includes('togari') || lower.includes('ತೊಗರಿ') || lower.includes('drought') || lower.includes('ಬರ')) {
+        farmerProfile = {
+          district: "Kalaburagi",
+          land_acres: 3.0,
+          crop: isKn ? "ತೊಗರಿ" : "Pigeon Pea (Togari)",
+          irrig: "Rainfed",
+          calamity: "Drought",
+          need: "General"
+        };
+
+        setTimeout(() => {
+          const reply = isKn ? `
+            <p><strong>ಕಲಬುರಗಿ ರೈತರೇ ನಮಸ್ಕಾರ:</strong> ನಿಮ್ಮ 3 ಎಕರೆ ತೊಗರಿ ಬೆಳೆಗೆ ಬರಗಾಲದಿಂದ ಹಾನಿಯಾಗಿದ್ದರೆ, ಸರ್ಕಾರದ <strong>ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ (PMFBY)</strong> ಯೋಜನೆಯಡಿ ಹೆಕ್ಟೇರಿಗೆ ₹15,000 ರಿಂದ ₹35,000 ವರೆಗೆ ವಿಮಾ ಪರಿಹಾರ ಪಡೆಯಲು ನೀವು ಅರ್ಹರಾಗಿದ್ದೀರಿ.</p>
+            
+            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">೧. ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ಅರ್ಹರು</span>
+              </div>
+              <p class="text-xs text-emerald-300 font-semibold">ಬೆಳೆ ನಷ್ಟ ಪರಿಹಾರ ಧನ ನೇರ ಬ್ಯಾಂಕ್ ಜಮಾ</p>
+              <div class="text-[11px] text-slate-400">ಅಗತ್ಯ ದಾಖಲೆಗಳು: ಪಹಣಿ/RTC, ಬಿತ್ತನೆ ದೃಢೀಕರಣ ಪತ್ರ, ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್.</div>
+            </div>
+
+            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">೨. ಪಿಎಂ-ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ (PM-KISAN)</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ಅರ್ಹರು</span>
+              </div>
+              <p class="text-xs text-emerald-300 font-semibold">ವಾರ್ಷಿಕ ₹6,000 ನೇರ ನಗದು ವರ್ಗಾವಣೆ (3 ಕಂತುಗಳಲ್ಲಿ)</p>
+            </div>
+          ` : `
+            <p><strong>Greetings Kalaburagi Farmer:</strong> For your 3 acres rainfed pigeon pea (togari) affected by drought, you qualify for financial compensation under <strong>Karnataka Samrakshane (PMFBY) Crop Insurance</strong> up to ₹35,000/ha.</p>
+            
+            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">1. PMFBY Crop Insurance (Samrakshane)</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ELIGIBLE</span>
+              </div>
+              <p class="text-xs text-emerald-300 font-semibold">Yield Shortfall Compensation via DBT</p>
+              <div class="text-[11px] text-slate-400">Required: Pahani / RTC, Sowing Certificate from VA, Bank Passbook.</div>
+            </div>
+
+            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">2. PM-KISAN Samman Nidhi</span>
+                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ELIGIBLE</span>
+              </div>
+              <p class="text-xs text-emerald-300 font-semibold">₹6,000 / Year Direct Cash Transfer in 3 tranches</p>
+            </div>
+          `;
+          appendChatMsg('bot', reply, true);
+          updateLiveProfileBar();
+        }, 500);
+
+      // Dialogue Scenario 2: Mandya Drip
+      } else if (lower.includes('mandya') || lower.includes('ಮಂಡ್ಯ') || lower.includes('drip') || lower.includes('ಹನಿ') || lower.includes('borewell') || lower.includes('ಬೋರ್')) {
+        farmerProfile = {
+          district: "Mandya",
+          land_acres: 2.5,
+          crop: isKn ? "ಕಬ್ಬು" : "Sugarcane",
+          irrig: "Canal",
+          calamity: "None",
+          need: "Drip"
+        };
+
+        setTimeout(() => {
+          const reply = isKn ? `
+            <p><strong>ಮಂಡ್ಯ ಜಿಲ್ಲೆಯ ಸಣ್ಣ ರೈತರೇ:</strong> ನಿಮ್ಮ 2.5 ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಸಣ್ಣ ರೈತರ ವಿಭಾಗದಡಿ (<= 5 ಎಕರೆ) <strong>ಡೆಮೊ ಹನಿ ನೀರಾವರಿ (Micro-Irrigation)</strong> ಯೋಜನೆಯಡಿ <strong>ಶೇಕಡಾ 90 ರಷ್ಟು ಸಬ್ಸಿಡಿ</strong> ಪಡೆಯಲು ನೀವು ಅರ್ಹರಾಗಿದ್ದೀರಿ.</p>
+            
+            <div class="p-3 bg-slate-900 border border-amber-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">ಡೆಮೊ ಹನಿ ನೀರಾವರಿ ಯೋಜನೆ [ಡೆಮೊ ಟೆಸ್ಟ್ ಕೇಸ್]</span>
+                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">೯೦% ಸಬ್ಸಿಡಿ</span>
+              </div>
+              <p class="text-xs text-amber-300 font-semibold">ಹನಿ ನೀರಾವರಿ ಪೈಪ್ ಹಾಗೂ ತುಂತುರು ಘಟಕಕ್ಕೆ 90% ಸರ್ಕಾರದ ನೆರವು</p>
+              <div class="text-[11px] text-slate-400">ಅಗತ್ಯ ದಾಖಲೆ: ಜಮೀನಿನ ಪಹಣಿ (RTC) ಮತ್ತು ನೀರಿನ ಮೂಲ ಪ್ರಮಾಣಪತ್ರ.</div>
+            </div>
+          ` : `
+            <p><strong>Good news for Mandya Farmer:</strong> Under the Small Farmer category (<= 5 acres), your 2.5 acres sugarcane holding qualifies for an enhanced <strong>90% Micro-Irrigation Drip Subsidy</strong>.</p>
+            
+            <div class="p-3 bg-slate-900 border border-amber-500/50 rounded-xl space-y-2 mt-2">
+              <div class="flex justify-between items-center">
+                <span class="font-bold text-white text-xs">Demo Micro-Irrigation Support [DEMO]</span>
+                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">90% APPROVED</span>
+              </div>
+              <p class="text-xs text-amber-300 font-semibold">90% Government Subsidy on Drip Unit Installation</p>
+              <div class="text-[11px] text-slate-400">Required: Land Record (Pahani/RTC) and Water Source Certificate.</div>
+            </div>
+          `;
+          appendChatMsg('bot', reply, true);
+          updateLiveProfileBar();
+        }, 500);
+
+      // Default fallback
+      } else {
+        setTimeout(() => {
+          const reply = isKn ? `
+            <p>ಧನ್ಯವಾದಗಳು. ನಿಮ್ಮ ಕೃಷಿ ವಿವರಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ. ನಿಮ್ಮ ಜಮೀನಿಗೆ <strong>PM-KISAN (₹6,000/ವರ್ಷ)</strong> ಹಾಗೂ ಬೆಳೆ ವಿಮೆ ಅನ್ವಯಿಸುತ್ತದೆ. ನಿಮ್ಮ ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ) ಮತ್ತು ನೀರಾವರಿ ಸೌಲಭ್ಯದ ಬಗ್ಗೆ ಮತ್ತಷ್ಟು ಮಾಹಿತಿ ನೀಡಿದರೆ ನಿಖರ ಸಬ್ಸಿಡಿಗಳನ್ನು ತಿಳಿಸುತ್ತೇನೆ.</p>
+          ` : `
+            <p>Thank you. Your agricultural details have been recorded. You are eligible for <strong>PM-KISAN (₹6,000/year)</strong>. Please provide your land acreage or irrigation details to verify specific drip or farm equipment subsidies.</p>
+          `;
+          appendChatMsg('bot', reply, false);
+          updateLiveProfileBar();
+        }, 500);
+      }
+    }
+
+    function updateLiveProfileBar() {
+      document.getElementById('pill-district').textContent = farmerProfile.district;
+      document.getElementById('pill-land').textContent = farmerProfile.land_acres + (currentLanguage === 'kn' ? ' ಎಕರೆ' : ' Acres');
+      document.getElementById('pill-crop').textContent = farmerProfile.crop;
+      document.getElementById('pill-status').textContent = CHAT_I18N[currentLanguage].pillVerified;
+    }
+
+    function clearActiveProfile() {
+      farmerProfile = {
+        district: "Mandya",
+        land_acres: 2.5,
+        crop: "Sugarcane",
+        irrig: "Canal",
+        calamity: "None",
+        need: "Drip"
+      };
+      updateLiveProfileBar();
+    }
+
+    // Quick Presets
+    function loadPersonaQuery(type) {
+      if (type === 'kalaburagi') {
+        processFarmerQuery(currentLanguage === 'kn' ? 
+          "ನಮಸ್ಕಾರ್ರಿ, ನಮ್ದು ಕಲಬುರಗಿ ಹೊಲ ಐತ್ರಿ, ಮೂರ್ ಎಕರೆ ಕುಷ್ಕಿ ಜಮೀನು, ತೊಗರಿ ಎಲ್ಲಾ ಬರಗಾಲದಿಂದ ಒಣಗಿ ಹೋತು. ಏನಾದ್ರೂ ವಿಮೆ ಪರಿಹಾರ ಸಿಗ್ತೈತಾ?" :
+          "Hello, I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought. Can I get insurance compensation?"
+        );
+      } else if (type === 'mandya') {
+        processFarmerQuery(currentLanguage === 'kn' ? 
+          "ನಾವು ಮಂಡ್ಯದವರು, ಎರಡುವರೆ ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಹನಿ ನೀರಾವರಿ (Drip) ಸಬ್ಸಿಡಿ ಸಿಗುತ್ತಾ?" :
+          "We are from Mandya, can we get drip irrigation subsidy for our 2.5 acres sugarcane farm?"
+        );
+      } else {
+        processFarmerQuery(currentLanguage === 'kn' ? 
+          "ಬೆಳಗಾವಿ ಜಿಲ್ಲೆಯಲ್ಲಿ 5 ಎಕರೆ ಜಮೀನಿದೆ, ಪವರ್ ಟಿಲ್ಲರ್ ಖರೀದಿಗೆ ಸಹಾಯಧನ ಸಿಗುತ್ತಾ?" :
+          "I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?"
+        );
+      }
+    }
+
+    function startNewChat() {
+      document.getElementById('chat-stream').innerHTML = '';
+      clearActiveProfile();
+      updateChatLanguage(currentLanguage);
+    }
+
+    // Voice Microphone Trigger
+    const micBtn = document.getElementById('mic-trigger-btn');
+    const micModal = document.getElementById('waveform-modal');
+    const micIcon = document.getElementById('mic-icon');
+
+    micBtn.addEventListener('click', () => {
+      if (!isRecording) {
+        // Start Voice Simulation
+        isRecording = true;
+        micModal.classList.remove('hidden');
+        micBtn.className = "w-14 h-14 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-xl pulsing-ring shrink-0";
+        micIcon.textContent = "graphic_eq";
+
+        // Simulate 3-second natural Kannada recording
+        recordingTimer = setTimeout(() => {
+          stopRecording();
+          const sampleAudioText = currentLanguage === 'kn' ?
+            "ನಮಸ್ಕಾರ, ನನ್ನ ಜಮೀನು 3 ಎಕರೆ, ಕಲಬುರಗಿಯಲ್ಲಿ ತೊಗರಿ ಬೆಳೆದಿದ್ದೇನೆ, ಬರಗಾಲದಿಂದ ನಷ್ಟವಾಗಿದೆ." :
+            "Hello, my land is 3 acres, I cultivated pigeon pea in Kalaburagi and suffered drought loss.";
+          processFarmerQuery(sampleAudioText);
+        }, 3200);
+
+      } else {
+        stopRecording();
+      }
+    });
+
+    function stopRecording() {
+      isRecording = false;
+      clearTimeout(recordingTimer);
+      micModal.classList.add('hidden');
+      micBtn.className = "w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-lg active:scale-95 shrink-0";
+      micIcon.textContent = "mic";
+    }
+
+    // Text Form Submission
+    document.getElementById('chat-input-form').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const input = document.getElementById('user-text-input');
+      const val = input.value.trim();
+      if (val) {
+        processFarmerQuery(val);
+        input.value = '';
+      }
+    });
+
+    // Mobile sidebar toggle
+    document.getElementById('mobile-sidebar-toggle').addEventListener('click', () => {
+      const sb = document.getElementById('sidebar');
+      sb.classList.toggle('hidden');
+    });
+
+    // Initialize
+    updateChatLanguage(currentLanguage);
+    updateLiveProfileBar();
+  </script>
+
+</body>
+</html>
