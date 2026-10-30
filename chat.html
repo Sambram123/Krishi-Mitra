@@ -474,118 +474,183 @@
       stream.scrollTop = stream.scrollHeight;
     }
 
-    // Process Query (NLU & Rule Evaluation)
-    function processFarmerQuery(queryText) {
-      appendChatMsg('user', queryText);
+    let currentSessionId = 'km_' + Math.random().toString(36).substring(2, 9);
 
+    function showTypingIndicator() {
+      const stream = document.getElementById('chat-stream');
+      const indicator = document.createElement('div');
+      indicator.id = 'ai-typing-indicator';
+      indicator.className = 'flex items-start gap-4 text-sm';
+      indicator.innerHTML = `
+        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
+          <span class="material-symbols-outlined text-xl animate-spin">smart_toy</span>
+        </div>
+        <div class="bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm px-5 py-3.5 shadow-md flex items-center gap-2.5 text-slate-300 text-xs">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+          <span>${currentLanguage === 'kn' ? 'ಕೃಷಿ ಮಿತ್ರ ಪರಿಶೀಲಿಸುತ್ತಿದೆ...' : 'Krishi Mitra AI is evaluating...'}</span>
+        </div>
+      `;
+      stream.appendChild(indicator);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    function removeTypingIndicator() {
+      const indicator = document.getElementById('ai-typing-indicator');
+      if (indicator) {
+        indicator.remove();
+      }
+    }
+
+    // Process Query (NLU & Rule Evaluation via FastAPI Backend)
+    async function processFarmerQuery(queryText) {
+      appendChatMsg('user', queryText);
+      showTypingIndicator();
+
+      const isKn = currentLanguage === 'kn';
+
+      try {
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            message: queryText,
+            language: currentLanguage
+          })
+        });
+
+        if (!response.ok) {
+          throw new Error('API server returned status ' + response.status);
+        }
+
+        const data = await response.json();
+        removeTypingIndicator();
+
+        // Update active profile pills from real NLU extraction
+        if (data.farmer_profile) {
+          if (data.farmer_profile.district) farmerProfile.district = data.farmer_profile.district;
+          if (data.farmer_profile.land_acres !== undefined) farmerProfile.land_acres = data.farmer_profile.land_acres;
+          if (data.farmer_profile.crops && data.farmer_profile.crops.length > 0) {
+            farmerProfile.crop = data.farmer_profile.crops.join(', ');
+          }
+          if (data.farmer_profile.irrigation_type) farmerProfile.irrig = data.farmer_profile.irrigation_type;
+          updateLiveProfileBar();
+        }
+
+        let botHtml = `<p class="leading-relaxed font-medium text-sm sm:text-base">${data.reply}</p>`;
+
+        // If scheme evaluation results exist, render dynamic cards
+        if (data.evaluation_results && data.evaluation_results.length > 0) {
+          botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-800">`;
+          
+          data.evaluation_results.forEach((r, idx) => {
+            const isEligible = r.status === 'ELIGIBLE';
+            const isCond = r.status === 'CONDITIONALLY_ELIGIBLE';
+            
+            let borderClass = 'border-slate-800/80 bg-slate-900/40 opacity-70';
+            let tagClass = 'bg-slate-900 text-slate-400 border-slate-700';
+            let statusLabel = isKn ? 'ಅನರ್ಹರು' : 'INELIGIBLE';
+            
+            if (isEligible) {
+              borderClass = 'border-emerald-500/60 bg-emerald-950/20 shadow-sm';
+              tagClass = 'bg-emerald-950 text-emerald-400 border-emerald-800';
+              statusLabel = isKn ? '✔ ಅರ್ಹರು (ELIGIBLE)' : '✔ ELIGIBLE';
+            } else if (isCond) {
+              borderClass = 'border-amber-500/60 bg-amber-950/20';
+              tagClass = 'bg-amber-950 text-amber-400 border-amber-800';
+              statusLabel = isKn ? '⚠ ಷರತ್ತುಬದ್ಧ' : '⚠ CONDITIONALLY ELIGIBLE';
+            }
+
+            const schemeName = isKn ? r.scheme_name_kn : r.scheme_name_en;
+            const benefit = isKn ? r.benefit_summary_kn : r.benefit_summary_en;
+            const demoBadge = r.is_demo ? 
+              `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
+
+            botHtml += `
+              <div class="p-3.5 border rounded-2xl ${borderClass} space-y-2.5 transition-all">
+                <div class="flex justify-between items-start gap-2">
+                  <div class="font-bold text-white text-xs sm:text-sm flex items-center flex-wrap">
+                    ${idx + 1}. ${schemeName} ${demoBadge}
+                  </div>
+                  <span class="px-2.5 py-0.5 rounded border text-[10px] font-bold shrink-0 ${tagClass}">
+                    ${statusLabel}
+                  </span>
+                </div>
+                <p class="text-xs ${isEligible ? 'text-emerald-300 font-semibold' : (isCond ? 'text-amber-300 font-semibold' : 'text-slate-400')}">
+                  ${benefit}
+                </p>
+            `;
+
+            // Audit Trail
+            if (r.audit_trail && r.audit_trail.length > 0 && (isEligible || isCond)) {
+              botHtml += `<div class="text-[11px] text-slate-300 space-y-1 bg-slate-900/60 p-2 rounded-xl border border-slate-800/80">`;
+              botHtml += `<div class="text-[10px] uppercase font-bold text-slate-400">${isKn ? 'ಅರ್ಹತಾ ಕಾರಣಗಳು (Audit Points):' : 'Audit Verification:'}</div>`;
+              r.audit_trail.forEach(reason => {
+                botHtml += `<div class="flex items-start gap-1.5"><span class="text-emerald-400 font-bold shrink-0">✔</span> <span>${reason}</span></div>`;
+              });
+              botHtml += `</div>`;
+            }
+
+            // Disqualification Reasons
+            if (r.disqualification_reasons && r.disqualification_reasons.length > 0 && !isEligible) {
+              botHtml += `<div class="text-[11px] text-slate-400 space-y-1 bg-slate-900/40 p-2 rounded-xl">`;
+              r.disqualification_reasons.forEach(dq => {
+                botHtml += `<div class="flex items-start gap-1.5"><span class="text-rose-400 font-bold shrink-0">✕</span> <span>${dq}</span></div>`;
+              });
+              botHtml += `</div>`;
+            }
+
+            // Documents Checklist
+            if (r.required_documents && r.required_documents.length > 0 && (isEligible || isCond)) {
+              const docTitle = isKn ? 'ಅಗತ್ಯ ದಾಖಲೆಗಳ ಪಟ್ಟಿ' : 'Required Document Checklist';
+              botHtml += `
+                <div class="pt-2 border-t border-slate-800/80">
+                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1.5">${docTitle}:</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-300">
+              `;
+              r.required_documents.forEach(doc => {
+                const docName = isKn ? (doc.name_kn || doc.document_name_kn || doc.id) : (doc.name_en || doc.document_name_en || doc.id);
+                const isMand = doc.mandatory !== undefined ? doc.mandatory : true;
+                const badge = isMand ? `<span class="text-rose-400 font-bold text-[10px]">*ಕಡ್ಡಾಯ</span>` : `<span class="text-slate-500 text-[10px]">ಐಚ್ಛಿಕ</span>`;
+                botHtml += `
+                  <label class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
+                    <input type="checkbox" class="rounded text-emerald-600 bg-slate-800 border-slate-700 w-3.5 h-3.5 focus:ring-0" />
+                    <span class="truncate">${docName}</span>
+                    <span class="ml-auto shrink-0">${badge}</span>
+                  </label>
+                `;
+              });
+              botHtml += `</div></div>`;
+            }
+
+            botHtml += `</div>`;
+          });
+
+          botHtml += `</div>`;
+        }
+
+        appendChatMsg('bot', botHtml, true);
+
+      } catch (err) {
+        removeTypingIndicator();
+        console.warn('Backend API connection issue, running local fallback simulation:', err);
+        fallbackSimulation(queryText);
+      }
+    }
+
+    // Local Fallback Simulation (Used when offline or server unreachable)
+    function fallbackSimulation(queryText) {
       const lower = queryText.toLowerCase();
       const isKn = currentLanguage === 'kn';
 
-      // Dialogue Scenario 1: Kalaburagi Drought
       if (lower.includes('kalaburagi') || lower.includes('ಕಲಬುರಗಿ') || lower.includes('togari') || lower.includes('ತೊಗರಿ') || lower.includes('drought') || lower.includes('ಬರ')) {
-        farmerProfile = {
-          district: "Kalaburagi",
-          land_acres: 3.0,
-          crop: isKn ? "ತೊಗರಿ" : "Pigeon Pea (Togari)",
-          irrig: "Rainfed",
-          calamity: "Drought",
-          need: "General"
-        };
-
-        setTimeout(() => {
-          const reply = isKn ? `
-            <p><strong>ಕಲಬುರಗಿ ರೈತರೇ ನಮಸ್ಕಾರ:</strong> ನಿಮ್ಮ 3 ಎಕರೆ ತೊಗರಿ ಬೆಳೆಗೆ ಬರಗಾಲದಿಂದ ಹಾನಿಯಾಗಿದ್ದರೆ, ಸರ್ಕಾರದ <strong>ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ (PMFBY)</strong> ಯೋಜನೆಯಡಿ ಹೆಕ್ಟೇರಿಗೆ ₹15,000 ರಿಂದ ₹35,000 ವರೆಗೆ ವಿಮಾ ಪರಿಹಾರ ಪಡೆಯಲು ನೀವು ಅರ್ಹರಾಗಿದ್ದೀರಿ.</p>
-            
-            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">೧. ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ಅರ್ಹರು</span>
-              </div>
-              <p class="text-xs text-emerald-300 font-semibold">ಬೆಳೆ ನಷ್ಟ ಪರಿಹಾರ ಧನ ನೇರ ಬ್ಯಾಂಕ್ ಜಮಾ</p>
-              <div class="text-[11px] text-slate-400">ಅಗತ್ಯ ದಾಖಲೆಗಳು: ಪಹಣಿ/RTC, ಬಿತ್ತನೆ ದೃಢೀಕರಣ ಪತ್ರ, ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್.</div>
-            </div>
-
-            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">೨. ಪಿಎಂ-ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ (PM-KISAN)</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ಅರ್ಹರು</span>
-              </div>
-              <p class="text-xs text-emerald-300 font-semibold">ವಾರ್ಷಿಕ ₹6,000 ನೇರ ನಗದು ವರ್ಗಾವಣೆ (3 ಕಂತುಗಳಲ್ಲಿ)</p>
-            </div>
-          ` : `
-            <p><strong>Greetings Kalaburagi Farmer:</strong> For your 3 acres rainfed pigeon pea (togari) affected by drought, you qualify for financial compensation under <strong>Karnataka Samrakshane (PMFBY) Crop Insurance</strong> up to ₹35,000/ha.</p>
-            
-            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">1. PMFBY Crop Insurance (Samrakshane)</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ELIGIBLE</span>
-              </div>
-              <p class="text-xs text-emerald-300 font-semibold">Yield Shortfall Compensation via DBT</p>
-              <div class="text-[11px] text-slate-400">Required: Pahani / RTC, Sowing Certificate from VA, Bank Passbook.</div>
-            </div>
-
-            <div class="p-3 bg-slate-900 border border-emerald-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">2. PM-KISAN Samman Nidhi</span>
-                <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">ELIGIBLE</span>
-              </div>
-              <p class="text-xs text-emerald-300 font-semibold">₹6,000 / Year Direct Cash Transfer in 3 tranches</p>
-            </div>
-          `;
-          appendChatMsg('bot', reply, true);
-          updateLiveProfileBar();
-        }, 500);
-
-      // Dialogue Scenario 2: Mandya Drip
-      } else if (lower.includes('mandya') || lower.includes('ಮಂಡ್ಯ') || lower.includes('drip') || lower.includes('ಹನಿ') || lower.includes('borewell') || lower.includes('ಬೋರ್')) {
-        farmerProfile = {
-          district: "Mandya",
-          land_acres: 2.5,
-          crop: isKn ? "ಕಬ್ಬು" : "Sugarcane",
-          irrig: "Canal",
-          calamity: "None",
-          need: "Drip"
-        };
-
-        setTimeout(() => {
-          const reply = isKn ? `
-            <p><strong>ಮಂಡ್ಯ ಜಿಲ್ಲೆಯ ಸಣ್ಣ ರೈತರೇ:</strong> ನಿಮ್ಮ 2.5 ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಸಣ್ಣ ರೈತರ ವಿಭಾಗದಡಿ (<= 5 ಎಕರೆ) <strong>ಡೆಮೊ ಹನಿ ನೀರಾವರಿ (Micro-Irrigation)</strong> ಯೋಜನೆಯಡಿ <strong>ಶೇಕಡಾ 90 ರಷ್ಟು ಸಬ್ಸಿಡಿ</strong> ಪಡೆಯಲು ನೀವು ಅರ್ಹರಾಗಿದ್ದೀರಿ.</p>
-            
-            <div class="p-3 bg-slate-900 border border-amber-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">ಡೆಮೊ ಹನಿ ನೀರಾವರಿ ಯೋಜನೆ [ಡೆಮೊ ಟೆಸ್ಟ್ ಕೇಸ್]</span>
-                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">೯೦% ಸಬ್ಸಿಡಿ</span>
-              </div>
-              <p class="text-xs text-amber-300 font-semibold">ಹನಿ ನೀರಾವರಿ ಪೈಪ್ ಹಾಗೂ ತುಂತುರು ಘಟಕಕ್ಕೆ 90% ಸರ್ಕಾರದ ನೆರವು</p>
-              <div class="text-[11px] text-slate-400">ಅಗತ್ಯ ದಾಖಲೆ: ಜಮೀನಿನ ಪಹಣಿ (RTC) ಮತ್ತು ನೀರಿನ ಮೂಲ ಪ್ರಮಾಣಪತ್ರ.</div>
-            </div>
-          ` : `
-            <p><strong>Good news for Mandya Farmer:</strong> Under the Small Farmer category (<= 5 acres), your 2.5 acres sugarcane holding qualifies for an enhanced <strong>90% Micro-Irrigation Drip Subsidy</strong>.</p>
-            
-            <div class="p-3 bg-slate-900 border border-amber-500/50 rounded-xl space-y-2 mt-2">
-              <div class="flex justify-between items-center">
-                <span class="font-bold text-white text-xs">Demo Micro-Irrigation Support [DEMO]</span>
-                <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">90% APPROVED</span>
-              </div>
-              <p class="text-xs text-amber-300 font-semibold">90% Government Subsidy on Drip Unit Installation</p>
-              <div class="text-[11px] text-slate-400">Required: Land Record (Pahani/RTC) and Water Source Certificate.</div>
-            </div>
-          `;
-          appendChatMsg('bot', reply, true);
-          updateLiveProfileBar();
-        }, 500);
-
-      // Default fallback
+        farmerProfile = { district: 'Kalaburagi', land_acres: 3.0, crop: isKn ? 'ತೊಗರಿ' : 'Pigeon Pea', irrig: 'Rainfed', calamity: 'Drought', need: 'General' };
+        const reply = isKn ? '<p><strong>ಕಲಬುರಗಿ ರೈತರೇ ನಮಸ್ಕಾರ:</strong> ನಿಮ್ಮ 3 ಎಕರೆ ತೊಗರಿ ಬೆಳೆಗೆ ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ (PMFBY) ವಿಮಾ ಪರಿಹಾರ ಲಭ್ಯವಿದೆ.</p>' : '<p><strong>Greetings Kalaburagi Farmer:</strong> For your 3 acres rainfed pigeon pea, PMFBY crop insurance applies.</p>';
+        appendChatMsg('bot', reply, false);
+        updateLiveProfileBar();
       } else {
-        setTimeout(() => {
-          const reply = isKn ? `
-            <p>ಧನ್ಯವಾದಗಳು. ನಿಮ್ಮ ಕೃಷಿ ವಿವರಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ. ನಿಮ್ಮ ಜಮೀನಿಗೆ <strong>PM-KISAN (₹6,000/ವರ್ಷ)</strong> ಹಾಗೂ ಬೆಳೆ ವಿಮೆ ಅನ್ವಯಿಸುತ್ತದೆ. ನಿಮ್ಮ ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ) ಮತ್ತು ನೀರಾವರಿ ಸೌಲಭ್ಯದ ಬಗ್ಗೆ ಮತ್ತಷ್ಟು ಮಾಹಿತಿ ನೀಡಿದರೆ ನಿಖರ ಸಬ್ಸಿಡಿಗಳನ್ನು ತಿಳಿಸುತ್ತೇನೆ.</p>
-          ` : `
-            <p>Thank you. Your agricultural details have been recorded. You are eligible for <strong>PM-KISAN (₹6,000/year)</strong>. Please provide your land acreage or irrigation details to verify specific drip or farm equipment subsidies.</p>
-          `;
-          appendChatMsg('bot', reply, false);
-          updateLiveProfileBar();
-        }, 500);
+        const reply = isKn ? '<p>ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ. ನಿಖರ ಪರಿಶೀಲನೆಗೆ ನಿಮ್ಮ ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ) ಮತ್ತು ನೀರಾವರಿ ಬಗ್ಗೆ ತಿಳಿಸಿ.</p>' : '<p>Your details have been received. Please mention your land acreage and irrigation type.</p>';
+        appendChatMsg('bot', reply, false);
       }
     }
 
