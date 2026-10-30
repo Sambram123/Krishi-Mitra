@@ -1,17 +1,21 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Krishi Mitra AI — Conversational Voice Assistant</title>
-  
+
   <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Noto+Sans+Kannada:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet" />
   <!-- Material Symbols Outlined -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
-  
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+    rel="stylesheet" />
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -40,34 +44,52 @@
       vertical-align: middle;
       display: inline-block;
     }
+
     /* Animated Voice Waveform Bars */
     .waveform-bar {
       transition: height 0.15s ease-in-out;
     }
+
     @keyframes pulse-ring {
-      0% { transform: scale(0.95); opacity: 0.8; }
-      50% { transform: scale(1.15); opacity: 0.3; }
-      100% { transform: scale(0.95); opacity: 0.8; }
+      0% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
+
+      50% {
+        transform: scale(1.15);
+        opacity: 0.3;
+      }
+
+      100% {
+        transform: scale(0.95);
+        opacity: 0.8;
+      }
     }
+
     .pulsing-ring {
       animation: pulse-ring 2s infinite ease-in-out;
     }
+
     /* Custom scrollbar */
     ::-webkit-scrollbar {
       width: 6px;
     }
+
     ::-webkit-scrollbar-track {
       background: #F1F5F9;
     }
+
     ::-webkit-scrollbar-thumb {
       background: #CBD5E1;
       border-radius: 9999px;
     }
+
     ::-webkit-scrollbar-thumb:hover {
       background: #94A3B8;
     }
 
-    /* From Uiverse.io by Nawsome - Multi-ring Loader */ 
+    /* From Uiverse.io by Nawsome - Multi-ring Loader */
     .pl {
       width: 2.25rem;
       height: 2.25rem;
@@ -98,7 +120,9 @@
 
     /* Animations */
     @keyframes ringA {
-      from, 4% {
+
+      from,
+      4% {
         stroke-dasharray: 0 660;
         stroke-width: 20;
         stroke-dashoffset: -330;
@@ -116,7 +140,8 @@
         stroke-dashoffset: -595;
       }
 
-      40%, 54% {
+      40%,
+      54% {
         stroke-dasharray: 0 660;
         stroke-width: 20;
         stroke-dashoffset: -660;
@@ -134,7 +159,8 @@
         stroke-dashoffset: -925;
       }
 
-      90%, to {
+      90%,
+      to {
         stroke-dasharray: 0 660;
         stroke-width: 20;
         stroke-dashoffset: -990;
@@ -142,7 +168,9 @@
     }
 
     @keyframes ringB {
-      from, 12% {
+
+      from,
+      12% {
         stroke-dasharray: 0 220;
         stroke-width: 20;
         stroke-dashoffset: -110;
@@ -160,7 +188,8 @@
         stroke-dashoffset: -195;
       }
 
-      48%, 62% {
+      48%,
+      62% {
         stroke-dasharray: 0 220;
         stroke-width: 20;
         stroke-dashoffset: -220;
@@ -178,7 +207,8 @@
         stroke-dashoffset: -305;
       }
 
-      98%, to {
+      98%,
+      to {
         stroke-dasharray: 0 220;
         stroke-width: 20;
         stroke-dashoffset: -330;
@@ -204,7 +234,8 @@
         stroke-dashoffset: -175;
       }
 
-      36%, 58% {
+      36%,
+      58% {
         stroke-dasharray: 0 440;
         stroke-width: 20;
         stroke-dashoffset: -220;
@@ -222,7 +253,8 @@
         stroke-dashoffset: -395;
       }
 
-      94%, to {
+      94%,
+      to {
         stroke-dasharray: 0 440;
         stroke-width: 20;
         stroke-dashoffset: -440;
@@ -230,7 +262,9 @@
     }
 
     @keyframes ringD {
-      from, 8% {
+
+      from,
+      8% {
         stroke-dasharray: 0 440;
         stroke-width: 20;
         stroke-dashoffset: 0;
@@ -248,7 +282,8 @@
         stroke-dashoffset: -175;
       }
 
-      44%, 50% {
+      44%,
+      50% {
         stroke-dasharray: 0 440;
         stroke-width: 20;
         stroke-dashoffset: -220;
@@ -266,14 +301,15 @@
         stroke-dashoffset: -395;
       }
 
-      86%, to {
+      86%,
+      to {
         stroke-dasharray: 0 440;
         stroke-width: 20;
         stroke-dashoffset: -440;
       }
     }
 
-    /* From Uiverse.io by andrew-manzyk - Voice Recording Orb */ 
+    /* From Uiverse.io by andrew-manzyk - Voice Recording Orb */
     .loader {
       --color-one: #ffbf48;
       --color-two: #be4a1d;
@@ -281,7 +317,8 @@
       --color-four: #bf4a1d80;
       --color-five: #ffbf4740;
       --time-animation: 2s;
-      --size: 1; /* You can change the size */
+      --size: 1;
+      /* You can change the size */
       width: 100px;
       height: 100px;
       position: relative;
@@ -312,11 +349,9 @@
     .loader .box {
       width: 100px;
       height: 100px;
-      background: linear-gradient(
-        180deg,
-        var(--color-one) 30%,
-        var(--color-two) 70%
-      );
+      background: linear-gradient(180deg,
+          var(--color-one) 30%,
+          var(--color-two) 70%);
       mask: url(#clipping);
       -webkit-mask: url(#clipping);
     }
@@ -376,6 +411,7 @@
       0% {
         transform: rotate(0deg);
       }
+
       100% {
         transform: rotate(360deg);
       }
@@ -385,15 +421,19 @@
       0% {
         filter: contrast(15);
       }
+
       20% {
         filter: contrast(3);
       }
+
       40% {
         filter: contrast(3);
       }
+
       60% {
         filter: contrast(15);
       }
+
       100% {
         filter: contrast(15);
       }
@@ -403,51 +443,64 @@
       0% {
         filter: hue-rotate(0deg);
       }
+
       20% {
         filter: hue-rotate(-30deg);
       }
+
       40% {
         filter: hue-rotate(-60deg);
       }
+
       60% {
         filter: hue-rotate(-90deg);
       }
+
       80% {
         filter: hue-rotate(-45deg);
       }
+
       100% {
         filter: hue-rotate(0deg);
       }
     }
   </style>
 </head>
+
 <body class="bg-[#F8FAFC] text-slate-800 antialiased font-sans h-screen flex overflow-hidden">
 
   <!-- ========================================================================= -->
   <!-- 1. LEFT SIDEBAR (Clean Light Agritech Style)                              -->
   <!-- ========================================================================= -->
-  <aside id="sidebar" class="w-72 bg-white border-r border-slate-200/90 flex flex-col justify-between shrink-0 transition-all duration-300 z-30 hidden md:flex shadow-sm">
-    
+  <aside id="sidebar"
+    class="w-72 bg-white border-r border-slate-200/90 flex flex-col justify-between shrink-0 transition-all duration-300 z-30 hidden md:flex shadow-sm">
+
     <div class="p-4 space-y-4">
-      
+
       <!-- App Brand & Back to Home -->
       <div class="flex items-center justify-between pb-3 border-b border-slate-200/80">
         <a href="index.html" class="flex items-center gap-2.5 group">
-          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-sm">
+          <div
+            class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-sm">
             <span class="material-symbols-outlined text-xl">eco</span>
           </div>
           <div>
-            <h1 class="font-heading font-extrabold text-sm text-slate-900 group-hover:text-emerald-600 transition-colors">Krishi Mitra AI</h1>
+            <h1
+              class="font-heading font-extrabold text-sm text-slate-900 group-hover:text-emerald-600 transition-colors">
+              Krishi Mitra AI</h1>
             <span class="text-[10px] text-slate-500 font-medium">Digital Grama Sevak</span>
           </div>
         </a>
-        <a href="index.html" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="Back to Home">
+        <a href="index.html"
+          class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+          title="Back to Home">
           <span class="material-symbols-outlined text-lg">home</span>
         </a>
       </div>
 
       <!-- New Chat Button -->
-      <button onclick="startNewChat()" class="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-between shadow-sm transition-all active:scale-[0.99]">
+      <button onclick="startNewChat()"
+        class="w-full py-2.5 px-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-between shadow-sm transition-all active:scale-[0.99]">
         <span class="flex items-center gap-2">
           <span class="material-symbols-outlined text-sm">add</span>
           <span id="sb-new-chat">New Consultation</span>
@@ -456,12 +509,15 @@
       </button>
 
       <!-- Language Toggle Switch (Bilingual) -->
-      <button id="chat-lang-btn" class="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-between border border-slate-200 transition-colors shadow-2xs">
+      <button id="chat-lang-btn"
+        class="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-between border border-slate-200 transition-colors shadow-2xs">
         <span class="flex items-center gap-2">
           <span class="material-symbols-outlined text-emerald-600 text-base">translate</span>
           <span id="chat-lang-label">Switch to Kannada (ಕನ್ನಡ)</span>
         </span>
-        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded uppercase font-mono" id="current-lang-code">EN</span>
+        <span
+          class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded uppercase font-mono"
+          id="current-lang-code">EN</span>
       </button>
 
       <!-- Historical / Suggested Consultations -->
@@ -469,27 +525,33 @@
         <div class="text-[11px] font-bold text-slate-400 uppercase tracking-wider px-2" id="sb-presets-title">
           Quick Dialect Presets
         </div>
-        
-        <button onclick="loadPersonaQuery('kalaburagi')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+
+        <button onclick="loadPersonaQuery('kalaburagi')"
+          class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
           <span class="material-symbols-outlined text-amber-600 text-base shrink-0">dry</span>
           <div class="truncate">
-            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-1-title">Kalaburagi Drought Claim</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-1-title">Kalaburagi
+              Drought Claim</div>
             <div class="text-[10px] text-slate-500">3 Acres • Red Gram • PMFBY</div>
           </div>
         </button>
 
-        <button onclick="loadPersonaQuery('mandya')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+        <button onclick="loadPersonaQuery('mandya')"
+          class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
           <span class="material-symbols-outlined text-blue-600 text-base shrink-0">water_drop</span>
           <div class="truncate">
-            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-2-title">Mandya Drip Subsidy</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-2-title">Mandya Drip
+              Subsidy</div>
             <div class="text-[10px] text-slate-500">2.5 Acres • Sugarcane • 90% Drip</div>
           </div>
         </button>
 
-        <button onclick="loadPersonaQuery('machinery')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+        <button onclick="loadPersonaQuery('machinery')"
+          class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
           <span class="material-symbols-outlined text-emerald-600 text-base shrink-0">agriculture</span>
           <div class="truncate">
-            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-3-title">Power Tiller Mechanization</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-3-title">Power Tiller
+              Mechanization</div>
             <div class="text-[10px] text-slate-500">5 Acres • Belagavi • ₹1,00,000 Cap</div>
           </div>
         </button>
@@ -503,12 +565,14 @@
         <span class="material-symbols-outlined text-emerald-600 text-base">verified</span>
         <span class="text-[11px] font-medium" id="sb-audit-label">Zero-Hallucination Engine</span>
       </div>
-      <a href="tel:1551" class="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200/80 font-bold text-xs flex items-center justify-between transition-colors shadow-2xs">
+      <a href="tel:1551"
+        class="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200/80 font-bold text-xs flex items-center justify-between transition-colors shadow-2xs">
         <span class="flex items-center gap-1.5">
           <span class="material-symbols-outlined text-sm">support_agent</span>
           <span>Kisan Helpline 1551</span>
         </span>
-        <span class="text-[10px] bg-amber-100 text-amber-800 border border-amber-300/80 px-1.5 py-0.5 rounded font-semibold">Toll-Free</span>
+        <span
+          class="text-[10px] bg-amber-100 text-amber-800 border border-amber-300/80 px-1.5 py-0.5 rounded font-semibold">Toll-Free</span>
       </a>
     </div>
 
@@ -519,9 +583,10 @@
   <!-- 2. MAIN CHAT AREA (Clean Light Aesthetic)                                 -->
   <!-- ========================================================================= -->
   <main class="flex-1 flex flex-col h-full bg-[#F8FAFC] relative">
-    
+
     <!-- Top Mobile / Minimal App Bar -->
-    <div class="h-14 border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur z-20 shadow-xs">
+    <div
+      class="h-14 border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur z-20 shadow-xs">
       <div class="flex items-center gap-3">
         <!-- Mobile Sidebar Toggle -->
         <button id="mobile-sidebar-toggle" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100">
@@ -536,12 +601,14 @@
       <!-- Action items -->
       <div class="flex items-center gap-3">
         <!-- Language button on header for mobile -->
-        <button id="mobile-lang-btn" class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-emerald-700 text-xs font-bold border border-slate-200">
+        <button id="mobile-lang-btn"
+          class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-emerald-700 text-xs font-bold border border-slate-200">
           <span class="material-symbols-outlined text-sm">translate</span>
           <span id="mobile-lang-code">KN</span>
         </button>
         <!-- Return home -->
-        <a href="index.html" class="flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-700 font-medium transition-colors">
+        <a href="index.html"
+          class="flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-700 font-medium transition-colors">
           <span class="material-symbols-outlined text-sm">home</span>
           <span id="chat-home-link-text" class="hidden sm:inline">Home Portal</span>
         </a>
@@ -550,18 +617,21 @@
 
     <!-- Chat Messages Stream -->
     <div id="chat-stream" class="flex-1 overflow-y-auto px-4 sm:px-8 py-6 space-y-6 max-w-4xl w-full mx-auto">
-      
+
       <!-- Welcome Hero Message -->
       <div class="flex items-start gap-4 text-sm">
-        <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
+        <div
+          class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
           <span class="material-symbols-outlined text-xl">smart_toy</span>
         </div>
-        <div class="space-y-3 bg-white border border-slate-200/90 rounded-3xl rounded-tl-sm p-6 max-w-[90%] shadow-sm text-slate-700">
+        <div
+          class="space-y-3 bg-white border border-slate-200/90 rounded-3xl rounded-tl-sm p-6 max-w-[90%] shadow-sm text-slate-700">
           <h2 class="font-bold text-slate-900 text-base" id="msg-welcome-title">
             Welcome to Krishi Mitra Voice AI! 🙏
           </h2>
           <p class="text-xs sm:text-sm text-slate-600 leading-relaxed" id="msg-welcome-body">
-            I am your automated agricultural officer. You can tap the <strong>big microphone button</strong> below to speak in your local dialect, or type your query.
+            I am your automated agricultural officer. You can tap the <strong>big microphone button</strong> below to
+            speak in your local dialect, or type your query.
           </p>
           <div class="p-4 bg-slate-50 border border-slate-200/70 rounded-2xl space-y-2 text-xs text-slate-600">
             <div class="font-bold text-emerald-700 flex items-center gap-1.5" id="msg-welcome-tips-title">
@@ -569,9 +639,11 @@
               <span>Things you can speak / ask:</span>
             </div>
             <ul class="list-disc list-inside space-y-1.5 pl-1 text-[11px] text-slate-600" id="msg-welcome-tips-list">
-              <li id="welcome-tip-1">"I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought."</li>
+              <li id="welcome-tip-1">"I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to
+                drought."</li>
               <li id="welcome-tip-2">"Can I get 90% subsidy for drip irrigation on my 2.5 acres land in Mandya?"</li>
-              <li id="welcome-tip-3">"I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?"</li>
+              <li id="welcome-tip-3">"I have 5 acres in Belagavi, is there government subsidy to purchase a Power
+                Tiller?"</li>
             </ul>
           </div>
         </div>
@@ -588,7 +660,7 @@
 
         <!-- Live Voice Recording Overlay (Transparent Floating Voice Orb) -->
         <div id="waveform-modal" class="hidden flex items-center justify-center py-4 bg-transparent transition-all">
-          <!-- From Uiverse.io by andrew-manzyk --> 
+          <!-- From Uiverse.io by andrew-manzyk -->
           <div class="loader cursor-pointer" onclick="stopRecording()" title="Click orb or mic to finish speaking">
             <svg width="100" height="100" viewBox="0 0 100 100">
               <defs>
@@ -611,15 +683,20 @@
         <div class="flex items-center gap-3">
 
           <!-- Prominent Voice Recording Button -->
-          <button id="mic-trigger-btn" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-md active:scale-95 transition-all shrink-0 cursor-pointer" title="Speak with AI in Kannada or English">
+          <button id="mic-trigger-btn"
+            class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-md active:scale-95 transition-all shrink-0 cursor-pointer"
+            title="Speak with AI in Kannada or English">
             <span id="mic-icon" class="material-symbols-outlined text-3xl">mic</span>
           </button>
 
           <!-- Text Input Form -->
-          <form id="chat-input-form" class="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-1.5 shadow-inner focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:bg-white transition-all">
-            <input type="text" id="user-text-input" placeholder="Type your agricultural question or click mic to speak..." 
-              class="w-full bg-transparent py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none"/>
-            <button type="submit" class="p-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white transition-colors ml-2 shrink-0 shadow-xs">
+          <form id="chat-input-form"
+            class="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-1.5 shadow-inner focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:bg-white transition-all">
+            <input type="text" id="user-text-input"
+              placeholder="Type your agricultural question or click mic to speak..."
+              class="w-full bg-transparent py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none" />
+            <button type="submit"
+              class="p-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white transition-colors ml-2 shrink-0 shadow-xs">
               <span class="material-symbols-outlined text-lg">arrow_upward</span>
             </button>
           </form>
@@ -894,15 +971,15 @@
         // If scheme evaluation results exist, render dynamic cards
         if (data.evaluation_results && data.evaluation_results.length > 0) {
           botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-100">`;
-          
+
           data.evaluation_results.forEach((r, idx) => {
             const isEligible = r.status === 'ELIGIBLE';
             const isCond = r.status === 'CONDITIONALLY_ELIGIBLE';
-            
+
             let borderClass = 'border-slate-200 bg-slate-50/70 text-slate-600 opacity-80';
             let tagClass = 'bg-slate-100 text-slate-600 border-slate-300';
             let statusLabel = isKn ? 'ಅನರ್ಹರು' : 'INELIGIBLE';
-            
+
             if (isEligible) {
               borderClass = 'border-emerald-300 bg-emerald-50/60 shadow-xs';
               tagClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
@@ -915,7 +992,7 @@
 
             const schemeName = isKn ? r.scheme_name_kn : r.scheme_name_en;
             const benefit = isKn ? r.benefit_summary_kn : r.benefit_summary_en;
-            const demoBadge = r.is_demo ? 
+            const demoBadge = r.is_demo ?
               `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
 
             botHtml += `
@@ -1032,17 +1109,17 @@
     // Quick Presets
     function loadPersonaQuery(type) {
       if (type === 'kalaburagi') {
-        processFarmerQuery(currentLanguage === 'kn' ? 
+        processFarmerQuery(currentLanguage === 'kn' ?
           "ನಮಸ್ಕಾರ್ರಿ, ನಮ್ದು ಕಲಬುರಗಿ ಹೊಲ ಐತ್ರಿ, ಮೂರ್ ಎಕರೆ ಕುಷ್ಕಿ ಜಮೀನು, ತೊಗರಿ ಎಲ್ಲಾ ಬರಗಾಲದಿಂದ ಒಣಗಿ ಹೋತು. ಏನಾದ್ರೂ ವಿಮೆ ಪರಿಹಾರ ಸಿಗ್ತೈತಾ?" :
           "Hello, I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought. Can I get insurance compensation?"
         );
       } else if (type === 'mandya') {
-        processFarmerQuery(currentLanguage === 'kn' ? 
+        processFarmerQuery(currentLanguage === 'kn' ?
           "ನಾವು ಮಂಡ್ಯದವರು, ಎರಡುವರೆ ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಹನಿ ನೀರಾವರಿ (Drip) ಸಬ್ಸಿಡಿ ಸಿಗುತ್ತಾ?" :
           "We are from Mandya, can we get drip irrigation subsidy for our 2.5 acres sugarcane farm?"
         );
       } else {
-        processFarmerQuery(currentLanguage === 'kn' ? 
+        processFarmerQuery(currentLanguage === 'kn' ?
           "ಬೆಳಗಾವಿ ಜಿಲ್ಲೆಯಲ್ಲಿ 5 ಎಕರೆ ಜಮೀನಿದೆ, ಪವರ್ ಟಿಲ್ಲರ್ ಖರೀದಿಗೆ ಸಹಾಯಧನ ಸಿಗುತ್ತಾ?" :
           "I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?"
         );
@@ -1113,4 +1190,5 @@
   </script>
 
 </body>
+
 </html>
