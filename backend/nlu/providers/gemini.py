@@ -28,7 +28,7 @@ class GeminiProvider:
                 "Provide a valid key or set NLU_PROVIDER=ollama."
             )
         self.client = genai.Client(api_key=key)
-        self.model = "gemini-2.5-flash"
+        self.model = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
 
     def extract(
         self,

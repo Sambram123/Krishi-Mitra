@@ -5,24 +5,27 @@ No derived fields (e.g. normalized_acres) are computed here; those are computed 
 """
 
 from typing import Literal, Optional, List
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+from pydantic import BaseModel, Field, field_validator
 
 
 class LandSize(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
-    value: float = Field(gt=0, le=1000, description="Number exactly as spoken")
+    value: float = Field(description="Number exactly as spoken")
     unit: Literal["acre", "gunta", "hectare"] = Field(description="Unit exactly as spoken")
+
+    @field_validator("value")
+    @classmethod
+    def validate_positive(cls, v: float) -> float:
+        if v <= 0 or v > 1000:
+            raise ValueError("Land size value must be greater than 0 and up to 1000")
+        return v
 
 
 class ExtractOut(BaseModel):
-    model_config = ConfigDict(extra="forbid")
-
     dialect_region: Optional[Literal["North_Karnataka", "Old_Mysore", "Coastal", "General"]] = None
     district: Optional[str] = None
     land_size: Optional[LandSize] = None
     ownership_type: Literal["Owner", "Tenant", "Joint Family", "Unknown"] = "Unknown"
-    crops_local: List[str] = Field(default_factory=list, max_length=10)
+    crops_local: List[str] = Field(default_factory=list)
     irrigation_source: Optional[Literal["Rainfed", "Borewell", "Canal", "Open Well", "None"]] = None
     assistance_intent: Optional[
         Literal[
