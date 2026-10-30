@@ -2,21 +2,22 @@
 
 > **Last Updated**: 2026-10-30  
 > **Current Milestone**: v1.0 (Hackathon Working Demo)  
-> **Current Phase**: Phase 1 (Knowledge Catalog & Deterministic Rule Engine)  
-> **Status**: Ready for Planning
+> **Current Phase**: Phase 2 (Text-to-Text Conversational Prototype) — COMPLETED  
+> **Status**: Ready for Phase 3 (Voice Output Prototype / Stage 2)
 
 ---
 
 ## Current Position
-- **Phase**: 1 (Completed)
-- **Task**: Reference Dataset & Rule Engine fully verified (13/13 unit tests passed)
-- **Status**: Ready for Phase 2 (Text-to-Text Conversational Prototype)
+- **Phase 1**: Completed (13/13 tests passed, reference dataset & deterministic rule engine verified).
+- **Phase 2**: Completed (43/43 tests passed across all suites; CLI-01 benchmark sentence verified).
+- **Stage 1 (Text-to-Text Prototype)**: 100% Complete & Runnable via `python cli_chat_prototype.py`.
 
-## Last Session Summary
-Phase 1 executed successfully:
-- Modeled 2 real and 3 synthetic schemes in `data/schemes_dataset.json`.
-- Implemented `backend/rules_engine.py` zero-hallucination evaluator with Kannada audit trails.
-- Tested all 13 boundary, positive, and exclusion cases in `backend/test_rules.py`.
+## Phase 2 Deliverables Summary
+- **Plan 2.1**: Pydantic v2 schemas (`ExtractOut`, `LandSize`), math-exact normalizers ($0.025 \times \text{Gunta}$, $2.471 \times \text{Hectare}$), 12+ crop synonyms, and conflict-quarantined `ConversationState`.
+- **Plan 2.2**: Dialect few-shot prompts, Gemini 2.5 Flash SDK integration, Ollama fallback, `NLUExtractor` with online guardrails (eligibility firewall, PII redaction, unit sanity, evidence check).
+- **Plan 2.3**: `DialogueManager` with proactive follow-up logic, hard brevity (≤ 25 words) & payout redaction, 40-record gold dataset (`data/eval/nlu_golden.jsonl`), and interactive terminal UI (`cli_chat_prototype.py`).
 
 ## Next Steps
-1. Run `/plan 2` to create execution plans for **Phase 2: Text-to-Text Conversational Prototype (Dialect NLU & Slot Filling)**.
+1. Transition to **Phase 3: Voice Output Prototype (Stage 2)**.
+2. Build `backend/tts_service.py` using Edge-TTS (`kn-IN-GaganNeural`/`kn-IN-SapnaNeural`).
+3. Enforce spoken Kannada response brevity and audio caching for < 500ms voice generation.

@@ -1,0 +1,22 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/schemes_knowledge_base.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Reference Dataset & Scheme Rules Catalog — Krishi Mitra",
+  "summary": "Catalog of five government scheme definitions with structured eligibility rules, benefits, exclusions, required documents, and Kannada dialect mapping.",
+  "scope": [
+    "PM-KISAN",
+    "PMFBY",
+    "Demo Micro-Irrigation Support",
+    "Demo Agricultural Equipment Assistance",
+    "Demo Soil Improvement Support",
+    "eligibility rules",
+    "mandatory documents",
+    "dialectal extraction mapping"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 2,
+  "notes": "Type and precedence supplied by manifest (DOC, precedence 2), overriding content heuristics; content is reference/rule-catalog policy data rather than product requirements or technical spec."
+}

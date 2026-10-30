@@ -1,0 +1,27 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/phases/1/1-PLAN.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Plan 1.1: Reference Dataset & Deterministic Rule Engine",
+  "summary": "Execution plan for modeling five benchmark schemes in JSON and building a deterministic Python rule engine with unit tests.",
+  "scope": [
+    "PM-KISAN",
+    "PMFBY",
+    "Demo Micro-Irrigation",
+    "Demo Agricultural Equipment",
+    "Demo Soil Improvement",
+    "data/schemes_dataset.json",
+    "backend/rules_engine.py",
+    "backend/test_rules.py"
+  ],
+  "cross_refs": [
+    ".gsd/SPEC.md",
+    ".gsd/ROADMAP.md",
+    "dataset_research.md",
+    "schemes_knowledge_base.md"
+  ],
+  "locked": false,
+  "precedence": 3,
+  "notes": "Type supplied by manifest (MANIFEST_TYPE=DOC) and treated as authoritative; content is a phased execution plan with task/verify/done blocks rather than an ADR, PRD, or technical spec."
+}

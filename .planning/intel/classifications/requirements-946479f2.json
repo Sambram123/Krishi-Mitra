@@ -1,0 +1,24 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/requirements.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "System & Technical Requirements Specification — Krishi Mitra",
+  "summary": "Technical dependencies, interface contracts, entity-extraction schema, scheme evaluation contract, and error-handling protocols for the Krishi Mitra system.",
+  "scope": [
+    "audio ingestion",
+    "acoustic specifications",
+    "voice activity detection",
+    "FarmerAgriculturalProfile",
+    "entity extraction schema",
+    "scheme evaluation engine",
+    "backend dependencies",
+    "frontend dependencies",
+    "error handling",
+    "edge cases"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 2,
+  "notes": "Type fixed by MANIFEST_TYPE=PRD (precedence 2). Content also carries strong SPEC signals (TypeScript schema contracts, dependency manifests, failure-mode table); no user stories or acceptance criteria present."
+}

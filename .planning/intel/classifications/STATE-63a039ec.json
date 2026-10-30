@@ -1,0 +1,34 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/STATE.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "STATE.md — Project Memory",
+  "summary": "Project memory tracking current milestone, phase, status, authored spec documents, blockers, and next implementation steps.",
+  "scope": [
+    "Project memory",
+    "v1.0 Hackathon Working Demo",
+    "Phase 1 Knowledge Catalog & Deterministic Rule Engine",
+    "SPEC.md",
+    "ROADMAP.md",
+    "REQUIREMENTS.md",
+    "architecture.md",
+    "schemes_knowledge_base.md",
+    "voice_interaction_design.md",
+    "Sarvam AI",
+    "Gemini",
+    "schemes_db.json",
+    "rules_engine.py"
+  ],
+  "cross_refs": [
+    "SPEC.md",
+    "ROADMAP.md",
+    "REQUIREMENTS.md",
+    "architecture.md",
+    "schemes_knowledge_base.md",
+    "voice_interaction_design.md"
+  ],
+  "locked": false,
+  "precedence": 4,
+  "notes": ""
+}

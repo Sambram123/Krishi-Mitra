@@ -1,0 +1,65 @@
+# Manifest for /gsd-ingest-docs — Krishi Mitra
+# lower `precedence` number = higher authority (ADR > SPEC > PRD > DOC by default)
+# Excluded on purpose: GSD-STYLE.md and PROJECT_RULES.md (GSD system boilerplate,
+# not project content) and .gsd/templates/ + .gsd/examples/ (template scaffolding).
+
+docs:
+  - path: .gsd/DECISIONS.md
+    type: ADR
+    precedence: 0
+
+  - path: .gsd/SPEC.md
+    type: SPEC
+    precedence: 0
+
+  - path: .gsd/phases/02-text-to-text-nlu-prototype/02-AI-SPEC.md
+    type: SPEC
+    precedence: 1
+
+  - path: prd.md
+    type: PRD
+    precedence: 1
+
+  - path: .gsd/REQUIREMENTS.md
+    type: PRD
+    precedence: 2
+
+  - path: requirements.md
+    type: PRD
+    precedence: 2
+
+  - path: architecture.md
+    type: DOC
+    precedence: 1
+
+  - path: dataset_research.md
+    type: DOC
+    precedence: 2
+
+  - path: schemes_knowledge_base.md
+    type: DOC
+    precedence: 2
+
+  - path: voice_interaction_design.md
+    type: DOC
+    precedence: 2
+
+  - path: plan.md
+    type: DOC
+    precedence: 3
+
+  - path: model_capabilities.yaml
+    type: DOC
+    precedence: 3
+
+  - path: .gsd/ROADMAP.md
+    type: DOC
+    precedence: 3
+
+  - path: .gsd/phases/1/1-PLAN.md
+    type: DOC
+    precedence: 3
+
+  - path: .gsd/STATE.md
+    type: DOC
+    precedence: 4

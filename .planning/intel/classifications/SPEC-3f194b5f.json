@@ -1,0 +1,25 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/SPEC.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "SPEC.md — Project Specification: Krishi Mitra (ಕೃಷಿ ಮಿತ್ರ)",
+  "summary": "Project specification for Krishi Mitra, a Kannada voice-first AI farm-scheme assistant, defining vision, 3-stage prototyping strategy, schemes, goals, and success criteria.",
+  "scope": [
+    "Krishi Mitra",
+    "Kannada voice AI assistant",
+    "3-stage prototyping (Text-to-Text, Voice-Out, Full Voice AI)",
+    "PM-KISAN",
+    "PMFBY",
+    "Demo Micro-Irrigation Support",
+    "Demo Agricultural Equipment Assistance",
+    "Demo Soil Improvement Support",
+    "deterministic scheme rule engine",
+    "speech recognition (ASR)",
+    "text-to-speech (TTS)"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 0,
+  "notes": ""
+}

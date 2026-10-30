@@ -1,0 +1,27 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/voice_interaction_design.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Voice Interaction Design & Dialogue Flow — Krishi Mitra",
+  "summary": "Voice-first design for Krishi Mitra: conversation state machine, Kannada dialect dialogue scripts, acoustic UX cues, and sub-1.8s latency budget.",
+  "scope": [
+    "voice interaction design",
+    "conversational state machine",
+    "Kannada dialects",
+    "dialect normalization prompting",
+    "ASR (Sarvam)",
+    "TTS (Sarvam / ElevenLabs)",
+    "barge-in and VAD",
+    "acoustic earcons",
+    "latency budget",
+    "eligibility rule engine",
+    "scheme catalog",
+    "PMFBY",
+    "PM-KUSUM (Surya Raitha)"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 2,
+  "notes": ""
+}
