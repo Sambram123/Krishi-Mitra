@@ -1,4 +1,6 @@
 (() => {
+  const microphoneSoundThreshold = 0.001;
+
   const profileDefaults = () => ({
     district: null,
     land_acres: null,
@@ -557,7 +559,7 @@
         const audioConstraints = {
           channelCount: 1,
           echoCancellation: true,
-          noiseSuppression: true,
+          noiseSuppression: false,
           autoGainControl: true,
         };
         if (preferredAudioInputId) {
@@ -585,6 +587,16 @@
           clearTimeout(permissionTimeout);
         }
         await refreshAudioInputs();
+        const microphoneTrack = mediaStream.getAudioTracks()[0];
+        const microphoneSettings = microphoneTrack?.getSettings?.() || {};
+        console.info('[voice] microphone track ready', {
+          input: microphoneTrack?.label || 'unknown',
+          sampleRate: microphoneSettings.sampleRate || 'unknown',
+          channelCount: microphoneSettings.channelCount || 'unknown',
+          noiseSuppression: microphoneSettings.noiseSuppression ?? 'unknown',
+          autoGainControl: microphoneSettings.autoGainControl ?? 'unknown',
+          echoCancellation: microphoneSettings.echoCancellation ?? 'unknown',
+        });
         const mimeType = typeof MediaRecorder.isTypeSupported === 'function'
           ? [
             'audio/webm;codecs=opus',
@@ -614,8 +626,8 @@
           : new MediaRecorder(mediaStream);
         const activeRecorder = recorder;
         const recordedChunks = [];
-        const selectedInputLabel = audioInputDevices.find(device =>
-          device.deviceId === preferredAudioInputId)?.label
+        const selectedInputLabel = microphoneTrack?.label
+          || audioInputDevices.find(device => device.deviceId === preferredAudioInputId)?.label
           || audioInputSelect?.selectedOptions?.[0]?.textContent
           || 'default microphone';
         activeRecorder.ondataavailable = event => {
@@ -647,7 +659,7 @@
               : 'No audio was recorded. Please try again.');
             return;
           }
-          if (audioAnalyser && peakInputLevel < 0.003) {
+          if (audioAnalyser && peakInputLevel < microphoneSoundThreshold) {
             console.warn('[voice] input meter detected no sound; sending recording for transcription', {
               input: selectedInputLabel,
               audioBytes: blob.size,
@@ -682,7 +694,7 @@
             }
             const level = Math.sqrt(sumSquares / samples.length);
             peakInputLevel = Math.max(peakInputLevel, level);
-            if (level >= 0.003) {
+            if (level >= microphoneSoundThreshold) {
               soundDetected = true;
               if (micStatusLabel) {
                 micStatusLabel.textContent = currentLanguage === 'kn'
