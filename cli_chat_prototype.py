@@ -108,7 +108,7 @@ def run_benchmark_test() -> bool:
     """
     Executes CLI-01 acceptance test sentence:
     'ನಮ್ಮ ಹೊಲ ಮೂರ್ ಎಕರೆ, ಬೋರ್ವೆಲ್ ಐತಿ, ಹನಿ ನೀರಾವರಿಗೆ ಸಹಾಯ ಸಿಗ್ತೈತಾ?'
-    Must evaluate Demo Micro-Irrigation Support + PM-KISAN as ELIGIBLE.
+    Must screen PM-KISAN as eligible and PMKSY micro-irrigation as conditional.
     """
     print(f"\n{BOLD}Running CLI-01 Acceptance Test Benchmark...{RESET}")
     benchmark_sentence = "ನಮ್ಮ ಹೊಲ ಮೂರ್ ಎಕರೆ, ಬೋರ್ವೆಲ್ ಐತಿ, ಹನಿ ನೀರಾವರಿಗೆ ಸಹಾಯ ಸಿಗ್ತೈತಾ?"
@@ -132,12 +132,12 @@ def run_benchmark_test() -> bool:
     eligible_ids = [r.scheme_id for r in results if r.status == "ELIGIBLE"]
     print(f"Eligible scheme IDs: {eligible_ids}")
 
-    has_micro_irrigation = "demo_micro_irrigation" in eligible_ids
+    pmksy = next((r for r in results if r.scheme_id == "pmksy_pdmc"), None)
     has_pm_kisan = "pm_kisan" in eligible_ids
 
-    if has_micro_irrigation and has_pm_kisan:
+    if pmksy and pmksy.status == "CONDITIONALLY_ELIGIBLE" and has_pm_kisan:
         print(f"\n{BOLD}{GREEN}✔ CLI-01 ACCEPTANCE TEST PASSED!{RESET}")
-        print(f"Demo Micro-Irrigation Support and PM-KISAN are both ELIGIBLE with complete audit trail and documents.\n")
+        print("PM-KISAN is screened eligible; PMKSY micro-irrigation remains conditional because current Karnataka rates and criteria require confirmation.\n")
         return True
     else:
         print(f"\n{BOLD}{RED}✕ CLI-01 ACCEPTANCE TEST FAILED!{RESET}")

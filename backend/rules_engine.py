@@ -1,6 +1,5 @@
 """
-Krishi Mitra — Deterministic Scheme Eligibility Engine
-Zero-hallucination, auditable rule evaluator for Karnataka agricultural schemes.
+Krishi Mitra — deterministic, auditable screening for Karnataka agriculture schemes.
 Evaluates official government schemes (PM-KISAN, PMFBY) and synthetic benchmark schemes.
 """
 
@@ -48,7 +47,7 @@ class EvaluationResult:
     scheme_name_kn: str
     scheme_name_en: str
     is_demo: bool
-    status: str  # "ELIGIBLE", "CONDITIONALLY_ELIGIBLE", "INELIGIBLE"
+    status: str  # Eligibility screen or INFORMATIONAL for non-benefit services.
     benefit_summary_kn: str
     benefit_summary_en: str
     audit_trail: List[str]
@@ -69,13 +68,13 @@ class SchemeEvaluator:
         self.schemes_map = {s["id"]: s for s in self.dataset["schemes"]}
 
     def evaluate_all(self, profile: FarmerProfile) -> List[EvaluationResult]:
-        """Evaluates farmer profile against all 5 benchmark schemes."""
+        """Evaluate applicable schemes and return source-backed informational programs."""
         results = [
             self.evaluate_pm_kisan(profile),
             self.evaluate_pmfby(profile),
-            self.evaluate_demo_micro_irrigation(profile),
-            self.evaluate_demo_agri_equipment(profile),
-            self.evaluate_demo_soil_improvement(profile)
+            self.evaluate_pmksy_pdmc(profile),
+            self.evaluate_smam(profile),
+            self.evaluate_soil_health_card(profile),
         ]
         return results
 
@@ -179,165 +178,56 @@ class SchemeEvaluator:
             required_documents=scheme["required_documents"]
         )
 
-    def evaluate_demo_micro_irrigation(self, profile: FarmerProfile) -> EvaluationResult:
-        scheme = self.schemes_map["demo_micro_irrigation"]
-        audit: List[str] = []
-        disqualifications: List[str] = []
-
-        # Land boundaries: 0.5 to 12.5 acres
-        if 0.5 <= profile.land_acres <= 12.5:
-            audit.append(f"Passed: Land area of {profile.land_acres} acres is within permitted range (0.5 to 12.5 acres).")
-        else:
-            disqualifications.append(f"Exclusion: Land size ({profile.land_acres} acres) outside permitted demo bounds (0.5 to 12.5 acres).")
-
-        # Water source requirement
-        if profile.has_water_source or profile.irrigation_type in ["Borewell", "Canal", "Open Well"]:
-            audit.append(f"Passed: Water source verified ({profile.irrigation_type or 'Borewell/Well'}).")
-        else:
-            disqualifications.append("Exclusion: Micro-irrigation subsidy requires an existing functional water source (Borewell/Well/Canal).")
-
-        # Subsidy cooldown check
-        if profile.availed_drip_subsidy_last_3_years:
-            disqualifications.append("Exclusion: Applicant previously availed micro-irrigation subsidy within the 3-year cooldown window.")
-        else:
-            audit.append("Passed: No subsidy availed in preceding 3 years.")
-
-        if not disqualifications:
-            # Determine subsidy percentage
-            if profile.land_acres <= 5.0:
-                subsidy_pct = scheme["benefit"]["small_marginal_subsidy_pct"]
-                category = "ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತ (Small/Marginal Farmer)"
-            else:
-                subsidy_pct = scheme["benefit"]["general_farmer_subsidy_pct"]
-                category = "ಇತರ ರೈತ (General Farmer)"
-
-            status = "ELIGIBLE"
-            audit.append(f"Subsidy Determination: Categorized as {category} based on {profile.land_acres} acres -> {subsidy_pct}% subsidy.")
-            summary_kn = f"ಅರ್ಹರು [ಡೆಮೊ]: ನಿಮ್ಮ {profile.land_acres} ಎಕರೆ ಜಮೀನಿಗೆ ಶೇಕಡಾ {subsidy_pct} ರಷ್ಟು ಹನಿ/ತುಂತುರು ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಲಭ್ಯವಿದೆ."
-            summary_en = f"Eligible [Demo]: Qualifies for {subsidy_pct}% micro-irrigation subsidy based on {profile.land_acres} acres holding."
-        else:
-            status = "INELIGIBLE"
-            summary_kn = "ಅನರ್ಹರು [ಡೆಮೊ]: ಹನಿ ನೀರಾವರಿ ಯೋಜನೆಯ ನಿಬಂಧನೆಗಳು ಪೂರ್ಣಗೊಂಡಿಲ್ಲ."
-            summary_en = "Ineligible [Demo]: Does not meet criteria for micro-irrigation assistance."
-
+    def evaluate_pmksy_pdmc(self, profile: FarmerProfile) -> EvaluationResult:
+        scheme = self.schemes_map["pmksy_pdmc"]
         return EvaluationResult(
             scheme_id=scheme["id"],
             scheme_name_kn=scheme["name_kn"],
             scheme_name_en=scheme["name_en"],
-            is_demo=True,
-            status=status,
-            benefit_summary_kn=summary_kn,
-            benefit_summary_en=summary_en,
-            audit_trail=audit,
-            disqualification_reasons=disqualifications,
+            is_demo=False,
+            status="CONDITIONALLY_ELIGIBLE",
+            benefit_summary_kn=scheme["benefit"]["description_kn"],
+            benefit_summary_en=scheme["benefit"]["description_en"],
+            audit_trail=[
+                "The official PMKSY portal describes Per Drop More Crop as support for farm-level water-use efficiency through micro irrigation.",
+                "Karnataka's current beneficiary criteria, assistance rate, eligible cost, and application window were not verified.",
+            ],
+            disqualification_reasons=[],
             required_documents=scheme["required_documents"],
-            disclaimer_kn=scheme["disclaimer_kn"]
         )
 
-    def evaluate_demo_agri_equipment(self, profile: FarmerProfile) -> EvaluationResult:
-        scheme = self.schemes_map["demo_agri_equipment"]
-        audit: List[str] = []
-        disqualifications: List[str] = []
-
-        # Min landholding check (1.0 acre)
-        if profile.land_acres >= 1.0:
-            audit.append(f"Passed: Land size of {profile.land_acres} acres satisfies minimum mechanization floor (>= 1.0 acre).")
-        else:
-            disqualifications.append(f"Exclusion: Farm mechanization requires minimum 1.0 acre holding (current: {profile.land_acres} acres).")
-
-        # Equipment request check
-        qualifying = scheme["eligibility_rules"]["qualifying_equipment"]
-        req_equip = profile.requested_equipment
-        
-        matched_equip = None
-        if req_equip:
-            for q in qualifying:
-                if req_equip.lower() in q.lower() or q.lower() in req_equip.lower():
-                    matched_equip = q
-                    break
-
-        if matched_equip:
-            audit.append(f"Passed: Requested implement '{matched_equip}' is in the approved subsidy gazette.")
-        elif req_equip:
-            disqualifications.append(f"Exclusion: Requested implement '{req_equip}' is not in approved list ({', '.join(qualifying)}).")
-        else:
-            # Conditionally eligible if equipment not explicitly requested yet
-            audit.append("Note: Farmer qualifies for mechanization support; implement selection pending.")
-
-        if not disqualifications:
-            subsidy_pct = scheme["benefit"]["subsidy_pct"]
-            max_cap = scheme["benefit"]["max_subsidy_inr"]
-            status = "ELIGIBLE"
-            equip_name = matched_equip or "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ"
-            summary_kn = f"ಅರ್ಹರು [ಡೆಮೊ]: {equip_name} ಖರೀದಿಗೆ ಗರಿಷ್ಠ ₹{max_cap:,.0f} ವರೆಗೆ ಶೇಕಡಾ {subsidy_pct} ಸಬ್ಸಿಡಿ ಪಡೆಯಲು ಅರ್ಹರಾಗಿದ್ದೀರಿ."
-            summary_en = f"Eligible [Demo]: Qualifies for 50% subsidy up to Rs. {max_cap:,.0f} for approved implement ({equip_name})."
-        else:
-            status = "INELIGIBLE"
-            summary_kn = "ಅನರ್ಹರು [ಡೆಮೊ]: ಯಂತ್ರೋಪಕರಣ ಸಹಾಯ ಯೋಜನೆಯ ಷರತ್ತುಗಳು ಪೂರೈಕೆಯಾಗಿಲ್ಲ."
-            summary_en = "Ineligible [Demo]: Does not meet farm equipment assistance conditions."
-
+    def evaluate_smam(self, profile: FarmerProfile) -> EvaluationResult:
+        scheme = self.schemes_map["smam"]
         return EvaluationResult(
             scheme_id=scheme["id"],
             scheme_name_kn=scheme["name_kn"],
             scheme_name_en=scheme["name_en"],
-            is_demo=True,
-            status=status,
-            benefit_summary_kn=summary_kn,
-            benefit_summary_en=summary_en,
-            audit_trail=audit,
-            disqualification_reasons=disqualifications,
+            is_demo=False,
+            status="CONDITIONALLY_ELIGIBLE",
+            benefit_summary_kn=scheme["benefit"]["description_kn"],
+            benefit_summary_en=scheme["benefit"]["description_en"],
+            audit_trail=[
+                "The official Farm Machinery DBT portal describes government assistance for procurement of agricultural machinery.",
+                "The current Karnataka equipment list, applicant category, assistance rate, application window, and fund availability were not verified.",
+            ],
+            disqualification_reasons=[],
             required_documents=scheme["required_documents"],
-            disclaimer_kn=scheme["disclaimer_kn"]
         )
 
-    def evaluate_demo_soil_improvement(self, profile: FarmerProfile) -> EvaluationResult:
-        scheme = self.schemes_map["demo_soil_improvement"]
-        audit: List[str] = []
-        disqualifications: List[str] = []
-
-        # Soil health card possession
-        if profile.has_soil_health_card:
-            audit.append("Passed: Possesses official Soil Health Card (SHC) report.")
-        else:
-            disqualifications.append("Exclusion: Soil improvement incentive requires a verified Soil Health Card issued by Agri Department.")
-
-        # Land limit check (<= 5.0 acres)
-        if 0 < profile.land_acres <= 5.0:
-            audit.append(f"Passed: Land size of {profile.land_acres} acres is within small farmer soil grant limit (<= 5.0 acres).")
-        else:
-            disqualifications.append(f"Exclusion: Soil grant is restricted to holdings <= 5.0 acres (current: {profile.land_acres} acres).")
-
-        # Deficiency check
-        qualifying_defs = scheme["eligibility_rules"]["qualifying_deficiencies"]
-        matched_defs = [d for d in profile.soil_deficiencies if any(qd.lower() in d.lower() or d.lower() in qd.lower() for qd in qualifying_defs)]
-
-        if matched_defs:
-            audit.append(f"Passed: Documented soil deficiency matched: {', '.join(matched_defs)}.")
-        elif profile.has_soil_health_card:
-            disqualifications.append("Exclusion: Soil parameters are within normal threshold; no registered organic carbon or mineral deficiency.")
-
-        if not disqualifications:
-            # Benefit calculation: Rs. 5,000 per hectare (1 hectare = ~2.47 acres), capped at 2 hectares (Rs. 10,000)
-            hectares = profile.land_acres / 2.471
-            grant_amount = min(hectares * 5000, 10000)
-            status = "ELIGIBLE"
-            summary_kn = f"ಅರ್ಹರು [ಡೆಮೊ]: ಮಣ್ಣು ಸುಧಾರಣೆಗೆ ಸುಮಾರು ₹{grant_amount:,.0f} ಪ್ರೋತ್ಸಾಹಧನ ಮತ್ತು ಜೈವಿಕ ಗೊಬ್ಬರ ಸಹಾಯಧನ ಲಭ್ಯವಿದೆ."
-            summary_en = f"Eligible [Demo]: Qualifies for Rs. {grant_amount:,.0f} soil fertility incentive based on documented deficiency."
-        else:
-            status = "INELIGIBLE"
-            summary_kn = "ಅನರ್ಹರು [ಡೆಮೊ]: ಮಣ್ಣು ಸುಧಾರಣೆ ಪ್ರೋತ್ಸಾಹಧನ ಯೋಜನೆಯ ಮಾನದಂಡಗಳು ಅನ್ವಯಿಸುವುದಿಲ್ಲ."
-            summary_en = "Ineligible [Demo]: Soil improvement grant requirements not satisfied."
-
+    def evaluate_soil_health_card(self, profile: FarmerProfile) -> EvaluationResult:
+        scheme = self.schemes_map["soil_health_card"]
         return EvaluationResult(
             scheme_id=scheme["id"],
             scheme_name_kn=scheme["name_kn"],
             scheme_name_en=scheme["name_en"],
-            is_demo=True,
-            status=status,
-            benefit_summary_kn=summary_kn,
-            benefit_summary_en=summary_en,
-            audit_trail=audit,
-            disqualification_reasons=disqualifications,
+            is_demo=False,
+            status="INFORMATIONAL",
+            benefit_summary_kn=scheme["benefit"]["description_kn"],
+            benefit_summary_en=scheme["benefit"]["description_en"],
+            audit_trail=[
+                "This is a soil-testing and advisory service, not an individual cash-subsidy eligibility determination.",
+                "Confirm local sample collection and service availability with the district soil-testing facility.",
+            ],
+            disqualification_reasons=[],
             required_documents=scheme["required_documents"],
-            disclaimer_kn=scheme["disclaimer_kn"]
         )

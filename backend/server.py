@@ -11,7 +11,6 @@ import os
 import sys
 import uuid
 from typing import Dict, Any, List, Optional
-from dataclasses import asdict
 
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -27,11 +26,7 @@ if BASE_DIR not in sys.path:
 
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 
-from backend.rules_engine import SchemeEvaluator, EvaluationResult, FarmerProfile
-from backend.nlu.extractor import NLUExtractor
-from backend.nlu.providers import get_provider
-from backend.conversation.state import ConversationState, is_profile_complete
-from backend.conversation.dialogue import DialogueManager
+from backend.web_server import APIError, handle_chat as run_groq_chat, handle_voice_turn
 
 app = FastAPI(title="Krishi Mitra API", version="1.0.0")
 
@@ -45,102 +40,133 @@ app.add_middleware(
 )
 
 # In-memory session store (DPDP 2023 data minimisation: in-process per-session state)
-sessions: Dict[str, ConversationState] = {}
-
-# Lazy-loaded singleton managers
-_evaluator: Optional[SchemeEvaluator] = None
-_dialogue_manager: Optional[DialogueManager] = None
-
-
-def get_dialogue_manager() -> DialogueManager:
-    global _evaluator, _dialogue_manager
-    if _dialogue_manager is None:
-        if _evaluator is None:
-            _evaluator = SchemeEvaluator()
-        try:
-            extractor = NLUExtractor()
-        except Exception as e:
-            # Fallback to offline ollama provider if API key missing
-            extractor = NLUExtractor(provider_name="ollama")
-        _dialogue_manager = DialogueManager(extractor=extractor, evaluator=_evaluator)
-    return _dialogue_manager
+sessions: Dict[str, Dict[str, Any]] = {}
 
 
 class ChatRequest(BaseModel):
     session_id: Optional[str] = None
     message: str = Field(..., description="Farmer utterance in Kannada or English")
     language: Optional[str] = Field("kn", description="Language preference: 'kn' or 'en'")
+    profile: Dict[str, Any] = Field(default_factory=dict)
+    history: List[Dict[str, str]] = Field(default_factory=list)
+
+
+class VoiceTurnRequest(BaseModel):
+    session_id: Optional[str] = None
+    audio: str = Field(..., max_length=5_600_000)
+    mime_type: str
+    recording_duration_ms: Optional[int] = None
+    language: Optional[str] = Field("kn", description="Language preference: 'kn' or 'en'")
+    profile: Dict[str, Any] = Field(default_factory=dict)
+    history: List[Dict[str, str]] = Field(default_factory=list)
 
 
 class ChatResponse(BaseModel):
     session_id: str
     reply: str
-    reply_kn: str
-    missing_slots: List[str]
+    reply_kn: str = ""
+    transcript: Optional[str] = None
+    detected_language: Optional[str] = None
+    audio: Optional[str] = None
+    mime_type: Optional[str] = None
+    model_mode: Optional[str] = None
+    missing_slots: List[str] = Field(default_factory=list)
     is_profile_complete: bool
-    farmer_profile: Dict[str, Any]
-    evaluation_results: List[Dict[str, Any]]
-    warnings: List[str]
+    farmer_profile: Dict[str, Any] = Field(default_factory=dict)
+    evaluation_results: List[Dict[str, Any]] = Field(default_factory=list)
+    warnings: List[str] = Field(default_factory=list)
 
 
 @app.get("/api/health")
 def health_check():
-    provider_name = os.getenv("NLU_PROVIDER", "gemini")
-    model_name = os.getenv("GEMINI_MODEL", "gemini-3.1-flash-lite")
-    has_gemini_key = bool(os.getenv("GEMINI_API_KEY"))
+    has_groq_key = bool(os.getenv("GROQ_API_KEY"))
+    has_sarvam_key = bool(os.getenv("SARVAM_API_KEY"))
     return {
         "status": "healthy",
-        "provider": provider_name,
-        "model": model_name,
-        "has_gemini_key": has_gemini_key,
+        "provider": "groq",
+        "model": "openai/gpt-oss-120b",
+        "has_groq_key": has_groq_key,
+        "has_sarvam_key": has_sarvam_key,
         "active_sessions": len(sessions),
     }
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-def handle_chat(req: ChatRequest):
-    if not req.message or not req.message.strip():
-        raise HTTPException(status_code=400, detail="Message cannot be empty")
+def _session_context(session_id: str, profile: Dict[str, Any], history: List[Dict[str, str]]):
+    session = sessions.setdefault(session_id, {"profile": {}, "history": []})
+    session["profile"].update(profile)
+    if history:
+        session["history"] = history[-8:]
+    return session
 
-    session_id = req.session_id or str(uuid.uuid4())[:8]
-    if session_id not in sessions:
-        sessions[session_id] = ConversationState(session_id=session_id)
 
-    state = sessions[session_id]
-    dm = get_dialogue_manager()
+def _profile_is_complete(profile: Dict[str, Any]) -> bool:
+    return all(profile.get(field) for field in ("district", "land_acres", "crops", "irrigation_type"))
 
-    turn_output = dm.process_turn(state, req.message.strip())
-    sessions[session_id] = turn_output["state"]
 
-    eval_results_data = []
-    for r in turn_output["evaluation_results"]:
-        eval_results_data.append({
-            "scheme_id": r.scheme_id,
-            "scheme_name_kn": r.scheme_name_kn,
-            "scheme_name_en": r.scheme_name_en,
-            "status": r.status,
-            "is_demo": r.is_demo,
-            "benefit_summary_kn": r.benefit_summary_kn,
-            "benefit_summary_en": r.benefit_summary_en,
-            "audit_trail": r.audit_trail,
-            "disqualification_reasons": r.disqualification_reasons,
-            "required_documents": r.required_documents,
-            "disclaimer_kn": r.disclaimer_kn,
-        })
-
-    is_complete = is_profile_complete(turn_output["state"])
-    reply_text = turn_output["reply_kn"]
-
+def _format_response(session_id: str, result: Dict[str, Any]) -> ChatResponse:
+    profile = result["profile"]
     return ChatResponse(
         session_id=session_id,
-        reply=reply_text,
-        reply_kn=turn_output["reply_kn"],
-        missing_slots=turn_output["missing_slots"],
-        is_profile_complete=is_complete,
-        farmer_profile=turn_output["state"].confirmed_profile,
-        evaluation_results=eval_results_data,
-        warnings=turn_output["warnings"],
+        reply=result["reply"],
+        reply_kn=result["reply"] if result.get("language") == "kn" else "",
+        transcript=result.get("transcript"),
+        detected_language=result.get("detected_language"),
+        audio=result.get("audio"),
+        mime_type=result.get("mime_type"),
+        model_mode=result.get("model_mode"),
+        missing_slots=result.get("missing_slots", []),
+        is_profile_complete=_profile_is_complete(profile),
+        farmer_profile=profile,
+        evaluation_results=(
+            result["evaluations"] if result.get("show_evaluations") else []
+        ),
+        warnings=[],
     )
+
+
+def _record_turn(session: Dict[str, Any], message: str, reply: str) -> None:
+    session["history"].extend([
+        {"role": "user", "content": message},
+        {"role": "assistant", "content": reply},
+    ])
+    session["history"] = session["history"][-8:]
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def handle_chat(req: ChatRequest):
+    session_id = req.session_id or str(uuid.uuid4())[:8]
+    session = _session_context(session_id, req.profile, req.history)
+    payload = {
+        "message": req.message,
+        "language": req.language,
+        "profile": dict(session["profile"]),
+        "history": [dict(turn) for turn in session["history"]],
+    }
+    try:
+        result = run_groq_chat(payload, request_id=uuid.uuid4().hex[:12])
+    except APIError as error:
+        raise HTTPException(status_code=error.status, detail=str(error)) from error
+
+    session["profile"] = result["profile"]
+    _record_turn(session, req.message.strip(), result["reply"])
+    return _format_response(session_id, result)
+
+
+@app.post("/api/voice-turn", response_model=ChatResponse)
+def voice_turn(req: VoiceTurnRequest):
+    session_id = req.session_id or str(uuid.uuid4())[:8]
+    session = _session_context(session_id, req.profile, req.history)
+    payload = req.model_dump(exclude={"session_id"})
+    payload["profile"] = dict(session["profile"])
+    payload["history"] = [dict(turn) for turn in session["history"]]
+    try:
+        result = handle_voice_turn(payload, request_id=uuid.uuid4().hex[:12])
+    except APIError as error:
+        raise HTTPException(status_code=error.status, detail=str(error)) from error
+
+    session["profile"] = result["profile"]
+    _record_turn(session, result["transcript"], result["reply"])
+    return _format_response(session_id, result)
 
 
 # Serve root static pages

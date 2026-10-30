@@ -12,7 +12,8 @@
 It bridges the information gap between complex government gazette notifications and rural farmers through:
 - **Deterministic Rules Engine**: Completely auditable, transparent rule evaluation (PM-KISAN, PMFBY, and benchmark schemes) with exact pass/fail reasons.
 - **Smart Context-Aware CLI**: Interactive terminal questionnaires that auto-suggest intelligent defaults based on Karnataka agro-climatic zones, soil types, and crop calendars.
-- **Conversational Kannada NLU**: Powered by Google Gemini (or local Ollama) to extract agricultural profile slots from natural dialect queries.
+- **Groq Chat**: Supports Kannada and English agricultural questions, with session context and deterministic scheme screening.
+- **Sarvam Voice**: Records microphone audio in the browser, transcribes Kannada/English speech, and returns generated speech.
 - **Web Application & Voice UI**: High-contrast, mobile-friendly interface with audio visualizer, chat interface, and live scheme eligibility cards.
 
 ---
@@ -58,18 +59,23 @@ copy .env.example .env
 cp .env.example .env
 ```
 
-Open `.env` and set your preferred provider:
+Open `.env` and configure the web chat providers:
 ```ini
-# Provider options: "gemini" (recommended) or "ollama" (offline local fallback)
+# Required for natural-language web chat
+GROQ_API_KEY=your_groq_api_key_here
+
+# Required for voice transcription and spoken responses
+SARVAM_API_KEY=your_sarvam_api_key_here
+
+# Optional: legacy NLU/CLI provider
 NLU_PROVIDER=gemini
-
-# Google Gemini API key from https://aistudio.google.com/apikey
 GEMINI_API_KEY=your_gemini_api_key_here
-
-# Local Ollama fallback (optional):
+# Optional local fallback for legacy NLU/CLI tools
 OLLAMA_HOST=http://localhost:11434
 OLLAMA_MODEL=qwen2.5:7b-instruct
 ```
+
+Text chat uses a local guided response if `GROQ_API_KEY` is not configured. Voice chat requires `SARVAM_API_KEY`; speech generation also uses Groq when available.
 
 ---
 
@@ -109,7 +115,7 @@ python run_cli.py
 
 ### 🗣️ Mode 3: Natural Language Kannada CLI
 
-Test conversational text-to-text queries in Kannada with slot filling and dynamic eligibility evaluation:
+Test the legacy conversational NLU tools in Kannada with slot filling and eligibility evaluation:
 
 ```bash
 # Interactive conversation loop:
@@ -168,11 +174,11 @@ Krishi-Mitra/
 
 | Scheme ID | Scheme Name | Type | Key Benefit |
 | :--- | :--- | :--- | :--- |
-| `pm_kisan` | **PM-KISAN** (Pradhan Mantri Kisan Samman Nidhi) | Real Official | ₹6,000 / year direct cash transfer via DBT |
-| `pmfby` | **PMFBY** (Karnataka Samrakshane / Crop Insurance) | Real Official | Insurance coverage & claim payout for crop loss |
-| `demo_micro_irrigation` | **Demo Micro-Irrigation Support** | Demo Benchmark | 70% to 90% subsidy on drip / sprinkler setups |
-| `demo_agri_equipment` | **Demo Agricultural Equipment Assistance** | Demo Benchmark | Up to 50% subsidy (max ₹1,00,000) for machinery |
-| `demo_soil_improvement` | **Demo Soil Improvement Support** | Demo Benchmark | ₹5,000 / hectare soil fertility incentive |
+| `pm_kisan` | **PM-KISAN** (Pradhan Mantri Kisan Samman Nidhi) | Government programme | ₹6,000 / year via DBT; exclusions and official beneficiary status must be verified |
+| `pmfby` | **PMFBY** (Karnataka Samrakshane / Crop Insurance) | Government programme | Insurance support for notified crop loss; enrolment and local notification must be verified |
+| `pmksy_pdmc` | **PMKSY - Per Drop More Crop** | Government programme | Micro-irrigation support; current Karnataka rates and criteria require confirmation |
+| `smam` | **Sub-Mission on Agricultural Mechanization (SMAM)** | Government programme | Agricultural machinery support; current equipment list, rates, and funds require confirmation |
+| `soil_health_card` | **Soil Health Card Programme** | Government programme | Soil testing and nutrient recommendations; not a cash-subsidy programme |
 
 ---
 

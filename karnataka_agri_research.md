@@ -106,7 +106,7 @@ graph TD
 3. **If District == `Kolar`:**
    - Default Crop $\rightarrow$ **Vegetables / Tomato or Ragi**
    - Default Irrigation $\rightarrow$ **Borewell / ಕೊಳವೆಬಾವಿ**
-   - Default Need $\rightarrow$ **Drip Irrigation Subsidy (Demo Micro-Irrigation)**
+   - Default Need $\rightarrow$ **PMKSY Per Drop More Crop (micro-irrigation; confirm current state terms)**
 4. **If Crop == `Sugarcane` or `Paddy`:**
    - Irrigation default shifts from Rainfed to **Canal/Borewell**.
 5. **If Crop == `White Jowar (Bili Jola)`:**
