@@ -1,0 +1,26 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/architecture.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "System Architecture & Technical Specifications — Krishi Mitra",
+  "summary": "Architecture and tech-stack overview for Krishi Mitra's Kannada voice scheme-eligibility assistant, covering voice pipeline, LLM extraction, rule engine, and API.",
+  "scope": [
+    "voice pipeline",
+    "Kannada ASR",
+    "Kannada TTS",
+    "LLM entity and intent extraction",
+    "deterministic scheme rule engine",
+    "audit and explanation generation",
+    "FastAPI backend",
+    "React + Vite + TailwindCSS frontend",
+    "government scheme eligibility",
+    "API specification"
+  ],
+  "cross_refs": [
+    "schemes_evaluator.py"
+  ],
+  "locked": false,
+  "precedence": 1,
+  "notes": ""
+}

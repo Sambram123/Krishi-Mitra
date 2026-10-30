@@ -1,0 +1,40 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/plan.md",
+  "type": "DOC",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "Step-by-Step Implementation Plan — Krishi Mitra",
+  "summary": "Three-stage implementation plan for the Krishi Mitra Kannada voice assistant: text-to-text prototype, voice output, then full voice AI application.",
+  "scope": [
+    "Krishi Mitra",
+    "3-stage development workflow",
+    "PM-KISAN",
+    "PMFBY",
+    "Demo Micro-Irrigation Support",
+    "Demo Agricultural Equipment Assistance",
+    "Demo Soil Improvement Support",
+    "Python deterministic rule engine",
+    "Kannada NLU and slot filling",
+    "Gemini 2.5 Flash",
+    "Kannada TTS (Edge-TTS, Sarvam AI)",
+    "Kannada ASR (Sarvam Saaras, Groq Whisper)",
+    "FastAPI backend",
+    "React frontend",
+    "sub-2-second voice latency"
+  ],
+  "cross_refs": [
+    "data/schemes_dataset.json",
+    "backend/rules_engine.py",
+    "backend/test_rules.py",
+    "backend/nlu_extractor.py",
+    "cli_chat.py",
+    "backend/tts_service.py",
+    "test_voice_output.py",
+    "backend/asr_service.py",
+    "backend/server.py",
+    "frontend/"
+  ],
+  "locked": false,
+  "precedence": 3,
+  "notes": ""
+}

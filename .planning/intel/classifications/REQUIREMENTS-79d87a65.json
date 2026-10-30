@@ -1,0 +1,28 @@
+{
+  "source_path": "C:/Users/admin/Desktop/Krishi-Mitra/.gsd/REQUIREMENTS.md",
+  "type": "PRD",
+  "confidence": "high",
+  "manifest_override": true,
+  "title": "REQUIREMENTS.md — Krishi Mitra",
+  "summary": "Traceability matrix of seven Krishi Mitra requirements covering Kannada voice pipeline, dialect normalization, dialogue management, eligibility rules, TTS, web UI, and reasoning drawer.",
+  "scope": [
+    "Krishi Mitra",
+    "Kannada voice streaming pipeline",
+    "Kannada dialect and agricultural jargon normalizer",
+    "multi-turn slot-filling dialogue manager",
+    "deterministic scheme eligibility rule engine",
+    "Raitha Siri",
+    "Krishi Bhagya",
+    "PM-KISAN",
+    "PMFBY",
+    "Surya Raitha",
+    "KCC",
+    "Kannada TTS",
+    "bimodal accessible web UI",
+    "auditable reasoning and verification drawer"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": 2,
+  "notes": ""
+}
