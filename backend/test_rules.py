@@ -1,6 +1,6 @@
 """
 Krishi Mitra — Automated Test Suite for Deterministic Rule Evaluator
-Tests positive eligibility, statutory exclusions, boundary conditions, and demo flags.
+Tests rule boundaries, statutory exclusions, real scheme status, and catalogue sources.
 """
 
 import unittest
@@ -82,106 +82,34 @@ class TestKrishiMitraRuleEngine(unittest.TestCase):
         self.assertEqual(res.status, "INELIGIBLE")
         self.assertTrue(any("not currently notified" in r for r in res.disqualification_reasons))
 
-    # -------------------------------------------------------------
-    # Demo Micro-Irrigation Support (Synthetic Test Case) Tests
-    # -------------------------------------------------------------
-    def test_demo_micro_irrigation_small_farmer_90pct(self):
-        """Verifies small farmers (<= 5 acres) with water source get 90% subsidy."""
-        profile = FarmerProfile(
-            land_acres=3.0,
-            irrigation_type="Borewell",
-            has_water_source=True,
-            availed_drip_subsidy_last_3_years=False
-        )
-        res = self.evaluator.evaluate_demo_micro_irrigation(profile)
-        self.assertEqual(res.status, "ELIGIBLE")
-        self.assertTrue(res.is_demo)
-        self.assertIn("90", res.benefit_summary_kn)
-        self.assertIsNotNone(res.disclaimer_kn)
+    def test_all_catalog_entries_are_real_government_programs(self):
+        self.assertEqual(len(self.evaluator.schemes_map), 5)
+        self.assertTrue(all(not scheme["is_demo"] for scheme in self.evaluator.dataset["schemes"]))
+        self.assertTrue(all(scheme.get("sources") for scheme in self.evaluator.dataset["schemes"]))
+        self.assertNotIn("90%", self.evaluator.schemes_map["pmksy_pdmc"]["benefit"]["description_en"])
+        self.assertNotIn("50%", self.evaluator.schemes_map["smam"]["benefit"]["description_en"])
+        self.assertIn("not a", self.evaluator.schemes_map["soil_health_card"]["benefit"]["description_en"])
 
-    def test_demo_micro_irrigation_large_farmer_70pct(self):
-        """Verifies larger farmers (> 5 acres, <= 12.5 acres) get 70% subsidy."""
-        profile = FarmerProfile(
-            land_acres=8.0,
-            irrigation_type="Canal",
-            has_water_source=True,
-            availed_drip_subsidy_last_3_years=False
-        )
-        res = self.evaluator.evaluate_demo_micro_irrigation(profile)
-        self.assertEqual(res.status, "ELIGIBLE")
-        self.assertIn("70", res.benefit_summary_kn)
+    def test_real_agriculture_programs_are_not_asserted_as_approved(self):
+        results = {
+            result.scheme_id: result
+            for result in self.evaluator.evaluate_all(FarmerProfile(
+                land_acres=3,
+                irrigation_type="Borewell",
+                requested_equipment="Power Tiller",
+            ))
+        }
+        for scheme_id in ("pmksy_pdmc", "smam"):
+            self.assertEqual(results[scheme_id].status, "CONDITIONALLY_ELIGIBLE")
+            self.assertFalse(results[scheme_id].is_demo)
+            self.assertFalse(results[scheme_id].disqualification_reasons)
 
-    def test_demo_micro_irrigation_no_water_exclusion(self):
-        """Verifies failure when farmer lacks water source."""
-        profile = FarmerProfile(
-            land_acres=4.0,
-            irrigation_type="Rainfed",
-            has_water_source=False
-        )
-        res = self.evaluator.evaluate_demo_micro_irrigation(profile)
-        self.assertEqual(res.status, "INELIGIBLE")
-        self.assertTrue(any("water source" in r.lower() for r in res.disqualification_reasons))
-
-    def test_demo_micro_irrigation_cooldown_exclusion(self):
-        """Verifies 3-year cooldown exclusion."""
-        profile = FarmerProfile(
-            land_acres=2.5,
-            has_water_source=True,
-            availed_drip_subsidy_last_3_years=True  # Excluded
-        )
-        res = self.evaluator.evaluate_demo_micro_irrigation(profile)
-        self.assertEqual(res.status, "INELIGIBLE")
-        self.assertTrue(any("cooldown" in r.lower() or "3-year" in r.lower() for r in res.disqualification_reasons))
-
-    # -------------------------------------------------------------
-    # Demo Agricultural Equipment Assistance (Synthetic Test Case) Tests
-    # -------------------------------------------------------------
-    def test_demo_agri_equipment_eligible(self):
-        """Verifies 50% subsidy up to Rs 1,00,000 for approved equipment."""
-        profile = FarmerProfile(
-            land_acres=4.0,
-            requested_equipment="Power Tiller"
-        )
-        res = self.evaluator.evaluate_demo_agri_equipment(profile)
-        self.assertEqual(res.status, "ELIGIBLE")
-        self.assertTrue(res.is_demo)
-        self.assertIn("100,000", res.benefit_summary_en)
-        self.assertIn("50", res.benefit_summary_en)
-
-    def test_demo_agri_equipment_under_min_acres(self):
-        """Verifies rejection if landholding < 1.0 acre minimum."""
-        profile = FarmerProfile(
-            land_acres=0.5,
-            requested_equipment="Rotavator"
-        )
-        res = self.evaluator.evaluate_demo_agri_equipment(profile)
-        self.assertEqual(res.status, "INELIGIBLE")
-        self.assertTrue(any("minimum 1.0 acre" in r for r in res.disqualification_reasons))
-
-    # -------------------------------------------------------------
-    # Demo Soil Improvement Support (Synthetic Test Case) Tests
-    # -------------------------------------------------------------
-    def test_demo_soil_improvement_eligible(self):
-        """Verifies soil health incentive with Soil Health Card deficiency."""
-        profile = FarmerProfile(
-            land_acres=4.0,
-            has_soil_health_card=True,
-            soil_deficiencies=["Acidic", "Low Organic Carbon"]
-        )
-        res = self.evaluator.evaluate_demo_soil_improvement(profile)
-        self.assertEqual(res.status, "ELIGIBLE")
-        self.assertTrue(res.is_demo)
-        self.assertTrue(any("Acidic" in t for t in res.audit_trail))
-
-    def test_demo_soil_improvement_missing_card(self):
-        """Verifies rejection when farmer does not have Soil Health Card."""
-        profile = FarmerProfile(
-            land_acres=3.0,
-            has_soil_health_card=False
-        )
-        res = self.evaluator.evaluate_demo_soil_improvement(profile)
-        self.assertEqual(res.status, "INELIGIBLE")
-        self.assertTrue(any("Soil Health Card" in r for r in res.disqualification_reasons))
+    def test_soil_health_card_is_not_misrepresented_as_a_cash_grant(self):
+        result = self.evaluator.evaluate_soil_health_card(FarmerProfile(has_soil_health_card=True))
+        self.assertEqual(result.status, "INFORMATIONAL")
+        self.assertFalse(result.is_demo)
+        self.assertIn("not a", result.benefit_summary_en)
+        self.assertFalse(result.disqualification_reasons)
 
 
 if __name__ == "__main__":

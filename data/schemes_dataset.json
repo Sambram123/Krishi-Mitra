@@ -1,11 +1,18 @@
 {
   "version": "1.0.0",
-  "dataset_description": "Krishi Mitra Reference Benchmark Schemes Catalog (2 Real Government Schemes + 3 Synthetic/Fictional Decision Rule Cases)",
+  "dataset_description": "Krishi Mitra reference catalog of five source-linked Indian government agriculture programmes; eligibility and availability require official verification.",
   "schemes": [
     {
       "id": "pm_kisan",
       "type": "real",
       "is_demo": false,
+      "last_researched": "2026-10-30",
+      "sources": [
+        {
+          "label": "PM-KISAN official portal",
+          "url": "https://pmkisan.gov.in/"
+        }
+      ],
       "name_en": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
       "name_kn": "ಪಿಎಂ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ",
       "department": "Ministry of Agriculture and Farmers Welfare, Govt of India",
@@ -78,6 +85,17 @@
       "id": "pmfby",
       "type": "real",
       "is_demo": false,
+      "last_researched": "2026-10-30",
+      "sources": [
+        {
+          "label": "PMFBY official portal",
+          "url": "https://pmfby.gov.in/"
+        },
+        {
+          "label": "Karnataka Samrakshane portal",
+          "url": "https://samrakshane.karnataka.gov.in/"
+        }
+      ],
       "name_en": "PMFBY (Pradhan Mantri Fasal Bima Yojana / Karnataka Samrakshane)",
       "name_kn": "ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ - ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ",
       "department": "Department of Agriculture, Govt of Karnataka & MoA&FW",
@@ -149,210 +167,112 @@
       ]
     },
     {
-      "id": "demo_micro_irrigation",
-      "type": "synthetic_demo",
-      "is_demo": true,
-      "name_en": "Demo Micro-Irrigation Support",
-      "name_kn": "ಡೆಮೊ ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ (ಹನಿ ಮತ್ತು ತುಂತುರು) ಸಹಾಯ ಯೋಜನೆ",
-      "department": "Department of Horticulture / Agriculture (Demonstration Rule Engine)",
-      "category": "Irrigation Infrastructure",
-      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಕೇವಲ ನಿಯಮ ಪರಿಶೀಲನೆಯ ಪ್ರಾಯೋಗಿಕ ಪರೀಕ್ಷಾ ಯೋಜನೆ (ಡೆಮೊ). ಯಾವುದೇ ನೈಜ ಸರ್ಕಾರದ ಹಕ್ಕನ್ನು ಸೂಚಿಸುವುದಿಲ್ಲ.",
-      "disclaimer_en": "Synthetic test case for drip irrigation decision rules; no real entitlement is implied.",
-      "benefit": {
-        "type": "Subsidy_Percentage",
-        "small_marginal_subsidy_pct": 90,
-        "general_farmer_subsidy_pct": 70,
-        "description_kn": "ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತರಿಗೆ (<= 5 ಎಕರೆ) ಶೇಕಡಾ 90 ರಷ್ಟು ಮತ್ತು ಇತರ ರೈತರಿಗೆ ಶೇಕಡಾ 70 ರಷ್ಟು ಹನಿ/ತುಂತುರು ನೀರಾವರಿ ಘಟಕ ಸಬ್ಸಿಡಿ.",
-        "description_en": "90% subsidy for small/marginal farmers (<= 5 acres) and 70% subsidy for other farmers for drip/sprinkler units."
-      },
-      "eligibility_rules": {
-        "min_acres": 0.5,
-        "max_acres": 12.5,
-        "requires_water_source": true,
-        "accepted_sources": ["Borewell", "Open Well", "Canal", "Farm Pond"]
-      },
-      "exclusions": [
+      "id": "pmksy_pdmc",
+      "type": "real",
+      "is_demo": false,
+      "last_researched": "2026-10-30",
+      "sources": [
         {
-          "code": "EXCL_NO_WATER",
-          "name_en": "No Available Water Source",
-          "name_kn": "ಜಮೀನಿನಲ್ಲಿ ಯಾವುದೇ ನೀರಾವರಿ ನೀರಿನ ಮೂಲವಿಲ್ಲದಿರುವುದು",
-          "rule": "farmer.has_water_source == False"
+          "label": "PMKSY Per Drop More Crop official portal",
+          "url": "https://pmksy.gov.in/microirrigation/index.aspx"
         },
         {
-          "code": "EXCL_COOLDOWN",
-          "name_en": "Subsidy Availed in Previous 3 Years",
-          "name_kn": "ಕಳೆದ 3 ವರ್ಷಗಳಲ್ಲಿ ಈಗಾಗಲೇ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಪಡೆದಿರುವುದು",
-          "rule": "farmer.availed_drip_subsidy_last_3_years == True"
-        },
-        {
-          "code": "EXCL_AREA_LIMIT",
-          "name_en": "Land Size Outside Permissible Bounds (0.5 to 12.5 Acres)",
-          "name_kn": "ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ 0.5 ಎಕರೆಗಿಂತ ಕಡಿಮೆ ಅಥವಾ 12.5 ಎಕರೆಗಿಂತ ಹೆಚ್ಚಿರುವುದು",
-          "rule": "farmer.land_acres < 0.5 or farmer.land_acres > 12.5"
+          "label": "PMKSY Micro Irrigation guidelines",
+          "url": "https://pmksy.gov.in/microirrigation/Guideline.aspx"
         }
       ],
+      "name_en": "PMKSY - Per Drop More Crop (Micro Irrigation)",
+      "name_kn": "ಪ್ರಧಾನಮಂತ್ರಿ ಕೃಷಿ ಸಿಂಚಾಯಿ ಯೋಜನೆ - ಪ್ರತಿ ಹನಿ ಹೆಚ್ಚು ಬೆಳೆ (ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ)",
+      "department": "Department of Agriculture & Farmers Welfare, Government of India; implemented by states",
+      "category": "Micro Irrigation",
+      "benefit": {
+        "type": "State-administered assistance",
+        "description_kn": "ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿಯ ಮೂಲಕ ಹೊಲಮಟ್ಟದ ನೀರಿನ ಬಳಕೆ ದಕ್ಷತೆಯನ್ನು ಹೆಚ್ಚಿಸಲು ನೆರವು. ಕರ್ನಾಟಕದ ಪ್ರಸ್ತುತ ಅನುಮೋದಿತ ದರ, ಘಟಕ ವೆಚ್ಚ ಮತ್ತು ಅರ್ಹತೆಯನ್ನು ಕೃಷಿ/ತೋಟಗಾರಿಕೆ ಇಲಾಖೆಯಲ್ಲಿ ದೃಢಪಡಿಸಿ.",
+        "description_en": "Supports on-farm water-use efficiency through drip and sprinkler irrigation. Confirm current Karnataka assistance rates, eligible costs, and criteria with the implementing department."
+      },
+      "eligibility_rules": {
+        "screening": "State implementation, current annual norms, eligible equipment, land area, and budget availability must be confirmed."
+      },
+      "exclusions": [],
       "required_documents": [
         {
-          "id": "doc_rtc",
-          "name_kn": "ಪಹಣಿ / ಆರ್.ಟಿ.ಸಿ (RTC)",
-          "name_en": "RTC / Pahani",
-          "mandatory": true,
-          "source_kn": "ಕಂದಾಯ ಇಲಾಖೆ"
-        },
-        {
-          "id": "doc_water_cert",
-          "name_kn": "ಬೋರ್ವೆಲ್ / ನೀರಿನ ಮೂಲ ದೃಢೀಕರಣ ಪತ್ರ",
-          "name_en": "Borewell / Water Source Certificate",
-          "mandatory": true,
-          "source_kn": "ಗ್ರಾಮ ಪಂಚಾಯತಿ / ESCOM ಅಥವಾ RSK"
-        },
-        {
-          "id": "doc_sf_cert",
-          "name_kn": "ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತರ ಪ್ರಮಾಣಪತ್ರ (90% ಸಬ್ಸಿಡಿಗೆ)",
-          "name_en": "Small/Marginal Farmer Certificate (for 90% tier)",
+          "id": "confirm_documents",
+          "name_kn": "ಪ್ರಸ್ತುತ ದಾಖಲೆಗಳ ಪಟ್ಟಿಯನ್ನು ಅನುಷ್ಠಾನಗೊಳಿಸುವ ಇಲಾಖೆಯಲ್ಲಿ ದೃಢಪಡಿಸಿ",
+          "name_en": "Confirm the current document checklist with the implementing department",
           "mandatory": false,
-          "source_kn": "ತಹಶೀಲ್ದಾರ್ ಕಚೇರಿ / ಕಂದಾಯ ನಿರೀಕ್ಷಕರು"
+          "source_kn": "ಜಿಲ್ಲಾ ಕೃಷಿ / ತೋಟಗಾರಿಕೆ ಇಲಾಖೆ"
         }
       ]
     },
     {
-      "id": "demo_agri_equipment",
-      "type": "synthetic_demo",
-      "is_demo": true,
-      "name_en": "Demo Agricultural Equipment Assistance",
-      "name_kn": "ಡೆಮೊ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ನೆರವು ಯೋಜನೆ",
-      "department": "Agricultural Mechanization Cell (Demonstration Rule Engine)",
+      "id": "smam",
+      "type": "real",
+      "is_demo": false,
+      "last_researched": "2026-10-30",
+      "sources": [
+        {
+          "label": "Farm Machinery DBT portal, Government of India",
+          "url": "https://agrimachinery.nic.in/"
+        },
+        {
+          "label": "Farm Mechanization DBT portal",
+          "url": "https://farmech.dac.gov.in/"
+        }
+      ],
+      "name_en": "Sub-Mission on Agricultural Mechanization (SMAM)",
+      "name_kn": "ಕೃಷಿ ಯಾಂತ್ರೀಕರಣ ಉಪಮಿಷನ್ (SMAM)",
+      "department": "Department of Agriculture & Farmers Welfare, Government of India; implemented by states",
       "category": "Farm Mechanization",
-      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳ ಸಬ್ಸಿಡಿ ನಿಯಮಗಳ ಪರೀಕ್ಷಾರ್ಥ ಡೆಮೊ ಯೋಜನೆ.",
-      "disclaimer_en": "Synthetic test case for equipment subsidy decision rules.",
       "benefit": {
-        "type": "Subsidy_With_Cap",
-        "subsidy_pct": 50,
-        "max_subsidy_inr": 100000,
-        "description_kn": "ಅಧಿಕೃತ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳ ಖರೀದಿಗೆ ಗರಿಷ್ಠ ₹1,00,000 ವರೆಗೆ ಶೇಕಡಾ 50 ರಷ್ಟು ಸಹಾಯಧನ.",
-        "description_en": "50% equipment purchase subsidy up to a maximum financial ceiling of Rs. 1,00,000."
+        "type": "State-administered machinery assistance",
+        "description_kn": "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳ ಖರೀದಿಗೆ ಸರ್ಕಾರದ ಸಹಾಯ ಲಭ್ಯವಿರಬಹುದು. ಯಂತ್ರದ ಮಾದರಿ, ರೈತರ ವರ್ಗ, ಪ್ರಸ್ತುತ ಮಾರ್ಗಸೂಚಿ, ರಾಜ್ಯದ ಹಂಚಿಕೆ ಮತ್ತು ಅನುದಾನದ ಲಭ್ಯತೆಯ ಮೇಲೆ ದರ/ಮಿತಿ ಬದಲಾಗುತ್ತದೆ; ನಿಗದಿತ ಮೊತ್ತವನ್ನು ಇಲ್ಲಿ ಖಚಿತಪಡಿಸಲಾಗುವುದಿಲ್ಲ.",
+        "description_en": "Government assistance may be available for agricultural machinery. Rates and limits depend on equipment, farmer category, current guidelines, state allocation, and available funds; no fixed amount is asserted here."
       },
       "eligibility_rules": {
-        "min_acres": 1.0,
-        "max_acres": 25.0,
-        "qualifying_equipment": [
-          "Power Tiller",
-          "Rotavator",
-          "Power Sprayer",
-          "Weeder",
-          "Small Tractor",
-          "Multi-Crop Thresher"
-        ]
+        "screening": "Current eligible machinery, applicant category, state allocation, and application window must be confirmed on the official portal or with Karnataka Agriculture Department."
       },
-      "exclusions": [
-        {
-          "code": "EXCL_BELOW_MIN_ACRE",
-          "name_en": "Land Area Below 1.0 Acre Minimum for Mechanization",
-          "name_kn": "ಕೃಷಿ ಜಮೀನು ಕನಿಷ್ಠ 1.0 ಎಕರೆಗಿಂತ ಕಡಿಮೆ ಇರುವುದು",
-          "rule": "farmer.land_acres < 1.0"
-        },
-        {
-          "code": "EXCL_UNAPPROVED_EQUIPMENT",
-          "name_en": "Requested Implement Not in Approved Gazette List",
-          "name_kn": "ಅನುಮೋದಿತ ಪಟ್ಟಿಯಲ್ಲಿಲ್ಲದ ಯಂತ್ರೋಪಕರಣ",
-          "rule": "requested_equipment not in qualifying_equipment"
-        }
-      ],
+      "exclusions": [],
       "required_documents": [
         {
-          "id": "doc_rtc",
-          "name_kn": "ಪಹಣಿ / RTC",
-          "name_en": "Pahani / RTC",
-          "mandatory": true,
-          "source_kn": "ಭೂಮಿ ಕೇಂದ್ರ"
-        },
-        {
-          "id": "doc_aadhaar",
-          "name_kn": "ಆಧಾರ್ ಕಾರ್ಡ್",
-          "name_en": "Aadhaar Card",
-          "mandatory": true,
-          "source_kn": "UIDAI"
-        },
-        {
-          "id": "doc_quotation",
-          "name_kn": "ಅಧಿಕೃತ ಡೀಲರ್‌ರಿಂದ ಪಡೆದ ಕೊಟೇಶನ್ (Quotation)",
-          "name_en": "Equipment Quotation from Registered Dealer",
-          "mandatory": true,
-          "source_kn": "ನೋಂದಾಯಿತ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ಡೀಲರ್"
+          "id": "confirm_documents",
+          "name_kn": "ಯಂತ್ರ ಮತ್ತು ಅರ್ಜಿದಾರರ ವರ್ಗಕ್ಕೆ ಅನ್ವಯಿಸುವ ದಾಖಲೆಗಳನ್ನು ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ದೃಢಪಡಿಸಿ",
+          "name_en": "Confirm the documents required for the selected equipment and applicant category",
+          "mandatory": false,
+          "source_kn": "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ DBT ಪೋರ್ಟಲ್ / ಜಿಲ್ಲಾ ಕೃಷಿ ಇಲಾಖೆ"
         }
       ]
     },
     {
-      "id": "demo_soil_improvement",
-      "type": "synthetic_demo",
-      "is_demo": true,
-      "name_en": "Demo Soil Improvement Support",
-      "name_kn": "ಡೆಮೊ ಮಣ್ಣು ಸುಧಾರಣೆ ಮತ್ತು ಫಲವತ್ತತೆ ಪ್ರೋತ್ಸಾಹಧನ",
-      "department": "Soil Health & Organic Farming Cell (Demonstration Rule Engine)",
-      "category": "Soil Health",
-      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಮಣ್ಣು ಆರೋಗ್ಯ ಶಿಫಾರಸುಗಳ ಪರೀಕ್ಷಾರ್ಥ ಡೆಮೊ ಯೋಜನೆ.",
-      "disclaimer_en": "Synthetic test case for soil health recommendation decision rules.",
-      "benefit": {
-        "type": "Direct_Benefit_Transfer",
-        "incentive_per_hectare_inr": 5000,
-        "max_hectares": 2.0,
-        "max_incentive_inr": 10000,
-        "description_kn": "ಮಣ್ಣಿನ ಫಲವತ್ತತೆ ಸುಧಾರಣೆಗೆ ಹೆಕ್ಟೇರಿಗೆ ₹5,000 (ಗರಿಷ್ಠ 2 ಹೆಕ್ಟೇರ್ / ₹10,000 ವರೆಗೆ) ನೇರ ಪ್ರೋತ್ಸಾಹಧನ.",
-        "description_en": "Soil enrichment incentive of Rs. 5,000 per hectare (up to 2 hectares / Rs. 10,000 max)."
-      },
-      "eligibility_rules": {
-        "max_acres": 5.0,
-        "requires_soil_health_card": true,
-        "qualifying_deficiencies": [
-          "Low Organic Carbon",
-          "Saline",
-          "Alkaline",
-          "Acidic",
-          "Zinc Deficient",
-          "Boron Deficient"
-        ]
-      },
-      "exclusions": [
+      "id": "soil_health_card",
+      "type": "real",
+      "is_demo": false,
+      "last_researched": "2026-10-30",
+      "sources": [
         {
-          "code": "EXCL_NO_SHC",
-          "name_en": "No Verified Soil Health Card",
-          "name_kn": "ಮಣ್ಣು ಪರೀಕ್ಷಾ ವರದಿ / ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಇಲ್ಲದಿರುವುದು",
-          "rule": "farmer.has_soil_health_card == False"
-        },
-        {
-          "code": "EXCL_NORMAL_SOIL",
-          "name_en": "Soil Parameters Within Normal Range (No Documented Deficiency)",
-          "name_kn": "ಮಣ್ಣಿನಲ್ಲಿ ಯಾವುದೇ ಪೋಷಕಾಂಶ ಕೊರತೆ ಅಥವಾ ಆಮ್ಲೀಯತೆ/ಕ್ಷಾರೀಯತೆ ಇಲ್ಲದಿರುವುದು",
-          "rule": "no matching deficiencies"
-        },
-        {
-          "code": "EXCL_LARGE_FARMER",
-          "name_en": "Land Holding Exceeds 5.0 Acres Limit for Small Farmer Incentive",
-          "name_kn": "ಭೂ ಹಿಡುವಳಿ 5.0 ಎಕರೆಗಿಂತ ಹೆಚ್ಚಿರುವುದು",
-          "rule": "farmer.land_acres > 5.0"
+          "label": "Soil Health Card official portal",
+          "url": "https://soilhealth.dac.gov.in/"
         }
       ],
+      "name_en": "Soil Health Card Programme",
+      "name_kn": "ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಕಾರ್ಯಕ್ರಮ",
+      "department": "Department of Agriculture & Farmers Welfare, Government of India; delivered through state agriculture departments",
+      "category": "Soil Testing and Advisory Service",
+      "benefit": {
+        "type": "Soil testing and recommendations",
+        "description_kn": "ಮಣ್ಣಿನ ಪರೀಕ್ಷೆ ಮತ್ತು ಪೋಷಕಾಂಶ/ರಸಗೊಬ್ಬರ ಬಳಕೆಯ ಶಿಫಾರಸುಗಳಿಗಾಗಿ ಸೇವೆ. ಈ ಕಾರ್ಯಕ್ರಮವು ಸ್ವತಃ ₹5,000/ಹೆಕ್ಟೇರ್ ನಗದು ಸಬ್ಸಿಡಿಯಲ್ಲ.",
+        "description_en": "Provides soil testing and nutrient/fertilizer-use recommendations. This programme is not a Rs. 5,000-per-hectare cash subsidy."
+      },
+      "eligibility_rules": {
+        "screening": "Use the official portal or the district soil-testing service to confirm sample collection, access, and service availability."
+      },
+      "exclusions": [],
       "required_documents": [
         {
-          "id": "doc_shc",
-          "name_kn": "ಅಧಿಕೃತ ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ (Soil Health Card)",
-          "name_en": "Official Soil Health Card (SHC)",
-          "mandatory": true,
-          "source_kn": "ಕೃಷಿ ಇಲಾಖೆಯ ಮಣ್ಣು ಪರೀಕ್ಷಾ ಕೇಂದ್ರ"
-        },
-        {
-          "id": "doc_rtc",
-          "name_kn": "ಪಹಣಿ / RTC",
-          "name_en": "Pahani / RTC",
-          "mandatory": true,
-          "source_kn": "ಭೂಮಿ"
-        },
-        {
-          "id": "doc_bank",
-          "name_kn": "ಬ್ಯಾಂಕ್ ಖಾತೆ ವಿವರ",
-          "name_en": "Bank Account Details",
-          "mandatory": true,
-          "source_kn": "ಬ್ಯಾಂಕ್"
+          "id": "confirm_local_process",
+          "name_kn": "ಮಾದರಿ ಸಂಗ್ರಹಣೆ ಮತ್ತು ಸ್ಥಳೀಯ ಸೇವಾ ಪ್ರಕ್ರಿಯೆಯನ್ನು ಮಣ್ಣು ಪರೀಕ್ಷಾ ಕೇಂದ್ರದಲ್ಲಿ ತಿಳಿದುಕೊಳ್ಳಿ",
+          "name_en": "Ask the local soil-testing facility about sample collection and service access",
+          "mandatory": false,
+          "source_kn": "ಜಿಲ್ಲಾ ಕೃಷಿ ಇಲಾಖೆ / ಮಣ್ಣು ಪರೀಕ್ಷಾ ಪ್ರಯೋಗಾಲಯ"
         }
       ]
     }

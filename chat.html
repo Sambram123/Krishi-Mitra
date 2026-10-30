@@ -723,6 +723,10 @@
     let currentLanguage = localStorage.getItem('krishi_lang') || 'en';
     let isRecording = false;
     let recordingTimer = null;
+    let mediaRecorder = null;
+    let activeMediaStream = null;
+    let audioChunks = [];
+    let recordingStartedAt = 0;
 
     let farmerProfile = {
       district: "Mandya",
@@ -930,29 +934,42 @@
       }
     }
 
+    function escapeHtml(value) {
+      return String(value).replace(/[&<>"']/g, character => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      })[character]);
+    }
+
     // Process Query (NLU & Rule Evaluation via FastAPI Backend)
-    async function processFarmerQuery(queryText) {
+    async function processFarmerQuery(queryText, responseData = null) {
       appendChatMsg('user', queryText);
       showTypingIndicator();
 
       const isKn = currentLanguage === 'kn';
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: currentSessionId,
-            message: queryText,
-            language: currentLanguage
-          })
-        });
+        let data = responseData;
+        if (!data) {
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              session_id: currentSessionId,
+              message: queryText,
+              language: currentLanguage
+            })
+          });
 
-        if (!response.ok) {
-          throw new Error('API server returned status ' + response.status);
+          if (!response.ok) {
+            throw new Error('API server returned status ' + response.status);
+          }
+          data = await response.json();
         }
 
-        const data = await response.json();
         removeTypingIndicator();
 
         // Update active profile pills from real NLU extraction
@@ -1058,28 +1075,18 @@
           botHtml += `</div>`;
         }
 
-        appendChatMsg('bot', botHtml, true);
+        if (data.audio && data.mime_type) {
+          botHtml += `<audio controls preload="none" class="w-full max-w-sm mt-3"><source src="data:${data.mime_type};base64,${data.audio}" type="${data.mime_type}"></audio>`;
+        }
+        appendChatMsg('bot', botHtml);
 
       } catch (err) {
         removeTypingIndicator();
-        console.warn('Backend API connection issue, running local fallback simulation:', err);
-        fallbackSimulation(queryText);
-      }
-    }
-
-    // Local Fallback Simulation (Used when offline or server unreachable)
-    function fallbackSimulation(queryText) {
-      const lower = queryText.toLowerCase();
-      const isKn = currentLanguage === 'kn';
-
-      if (lower.includes('kalaburagi') || lower.includes('ಕಲಬುರಗಿ') || lower.includes('togari') || lower.includes('ತೊಗರಿ') || lower.includes('drought') || lower.includes('ಬರ')) {
-        farmerProfile = { district: 'Kalaburagi', land_acres: 3.0, crop: isKn ? 'ತೊಗರಿ' : 'Pigeon Pea', irrig: 'Rainfed', calamity: 'Drought', need: 'General' };
-        const reply = isKn ? '<p><strong>ಕಲಬುರಗಿ ರೈತರೇ ನಮಸ್ಕಾರ:</strong> ನಿಮ್ಮ 3 ಎಕರೆ ತೊಗರಿ ಬೆಳೆಗೆ ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ (PMFBY) ವಿಮಾ ಪರಿಹಾರ ಲಭ್ಯವಿದೆ.</p>' : '<p><strong>Greetings Kalaburagi Farmer:</strong> For your 3 acres rainfed pigeon pea, PMFBY crop insurance applies.</p>';
-        appendChatMsg('bot', reply, false);
-        updateLiveProfileBar();
-      } else {
-        const reply = isKn ? '<p>ನಿಮ್ಮ ವಿವರಗಳನ್ನು ಸ್ವೀಕರಿಸಲಾಗಿದೆ. ನಿಖರ ಪರಿಶೀಲನೆಗೆ ನಿಮ್ಮ ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ (ಎಕರೆ) ಮತ್ತು ನೀರಾವರಿ ಬಗ್ಗೆ ತಿಳಿಸಿ.</p>' : '<p>Your details have been received. Please mention your land acreage and irrigation type.</p>';
-        appendChatMsg('bot', reply, false);
+        console.error('Chat API request failed:', err);
+        const message = currentLanguage === 'kn'
+          ? 'ಕ್ಷಮಿಸಿ, ಕೃಷಿ ಮಿತ್ರ ಸೇವೆಯನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. '
+          : 'Sorry, Krishi Mitra could not be reached. Please try again. ';
+        appendChatMsg('bot', `<p class="text-rose-700">${escapeHtml(message + (err.message || ''))}</p>`);
       }
     }
 
@@ -1128,6 +1135,7 @@
 
     function startNewChat() {
       document.getElementById('chat-stream').innerHTML = '';
+      currentSessionId = 'km_' + Math.random().toString(36).substring(2, 9);
       clearActiveProfile();
       updateChatLanguage(currentLanguage);
     }
@@ -1137,34 +1145,121 @@
     const micModal = document.getElementById('waveform-modal');
     const micIcon = document.getElementById('mic-icon');
 
-    micBtn.addEventListener('click', () => {
-      if (!isRecording) {
-        // Start Voice Simulation
+    micBtn.addEventListener('click', async () => {
+      if (isRecording) {
+        stopRecording();
+        return;
+      }
+
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || !window.MediaRecorder) {
+        alert(currentLanguage === 'kn'
+          ? 'ಈ ಬ್ರೌಸರ್‌ನಲ್ಲಿ ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಲಭ್ಯವಿಲ್ಲ. ದಯವಿಟ್ಟು ಇತ್ತೀಚಿನ Chrome ಅಥವಾ Edge ಬಳಸಿ.'
+          : 'Voice recording is not supported by this browser. Please use a recent version of Chrome or Edge.');
+        return;
+      }
+
+      try {
+        activeMediaStream = await navigator.mediaDevices.getUserMedia({
+          audio: { echoCancellation: true, noiseSuppression: false, autoGainControl: true }
+        });
+        const preferredTypes = [
+          'audio/webm;codecs=opus',
+          'audio/webm',
+          'audio/ogg;codecs=opus',
+          'audio/mp4'
+        ];
+        const mimeType = preferredTypes.find(type => MediaRecorder.isTypeSupported(type));
+        mediaRecorder = mimeType
+          ? new MediaRecorder(activeMediaStream, { mimeType })
+          : new MediaRecorder(activeMediaStream);
+        audioChunks = [];
+        recordingStartedAt = Date.now();
         isRecording = true;
         micModal.classList.remove('hidden');
         micBtn.className = "w-14 h-14 rounded-2xl bg-red-600 text-white flex items-center justify-center shadow-xl pulsing-ring shrink-0";
         micIcon.textContent = "graphic_eq";
+        micBtn.setAttribute('aria-pressed', 'true');
 
-        // Simulate 3-second natural Kannada recording
-        recordingTimer = setTimeout(() => {
+        mediaRecorder.addEventListener('dataavailable', event => {
+          if (event.data && event.data.size > 0) audioChunks.push(event.data);
+        });
+        mediaRecorder.addEventListener('error', event => {
+          console.error('[voice] recorder error', event.error);
           stopRecording();
-          const sampleAudioText = currentLanguage === 'kn' ?
-            "ನಮಸ್ಕಾರ, ನನ್ನ ಜಮೀನು 3 ಎಕರೆ, ಕಲಬುರಗಿಯಲ್ಲಿ ತೊಗರಿ ಬೆಳೆದಿದ್ದೇನೆ, ಬರಗಾಲದಿಂದ ನಷ್ಟವಾಗಿದೆ." :
-            "Hello, my land is 3 acres, I cultivated pigeon pea in Kalaburagi and suffered drought loss.";
-          processFarmerQuery(sampleAudioText);
-        }, 3200);
-
-      } else {
-        stopRecording();
+          alert(currentLanguage === 'kn' ? 'ಮೈಕ್ರೋಫೋನ್‌ನಿಂದ ಧ್ವನಿ ಸೆರೆಹಿಡಿಯಲಾಗಲಿಲ್ಲ.' : 'The microphone could not capture audio.');
+        });
+        mediaRecorder.addEventListener('stop', async () => {
+          const durationMs = Date.now() - recordingStartedAt;
+          const clip = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+          activeMediaStream?.getTracks().forEach(track => track.stop());
+          activeMediaStream = null;
+          mediaRecorder = null;
+          audioChunks = [];
+          if (clip.size === 0) {
+            alert(currentLanguage === 'kn' ? 'ಯಾವುದೇ ಧ್ವನಿ ರೆಕಾರ್ಡ್ ಆಗಿಲ್ಲ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.' : 'No audio was recorded. Please try again.');
+            return;
+          }
+          await processVoiceClip(clip, durationMs);
+        });
+        mediaRecorder.start(1000);
+        recordingTimer = setTimeout(stopRecording, 25_000);
+      } catch (error) {
+        activeMediaStream?.getTracks().forEach(track => track.stop());
+        activeMediaStream = null;
+        isRecording = false;
+        console.error('[voice] microphone access failed', error);
+        alert(currentLanguage === 'kn'
+          ? 'ಮೈಕ್ರೋಫೋನ್ ಅನುಮತಿ ಸಿಗಲಿಲ್ಲ. ಬ್ರೌಸರ್ ಅನುಮತಿಗಳನ್ನು ಪರಿಶೀಲಿಸಿ ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.'
+          : 'Microphone access was denied or unavailable. Check browser permissions and try again.');
       }
     });
 
     function stopRecording() {
-      isRecording = false;
       clearTimeout(recordingTimer);
+      recordingTimer = null;
+      isRecording = false;
       micModal.classList.add('hidden');
       micBtn.className = "w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-md active:scale-95 shrink-0";
       micIcon.textContent = "mic";
+      micBtn.setAttribute('aria-pressed', 'false');
+      if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+        mediaRecorder.stop();
+      } else {
+        activeMediaStream?.getTracks().forEach(track => track.stop());
+        activeMediaStream = null;
+      }
+    }
+
+    async function processVoiceClip(clip, durationMs) {
+      showTypingIndicator();
+      try {
+        const bytes = new Uint8Array(await clip.arrayBuffer());
+        let binary = '';
+        for (let offset = 0; offset < bytes.length; offset += 0x8000) {
+          binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
+        }
+        const response = await fetch('/api/voice-turn', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_id: currentSessionId,
+            audio: btoa(binary),
+            mime_type: (clip.type.split(';')[0] || 'audio/webm'),
+            recording_duration_ms: durationMs,
+            language: currentLanguage
+          })
+        });
+        const data = await response.json();
+        if (!response.ok) {
+          throw new Error(data.detail || ('Voice API returned status ' + response.status));
+        }
+        removeTypingIndicator();
+        await processFarmerQuery(data.transcript, data);
+      } catch (error) {
+        removeTypingIndicator();
+        console.error('[voice] voice turn failed', error);
+        appendChatMsg('bot', `<p class="text-rose-700">${escapeHtml(error.message || (currentLanguage === 'kn' ? 'ಧ್ವನಿ ಪ್ರಕ್ರಿಯೆ ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.' : 'Voice processing failed. Please try again.'))}</p>`);
+      }
     }
 
     // Text Form Submission

@@ -1,112 +1,37 @@
-# Reference Dataset & Scheme Rules Catalog — Krishi Mitra
+# Krishi Mitra — Researched Government Scheme Catalogue
 
-This document outlines the official 5 reference schemes mandated by the problem statement, their structured parameters, and their exact evaluation logic.
+This catalogue is a source-linked, stored reference. It is not a live government eligibility service. Information was reviewed against the official portals below on **2026-10-30**. Current Karnataka notifications, annual norms, application windows, beneficiary records, and available funds must be confirmed with the implementing department.
 
----
+## Catalogue entries
 
-## 1. Scheme Definitions
+| Programme | What the official source supports | What this application does not assert |
+|---|---|---|
+| PM-KISAN | Central income-support programme. | Approval or beneficiary status from a chat profile alone. |
+| PMFBY / Karnataka Samrakshane | Crop insurance for notified crops/areas and insured crop risks, subject to current notification, enrollment, and claim assessment. | A guaranteed claim, amount, current district/crop coverage, or the user's enrollment. |
+| PMKSY — Per Drop More Crop (Micro Irrigation) | The official PMKSY portal describes support for on-farm water-use efficiency through drip and sprinkler irrigation. | A fixed subsidy percentage, amount, acreage rule, cooldown, or approval. Current Karnataka norms and funds must be checked. |
+| Sub-Mission on Agricultural Mechanization (SMAM) | Official farm-machinery portals describe government assistance for procurement of agricultural machinery. | A universal subsidy rate/cap, equipment list, available allocation, application window, or approval. These depend on current guidelines and state implementation. |
+| Soil Health Card Programme | Soil testing and nutrient/fertilizer-use recommendations through the official programme and state service channels. | A cash grant. The Soil Health Card Programme is a soil-testing/advisory service, not a universal per-hectare cash subsidy. |
 
-### 1. PM-KISAN (Real Official Scheme)
-* **Type:** Real
-* **Issuing Authority:** Central Government of India
-* **Purpose:** Income support for landholding farmer families.
-* **Benefit:** ₹6,000 per annum paid in three 4-monthly installments of ₹2,000 directly into bank accounts via DBT.
-* **Eligibility Rules:**
-  - `is_landholder == True` (Owns cultivable land in their name)
-  - `land_size_acres > 0.0`
-* **Exclusions (Mandatory Check):**
-  - Institutional landholders.
-  - Farmer or family member holding or held constitutional posts.
-  - Former/present Ministers, MPs, MLAs, Mayors, Chairpersons of District Panchayats.
-  - Serving or retired officers/employees of Central/State Gov departments.
-  - All persons who paid Income Tax in the last assessment year.
-  - Professionals (Doctors, Engineers, Lawyers, CA) registered with professional councils.
-* **Mandatory Documents:**
-  1. Pahani / RTC (Land Ownership Record)
-  2. Aadhaar Card
-  3. Aadhaar-seeded Bank Account (NPCI active)
+## Official sources
 
----
+- [PM-KISAN official portal](https://pmkisan.gov.in/)
+- [PMFBY official portal](https://pmfby.gov.in/)
+- [Karnataka Samrakshane portal](https://samrakshane.karnataka.gov.in/)
+- [PMKSY Per Drop More Crop portal](https://pmksy.gov.in/microirrigation/index.aspx)
+- [PMKSY Micro Irrigation guidelines page](https://pmksy.gov.in/microirrigation/Guideline.aspx)
+- [Government of India Farm Machinery DBT portal](https://agrimachinery.nic.in/)
+- [Farm Mechanization DBT portal](https://farmech.dac.gov.in/)
+- [Soil Health Card official portal](https://soilhealth.dac.gov.in/)
+- [Karnataka Raitha Mitra portal](https://raitamitra.karnataka.gov.in/)
 
-### 2. PMFBY (Pradhan Mantri Fasal Bima Yojana — Real Official Scheme)
-* **Type:** Real
-* **Issuing Authority:** Ministry of Agriculture & Farmers Welfare / Karnataka Samrakshane
-* **Purpose:** Financial support and comprehensive crop risk insurance against non-preventable natural disasters.
-* **Benefit:** Claim payout based on calculated yield shortfall or localized damage.
-* **Eligibility Rules:**
-  - `crop IN ["Ragi", "Pigeon Pea (Togari)", "Jowar", "Paddy", "Cotton", "Groundnut", "Sugarcane", "Maize"]`
-  - `season IN ["Kharif", "Rabi", "Summer"]`
-  - `is_notified_area == True` (Karnataka notified taluks/hoblis)
-  - `risk_type IN ["Drought", "Excess Rainfall", "Pest Attack", "Flood", "Hailstorm"]`
-* **Mandatory Documents:**
-  1. Pahani / RTC
-  2. Sowing Certificate (issued by Village Accountant / self-declaration)
-  3. Bank Passbook
+## Application behavior and safety
 
----
+- The backend deterministically evaluates the PM-KISAN and PMFBY reference rules.
+- PMKSY and SMAM are always shown as **conditionally eligible / confirm current criteria**; available user profile facts cannot prove current programme eligibility.
+- Soil Health Card is shown as **informational**, not an eligibility or cash-benefit result.
+- Every result links to its government source and shows the date this stored catalogue was last researched.
+- The stored sources and date do not imply that the linked department has approved an applicant or that a scheme is accepting applications today.
 
-### 3. Demo Micro-Irrigation Support (Fictional / Synthetic Test Case)
-* **Type:** Synthetic Demo
-* **Purpose:** Synthetic test case for drip & sprinkler irrigation subsidy decision rules.
-* **Benefit:**
-  - Small/Marginal Farmers ($\le$ 5.0 acres): **90% subsidy**
-  - Other Farmers (> 5.0 acres and $\le$ 12.5 acres): **70% subsidy**
-* **Eligibility Rules:**
-  - `land_size_acres >= 0.5 AND land_size_acres <= 12.5`
-  - `has_water_source == True` (Borewell, Open Well, or Canal connection available)
-  - `availed_drip_subsidy_last_3_years == False`
-* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
-* **Mandatory Documents:**
-  1. Pahani / RTC
-  2. Borewell / Water Source certificate
-  3. Small/Marginal Farmer Certificate (if claiming 90%)
+## Research limitations
 
----
-
-### 4. Demo Agricultural Equipment Assistance (Fictional / Synthetic Test Case)
-* **Type:** Synthetic Demo
-* **Purpose:** Synthetic test case for farm mechanization equipment subsidy decision rules.
-* **Benefit:** **50% subsidy** up to a maximum cap of **₹1,00,000** for approved agricultural implements.
-* **Eligibility Rules:**
-  - `land_size_acres >= 1.0`
-  - `requested_equipment IN ["Power Tiller", "Rotavator", "Sprayer", "Weeder", "Small Tractor"]`
-  - `dealer_is_authorized == True`
-* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
-* **Mandatory Documents:**
-  1. Pahani / RTC
-  2. Aadhaar Card
-  3. Quotation from authorized equipment dealer
-
----
-
-### 5. Demo Soil Improvement Support (Fictional / Synthetic Test Case)
-* **Type:** Synthetic Demo
-* **Purpose:** Synthetic test case for soil health and organic enrichment incentives.
-* **Benefit:** Incentive of **₹5,000 per hectare** (max 2 hectares / 5 acres) for applying green manure, gypsum, and bio-fertilizers.
-* **Eligibility Rules:**
-  - `has_soil_health_card == True`
-  - `soil_deficiency IN ["Low Organic Carbon", "Saline", "Alkaline", "Acidic", "Micronutrient Deficient"]`
-  - `land_size_acres <= 5.0`
-* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
-* **Mandatory Documents:**
-  1. Official Soil Health Card (SHC)
-  2. Pahani / RTC
-  3. Bank Account details
-
----
-
-## 2. Dialectal & Colloquial Extraction Mapping
-
-| Spoken Rural Phrase | Canonical Standard Key | Mapped Value |
-| :--- | :--- | :--- |
-| **ತೊಗರಿ (Togari)** | `crop` | Pigeon Pea (Red Gram) |
-| **ಕಬ್ಬು (Kabbu)** | `crop` | Sugarcane |
-| **ರಾಗಿ (Ragi)** | `crop` | Ragi (Finger Millet) |
-| **ಜೋಳ (Jola)** | `crop` | Sorghum (Jowar) |
-| **ಕುಷ್ಕಿ (Kushki) / ಒಣಭೂಮಿ** | `irrigation_type` | Rainfed / Dryland |
-| **ತರಿ (Tari) / ನೀರಾವರಿ** | `irrigation_type` | Irrigated |
-| **ಗುಂಟೆ (Gunta)** | `land_size` | Converts to `0.025 * guntas` acres |
-| **ಹನಿ ನೀರಾವರಿ / ಡ್ರಿಪ್ (Drip)** | `assistance_intent` | Micro-Irrigation |
-| **ಟಿಲ್ಲರ್ / ರೋಟವೇಟರ್** | `assistance_intent` | Agricultural Equipment |
-| **ಮಣ್ಣು ಪರೀಕ್ಷೆ (Mannu Pareekshe)** | `assistance_intent` | Soil Improvement |
-| **ಬೆಳೆ ಹಾನಿ / ಒಣಗಿ ಹೋತು** | `assistance_intent` | Crop Insurance (PMFBY) |
+The official PMKSY and farm-mechanization portals describe programme purpose and link to guidance, but this review did not establish a current Karnataka-wide subsidy rate or live allocation. Such values are deliberately not stored as fixed eligibility rules. Soil Health Card portal content is an application and service portal; use the portal or district soil-testing service for current sample collection and access procedures.
