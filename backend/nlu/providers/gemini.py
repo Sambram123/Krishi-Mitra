@@ -5,6 +5,10 @@ Uses official `google-genai` SDK with native response_schema=ExtractOut for zero
 
 import os
 from typing import Dict, Any, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from google import genai
 from google.genai import types
 from backend.nlu.schemas import ExtractOut

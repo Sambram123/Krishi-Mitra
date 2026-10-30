@@ -4,6 +4,10 @@ Krishi Mitra — NLU Provider Abstraction & Factory
 
 import os
 from typing import Protocol, Dict, Any, List, Optional
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from backend.nlu.schemas import ExtractOut
 
 
