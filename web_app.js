@@ -39,7 +39,11 @@
       const requestId = response.headers.get('X-Request-ID');
       if (!response.ok) {
         const reference = requestId ? ` (reference: ${requestId})` : '';
-        throw new Error(`${data.error || `Request failed (${response.status}).`}${reference}`);
+        const error = new Error(
+          `${data.error || `Request failed (${response.status}).`}${reference}`,
+        );
+        error.status = response.status;
+        throw error;
       }
       if (requestId) data.requestId = requestId;
       return data;
@@ -512,7 +516,15 @@
         player.addEventListener('ended', () => setServiceStatus(result.model_mode), { once: true });
       } catch (error) {
         console.error('[voice] turn failed', { message: error.message });
-        setServiceStatus(error.message || 'Voice chat failed. Please try again.');
+        if (error.status === 422 && selectAlternativeMicrophone()) {
+          const nextInputLabel = audioInputDevices.find(device =>
+            device.deviceId === preferredAudioInputId)?.label;
+          setServiceStatus(currentLanguage === 'kn'
+            ? `ಮಾತು ಗುರುತಿಸಲಾಗಲಿಲ್ಲ. "${nextInputLabel}" ಆಯ್ಕೆ ಮಾಡಿದೆ; ಮತ್ತೆ ಮಾತನಾಡಿ ಪ್ರಯತ್ನಿಸಿ.`
+            : `No speech was recognized. Switched to "${nextInputLabel}". Try speaking again.`);
+        } else {
+          setServiceStatus(error.message || 'Voice chat failed. Please try again.');
+        }
       } finally {
         busy = false;
         micButton.disabled = false;

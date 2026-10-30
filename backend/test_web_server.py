@@ -126,18 +126,19 @@ class TestWebServer(unittest.TestCase):
         audio = base64.b64encode(b"sample webm audio").decode("ascii")
         with patch.dict("os.environ", {"SARVAM_API_KEY": "configured-key"}, clear=True):
             with patch("backend.web_server.SarvamAI", return_value=fake_client):
-                with self.assertLogs("krishi_mitra", level="WARNING") as captured_logs:
+                with self.assertLogs("krishi_mitra", level="INFO") as captured_logs:
                     with self.assertRaisesRegex(APIError, "No speech was recognized"):
                         handle_voice_turn({
                             "audio": audio,
                             "mime_type": "audio/webm",
                             "language": "en",
-                            "recording_duration_ms": 4_000,
+                            "recording_duration_ms": 25_100,
                             "profile": {},
                         }, request_id="empty-transcript")
 
         self.assertEqual(transcribe.call_args.kwargs["language_code"], "unknown")
         self.assertIn("status=empty_transcript", "\n".join(captured_logs.output))
+        self.assertIn("recording_duration_ms=25100", "\n".join(captured_logs.output))
         fake_client.chat.completions.assert_not_called()
         fake_client.text_to_speech.convert.assert_not_called()
 

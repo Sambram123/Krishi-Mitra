@@ -730,7 +730,7 @@ def handle_voice_turn(payload: dict[str, Any], request_id: str = "local") -> dic
     if (
         not isinstance(recording_duration_ms, int)
         or isinstance(recording_duration_ms, bool)
-        or not 0 <= recording_duration_ms <= 25_000
+        or not 0 <= recording_duration_ms <= 26_000
     ):
         recording_duration_ms = "unknown"
     LOGGER.info(
