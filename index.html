@@ -13,30 +13,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
   
   <!-- Tailwind CSS CDN -->
-  <script src="https://cdn.tailwindcss.com">
-    // Category Filter for Government Schemes Bento Grid
-    function filterSchemes(category, btn) {
-      document.querySelectorAll('.scheme-filter-btn').forEach(b => {
-        b.className = "scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all";
-      });
-      btn.className = "scheme-filter-btn px-4 py-2 bg-neutral-900 text-white border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] transition-all";
-
-      const cards = document.querySelectorAll('.scheme-bento-card');
-      let visibleCount = 0;
-      cards.forEach(card => {
-        const cat = card.getAttribute('data-category') || '';
-        if (category === 'all' || cat.includes(category)) {
-          card.style.display = 'flex';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
-      const countEl = document.getElementById('scheme-count');
-      if (countEl) countEl.textContent = visibleCount;
-    }
-
-  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -61,11 +38,480 @@
       }
     }
   
-    // Category Filter for Government Schemes Bento Grid
+    const SCHEMES_DATA = [
+      {
+        id: "REF#GOI-KISAN-01",
+        category: "income",
+        gridClass: "col-span-12 lg:col-span-8",
+        icon: "payments",
+        iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
+        tagEn: "Central Govt",
+        tagKn: "ಕೇಂದ್ರ ಸರ್ಕಾರ",
+        tagClass: "bg-amber-50 text-amber-800 border-amber-200/60",
+        titleEn: "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+        titleKn: "ಪಿಎಂ-ಕಿಸಾನ್ (ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ)",
+        deptEn: "Ministry of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Direct Income Assistance",
+        benefitLabelKn: "ನೇರ ಆದಾಯ ನೆರವು",
+        benefitAmountEn: "₹6,000 / Year",
+        benefitAmountKn: "₹6,000 / ವರ್ಷಕ್ಕೆ",
+        benefitDescEn: "Paid in 3 equal 4-monthly installments of ₹2,000 directly via Aadhaar DBT",
+        benefitDescKn: "ಆಧಾರ್ ಡಿಬಿಟಿ ಮೂಲಕ ವರ್ಷಕ್ಕೆ 3 ಕಂತುಗಳಲ್ಲಿ ತಲಾ ₹2,000 ನೇರ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ",
+        rulesEn: [
+          "All landholder farmer families with cultivable landholding in their name",
+          "Excludes institutional landholders, constitutional post holders & income tax payers",
+          "Mandatory e-KYC via biometric or Aadhaar OTP authentication"
+        ],
+        rulesKn: [
+          "ತಮ್ಮ ಹೆಸರಿನಲ್ಲಿ ಸಾಗುವಳಿ ಜಮೀನು ಹೊಂದಿರುವ ಎಲ್ಲಾ ರೈತ ಕುಟುಂಬಗಳು",
+          "ಸಾಂಸ್ಥಿಕ ಭೂಹಿಡುವಳಿದಾರರು, ಸಾಂವಿಧಾನಿಕ ಹುದ್ದೆ ಹೊಂದಿರುವವರು ಹಾಗೂ ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರಿಗೆ ಅನ್ವಯಿಸುವುದಿಲ್ಲ",
+          "ಬಯೋಮೆಟ್ರಿಕ್ ಅಥವಾ ಆಧಾರ್ ಒಟಿಪಿ ಮೂಲಕ ಇ-ಕೆವೈಸಿ ಮಾಡಿಸುವುದು ಕಡ್ಡಾಯ"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "NPCI-Active Bank A/c"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "NPCI ಬ್ಯಾಂಕ್ ಖಾತೆ"],
+        portalUrl: "https://pmkisan.gov.in",
+        portalDomain: "pmkisan.gov.in"
+      },
+      {
+        id: "REF#KA-GANGA-02",
+        category: "karnataka irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "water_drop",
+        iconBg: "bg-sky-50 text-sky-600 border-sky-100",
+        tagEn: "Karnataka State",
+        tagKn: "ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Ganga Kalyana Scheme",
+        titleKn: "ಗಂಗಾ ಕಲ್ಯಾಣ ಯೋಜನೆ",
+        deptEn: "Social Welfare & Backward Classes Dept, Karnataka",
+        deptKn: "ಸಮಾಜ ಕಲ್ಯಾಣ ಮತ್ತು ಹಿಂದುಳಿದ ವರ್ಗಗಳ ಇಲಾಖೆ, ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Complete Irrigation Unit",
+        benefitLabelKn: "ಸಂಪೂರ್ಣ ನೀರಾವರಿ ಘಟಕ",
+        benefitAmountEn: "100% Free Borewell",
+        benefitAmountKn: "100% ಉಚಿತ ಬೋರ್ವೆಲ್",
+        benefitDescEn: "Full financial grant up to ₹3.75 Lakhs for drilling, pump set & ESCOM energization",
+        benefitDescKn: "ಕೊಳವೆಬಾವಿ ಕೊರೆಯಲು, ಪಂಪ್‌ಸೆಟ್ ಅಳವಡಿಕೆ ಮತ್ತು ಎಸ್ಕಾಂ ವಿದ್ಯುದ್ದೀಕರಣಕ್ಕೆ ₹3.75 ಲಕ್ಷದವರೆಗೆ ಪೂರ್ಣ ಸಹಾಯಧನ",
+        rulesEn: [
+          "Small & marginal farmers belonging to SC, ST, OBC & Minorities",
+          "Annual family income limit ≤ ₹1,50,000 (Rural) / ₹2,00,000 (Urban)",
+          "Land holding between 1.5 to 5.0 acres in dryland/rainfed areas"
+        ],
+        rulesKn: [
+          "ಪರಿಶಿಷ್ಟ ಜಾತಿ, ಪರಿಶಿಷ್ಟ ಪಂಗಡ ಹಾಗೂ ಹಿಂದುಳಿದ ವರ್ಗಗಳ ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರು",
+          "ಕುಟುಂಬದ ವಾರ್ಷಿಕ ಆದಾಯ ಮಿತಿ ಗ್ರಾಮೀಣ ಪ್ರದೇಶಕ್ಕೆ ₹1,50,000 / ನಗರ ಪ್ರದೇಶಕ್ಕೆ ₹2,00,000 ಒಳಗಿರಬೇಕು",
+          "ಒಣಭೂಮಿ ಪ್ರದೇಶದಲ್ಲಿ ಕನಿಷ್ಠ 1.5 ರಿಂದ 5.0 ಎಕರೆ ಜಮೀನು ಹೊಂದಿರಬೇಕು"
+        ],
+        docsEn: ["RTC / Pahani", "Caste & Income Cert", "Aadhaar", "Land Map"],
+        docsKn: ["ಆರ್‌ಟಿಸಿ / ಪಹಣಿ", "ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ", "ಆಧಾರ್", "ಜಮೀನಿನ ನಕ್ಷೆ"],
+        portalUrl: "https://kppp.karnataka.gov.in",
+        portalDomain: "kppp.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-PMFBY-03",
+        category: "insurance",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "shield",
+        iconBg: "bg-blue-50 text-blue-600 border-blue-100",
+        tagEn: "Comprehensive Cover",
+        tagKn: "ಸಮಗ್ರ ವಿಮಾ ರಕ್ಷಣೆ",
+        tagClass: "bg-blue-50 text-blue-800 border-blue-200/60",
+        titleEn: "PMFBY (Pradhan Mantri Fasal Bima Yojana)",
+        titleKn: "ಪಿಎಂಎಫ್‌ಬಿವೈ (ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ)",
+        deptEn: "MoA&FW & Samrakshane Karnataka",
+        deptKn: "ಕೃಷಿ ಸಚಿವಾಲಯ ಮತ್ತು ಸಂರಕ್ಷಣೆ ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Crop Loss Risk Cover",
+        benefitLabelKn: "ಬೆಳೆ ನಷ್ಟ ವಿಮಾ ರಕ್ಷಣೆ",
+        benefitAmountEn: "1.5% - 2.0% Premium",
+        benefitAmountKn: "1.5% - 2.0% ಪ್ರೀಮಿಯಂ",
+        benefitDescEn: "Government pays the rest; covers drought, floods, hailstorms & pest attacks",
+        benefitDescKn: "ಉಳಿದ ಪ್ರೀಮಿಯಂ ಮೊತ್ತವನ್ನು ಸರ್ಕಾರವೇ ಭರಿಸುತ್ತದೆ; ಬರ, ಅತಿವೃಷ್ಟಿ, ಆಲಿಕಲ್ಲು ಮಳೆ ಮತ್ತು ಕೀಟಬಾಧೆಗೆ ರಕ್ಷಣೆ",
+        rulesEn: [
+          "Farmers cultivating notified crops (Paddy, Ragi, Togari, Cotton, Maize, etc.)",
+          "Both loanee and non-loanee farmers eligible across notified hoblis",
+          "Post-harvest loss coverage up to 14 days for crops drying on field"
+        ],
+        rulesKn: [
+          "ಅಧಿಸೂಚಿತ ಬೆಳೆಗಳನ್ನು (ಭತ್ತ, ರಾಗಿ, ತೊಗರಿ, ಹತ್ತಿ, ಜೋಳ ಇತ್ಯಾದಿ) ಬೆಳೆಯುವ ರೈತರು",
+          "ಸಾಲ ಪಡೆದ ಮತ್ತು ಸಾಲ ಪಡೆಯದ ಎಲ್ಲಾ ರೈತರು ಅಧಿಸೂಚಿತ ಹೋಬಳಿಗಳಲ್ಲಿ ಅರ್ಹರು",
+          "ಹೊಲದಲ್ಲಿ ಒಣಗಲು ಹಾಕಿದ ಬೆಳೆಗಳಿಗೆ ಕಟಾವಿನ ನಂತರ 14 ದಿನಗಳವರೆಗೆ ಸ್ಥಳೀಯ ನಷ್ಟ ಪರಿಹಾರ ಲಭ್ಯ"
+        ],
+        docsEn: ["Pahani / RTC", "Sowing Certificate", "Bank Passbook"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಬೆಳೆ ಬಿತ್ತನೆ ದೃಢೀಕರಣ ಪತ್ರ", "ಬ್ಯಾಂಕ್ ಪಾಸ್ ಪುಸ್ತಕ"],
+        portalUrl: "https://samrakshane.karnataka.gov.in",
+        portalDomain: "samrakshane.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-KUSUM-04",
+        category: "irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "solar_power",
+        iconBg: "bg-amber-50 text-amber-600 border-amber-100",
+        tagEn: "Solar Energy",
+        tagKn: "ಸೌರ ಶಕ್ತಿ",
+        tagClass: "bg-amber-50 text-amber-800 border-amber-200/60",
+        titleEn: "PM-KUSUM (Solar Agricultural Pumpsets)",
+        titleKn: "ಪಿಎಂ-ಕುಸುಮ್ (ಸೌರ ಕೃಷಿ ಪಂಪ್‌ಸೆಟ್ ಯೋಜನೆ)",
+        deptEn: "Ministry of New & Renewable Energy & KREDL Karnataka",
+        deptKn: "ನವೀಕರಿಸಬಹುದಾದ ಇಂಧನ ಸಚಿವಾಲಯ ಮತ್ತು ಕ್ರೆಡಲ್ ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Clean Solar Irrigation",
+        benefitLabelKn: "ಸ್ವಾವಲಂಬಿ ಸೌರ ನೀರಾವರಿ",
+        benefitAmountEn: "Up to 90% Subsidy",
+        benefitAmountKn: "90% ವರೆಗೆ ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "30% Central + up to 60% Karnataka state subsidy on 3 to 7.5 HP standalone solar pumps",
+        benefitDescKn: "3 ರಿಂದ 7.5 ಹೆಚ್‌ಪಿ ಸ್ಟ್ಯಾಂಡ್‌ಅಲೋನ್ ಸೋಲಾರ್ ಪಂಪ್‌ಗಳಿಗೆ ಕೇಂದ್ರ (30%) + ರಾಜ್ಯ (60%) ವರೆಗೆ ಸಹಾಯಧನ",
+        rulesEn: [
+          "Landholders with confirmed ground/open water source without grid connection",
+          "Eliminates dependency on diesel pumps and erratic night power supplies",
+          "Priority for farmers utilizing micro-irrigation systems"
+        ],
+        rulesKn: [
+          "ವಿದ್ಯುತ್ ಸಂಪರ್ಕವಿಲ್ಲದ, ಖಚಿತ ನೀರಾವರಿ ಮೂಲ (ಬೋರ್ವೆಲ್/ಬಾವಿ) ಹೊಂದಿರುವ ರೈತರು",
+          "ಡೀಸೆಲ್ ವೆಚ್ಚ ಹಾಗೂ ರಾತ್ರಿ ವಿದ್ಯುತ್ ಸರಬರಾಜಿನ ಅನಿಶ್ಚಿತತೆಯನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ತಪ್ಪಿಸುತ್ತದೆ",
+          "ಹನಿ ನೀರಾವರಿ ಅಳವಡಿಸಿಕೊಂಡ ರೈತರಿಗೆ ಮೊದಲ ಆದ್ಯತೆ"
+        ],
+        docsEn: ["RTC (Pahani)", "Water Source Cert", "Aadhaar Card", "NOC"],
+        docsKn: ["ಆರ್‌ಟಿಸಿ (ಪಹಣಿ)", "ನೀರಿನ ಮೂಲ ದೃಢೀಕರಣ", "ಆಧಾರ್ ಕಾರ್ಡ್", "ನಿರಾಕ್ಷೇಪಣಾ ಪತ್ರ"],
+        portalUrl: "https://souramitra.com",
+        portalDomain: "souramitra.com"
+      },
+      {
+        id: "REF#GOI-PMKSY-05",
+        category: "irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "waves",
+        iconBg: "bg-teal-50 text-teal-600 border-teal-100",
+        tagEn: "Water Efficiency",
+        tagKn: "ನೀರಿನ ಮಿತವ್ಯಯ",
+        tagClass: "bg-teal-50 text-teal-800 border-teal-200/60",
+        titleEn: "PMKSY (Per Drop More Crop — Drip & Sprinkler)",
+        titleKn: "ಪಿಎಂಕೆಎಸ್‌ವೈ (ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿ ಯೋಜನೆ)",
+        deptEn: "Department of Agriculture & Horticulture, Karnataka",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ತೋಟಗಾರಿಕೆ ಇಲಾಖೆ, ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Micro-Irrigation Subsidy",
+        benefitLabelKn: "ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ ಸಹಾಯಧನ",
+        benefitAmountEn: "70% to 90% Subsidy",
+        benefitAmountKn: "70% ರಿಂದ 90% ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "90% subsidy for small/marginal farmers (≤ 5 acres); 70% for other farmers (≤ 12.5 acres)",
+        benefitDescKn: "ಸಣ್ಣ/ಅತಿಸಣ್ಣ ರೈತರಿಗೆ (≤ 5 ಎಕರೆ) 90% ಸಬ್ಸಿಡಿ; ಇತರ ರೈತರಿಗೆ (≤ 12.5 ಎಕರೆ) 70% ಸಬ್ಸಿಡಿ",
+        rulesEn: [
+          "Cultivable landholding between 0.5 and 12.5 acres",
+          "Functional water source (borewell, open well, or lift pipe)",
+          "Must not have availed drip subsidy for the same survey number in 3 years"
+        ],
+        rulesKn: [
+          "0.5 ಎಕರೆಯಿಂದ 12.5 ಎಕರೆವರೆಗೆ ಸಾಗುವಳಿ ಜಮೀನು ಹೊಂದಿರುವ ರೈತರು",
+          "ಚಾಲ್ತಿಯಲ್ಲಿರುವ ನೀರಿನ ಮೂಲ (ಕೊಳವೆಬಾವಿ, ತೆರೆದ ಬಾವಿ ಅಥವಾ ನದಿ ಮೂಲ) ಇರಬೇಕು",
+          "ಕಳೆದ 3 ವರ್ಷಗಳಲ್ಲಿ ಅದೇ ಸರ್ವೆ ನಂಬರಿಗೆ ಹನಿ ನೀರಾವರಿ ಸಹಾಯಧನ ಪಡೆದಿರಬಾರದು"
+        ],
+        docsEn: ["Pahani / RTC", "Water Source Proof", "Small Farmer Cert"],
+        docsKn: ["ಪಹಣಿ / RTC", "ನೀರಿನ ಲಭ್ಯತೆ ದೃಢೀಕರಣ", "ಸಣ್ಣ ರೈತರ ಪ್ರಮಾಣಪತ್ರ"],
+        portalUrl: "https://pmksy.gov.in",
+        portalDomain: "pmksy.gov.in"
+      },
+      {
+        id: "REF#RBI-KCC-06",
+        category: "income",
+        gridClass: "col-span-12 lg:col-span-6",
+        icon: "credit_score",
+        iconBg: "bg-indigo-50 text-indigo-600 border-indigo-100",
+        tagEn: "Farm Credit",
+        tagKn: "ಕೃಷಿ ಸಾಲ",
+        tagClass: "bg-indigo-50 text-indigo-800 border-indigo-200/60",
+        titleEn: "Kisan Credit Card (KCC) & Interest Subvention",
+        titleKn: "ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಮತ್ತು ಬಡ್ಡಿ ರಿಯಾಯಿತಿ",
+        deptEn: "Reserve Bank of India & NABARD",
+        deptKn: "ರಿಸರ್ವ್ ಬ್ಯಾಂಕ್ ಆಫ್ ಇಂಡಿಯಾ (RBI) & ನಬಾರ್ಡ್",
+        benefitLabelEn: "Concessional Loan Facility",
+        benefitLabelKn: "ರಿಯಾಯಿತಿ ದರದ ಬೆಳೆ ಸಾಲ",
+        benefitAmountEn: "4.0% Effective Interest",
+        benefitAmountKn: "4.0% ರಿಯಾಯಿತಿ ಬಡ್ಡಿ ದರ",
+        benefitDescEn: "Credit limit up to ₹3,00,000; base 7% interest minus 3% prompt repayment incentive",
+        benefitDescKn: "₹3,00,000 ವರೆಗೆ ಸಾಲ ಮಿತಿ; 7% ಮೂಲ ಬಡ್ಡಿಯಲ್ಲಿ ಸಮಯಕ್ಕೆ ಸರಿಯಾಗಿ ಮರುಪಾವತಿಸಿದರೆ 3% ಬಡ್ಡಿ ಸಹಾಯಧನ",
+        rulesEn: [
+          "All farmers, owner cultivators, tenant farmers, oral lessees & sharecroppers",
+          "Collateral-free agricultural loans up to ₹1,60,000",
+          "Simple revolving credit card valid for 5 years with annual review"
+        ],
+        rulesKn: [
+          "ಸ್ವಂತ ಭೂಮಿ ಹೊಂದಿರುವ ರೈತರು, ಗೇಣಿದಾರರು ಮತ್ತು ಪಾಲುದಾರ ರೈತರೆಲ್ಲರೂ ಅರ್ಹರು",
+          "₹1,60,000 ವರೆಗೆ ಯಾವುದೇ ಭದ್ರತೆ (ಶ್ಯೂರಿಟಿ) ರಹಿತ ಸಾಲ ಸೌಲಭ್ಯ",
+          "ವಾರ್ಷಿಕ ನವೀಕರಣದೊಂದಿಗೆ 5 ವರ್ಷಗಳ ಮಾನ್ಯತೆಯುಳ್ಳ ಸರಳ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "PAN Card", "Crop Declaration"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಪ್ಯಾನ್ ಕಾರ್ಡ್", "ಬೆಳೆ ಘೋಷಣಾ ಪತ್ರ"],
+        portalUrl: "https://myscheme.gov.in",
+        portalDomain: "myscheme.gov.in"
+      },
+      {
+        id: "REF#KA-BHAGYA-07",
+        category: "karnataka irrigation",
+        gridClass: "col-span-12 lg:col-span-6",
+        icon: "water",
+        iconBg: "bg-cyan-50 text-cyan-600 border-cyan-100",
+        tagEn: "Karnataka State",
+        tagKn: "ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Karnataka Krishi Bhagya Scheme",
+        titleKn: "ಕರ್ನಾಟಕ ಕೃಷಿ ಭಾಗ್ಯ ಯೋಜನೆ",
+        deptEn: "Department of Agriculture, Govt of Karnataka",
+        deptKn: "ಕೃಷಿ ಇಲಾಖೆ, ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        benefitLabelEn: "Rainwater Harvesting",
+        benefitLabelKn: "ಮಳೆನೀರು ಕೊಯ್ಲು ಮತ್ತು ಕೃಷಿ ಹೊಂಡ",
+        benefitAmountEn: "80% - 90% Subsidy",
+        benefitAmountKn: "80% - 90% ಸಹಾಯಧನ",
+        benefitDescEn: "Financial assistance for farm pond (Krishi Honda) excavation, polythene lining & pump",
+        benefitDescKn: "ಕೃಷಿ ಹೊಂಡ ನಿರ್ಮಾಣ, ಪಾಲಿಥೀನ್ ಹೊದಿಕೆ (ಲೈನಿಂಗ್) ಮತ್ತು ಪಂಪ್‌ಸೆಟ್ ಖರೀದಿಗೆ ಆರ್ಥಿಕ ನೆರವು",
+        rulesEn: [
+          "Rainfed/dryland farmers across 100+ notified dry taluks in 25 districts",
+          "Promotes on-farm water security to sustain crops through dry spells",
+          "Packages include farm ponds, pump sets, and shade net polyhouses"
+        ],
+        rulesKn: [
+          "25 ಜಿಲ್ಲೆಗಳ 100 ಕ್ಕೂ ಹೆಚ್ಚು ಅಧಿಸೂಚಿತ ಒಣ ತಾಲ್ಲೂಕುಗಳ ಮಳೆಯಾಶ್ರಿತ ರೈತರು",
+          "ಬರಗಾಲದ ಸಮಯದಲ್ಲಿ ಬೆಳೆ ರಕ್ಷಿಸಲು ಹೊಲದಲ್ಲೇ ನೀರಿನ ಭದ್ರತೆ ಕಲ್ಪಿಸುತ್ತದೆ",
+          "ಕೃಷಿ ಹೊಂಡ, ಡೀಸೆಲ್ ಪಂಪ್‌ಸೆಟ್ ಮತ್ತು ನೆರಳು ಪರದೆ ಪಾಲಿಹೌಸ್ ಒಳಗೊಂಡ ಪ್ಯಾಕೇಜ್"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "Bank Passbook", "RSK Field Form"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಬ್ಯಾಂಕ್ ಪಾಸ್ ಪುಸ್ತಕ", "ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರದ ಅರ್ಜಿ"],
+        portalUrl: "https://raitamitra.karnataka.gov.in",
+        portalDomain: "raitamitra.karnataka.gov.in"
+      },
+      {
+        id: "REF#KA-SIRI-08",
+        category: "karnataka income",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "eco",
+        iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
+        tagEn: "Millet Mission",
+        tagKn: "ಸಿರಿಧಾನ್ಯ ಮಿಷನ್",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Raitha Siri Scheme (Millet Promotion)",
+        titleKn: "ರೈತ ಸಿರಿ ಯೋಜನೆ (ಸಿರಿಧಾನ್ಯ ಪ್ರೋತ್ಸಾಹ)",
+        deptEn: "Department of Agriculture, Govt of Karnataka",
+        deptKn: "ಕೃಷಿ ಇಲಾಖೆ, ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        benefitLabelEn: "Millet Cultivation Incentive",
+        benefitLabelKn: "ಸಿರಿಧಾನ್ಯ ಬೆಳೆ ಪ್ರೋತ್ಸಾಹಧನ",
+        benefitAmountEn: "₹10,000 / Hectare",
+        benefitAmountKn: "₹10,000 / ಹೆಕ್ಟೇರ್‌ಗೆ",
+        benefitDescEn: "Direct financial incentive to farmers growing climate-smart Siridhanya millets",
+        benefitDescKn: "ವಾತಾವರಣ ಸ್ನೇಹಿ ಸಿರಿಧಾನ್ಯಗಳನ್ನು ಬೆಳೆಯುವ ರೈತರಿಗೆ ನೇರ ಆರ್ಥಿಕ ಪ್ರೋತ್ಸಾಹಧನ",
+        rulesEn: [
+          "Farmers cultivating certified millets: Ragi, Jowar, Bajra, Foxtail, Kodo & Little millet",
+          "Crops verified via the official Karnataka Crop Survey (Bele Darshak) mobile app",
+          "Direct DBT credit into the farmer's registered bank account"
+        ],
+        rulesKn: [
+          "ಅಧಿಸೂಚಿತ ಸಿರಿಧಾನ್ಯಗಳಾದ ರಾಗಿ, ಜೋಳ, ಸಜ್ಜೆ, ನವಣೆ, ಹಾರಕ, ಕೊರಲೆ ಬೆಳೆಯುವ ರೈತರು",
+          "ಕರ್ನಾಟಕ ಸರ್ಕಾರದ ಅಧಿಕೃತ ಬೆಳೆ ಸಮೀಕ್ಷೆ (Bele Darshak) ಆ್ಯಪ್ ಮೂಲಕ ದೃಢೀಕರಿಸಿರಬೇಕು",
+          "ರೈತರ ನೋಂದಾಯಿತ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ನೇರವಾಗಿ ಡಿಬಿಟಿ ಮೂಲಕ ಜಮೆ"
+        ],
+        docsEn: ["Pahani / RTC (Millet entry)", "FRUITS ID", "Aadhaar", "Bank A/c"],
+        docsKn: ["ಪಹಣಿ / RTC (ಸಿರಿಧಾನ್ಯ)", "ಫ್ರೂಟ್ಸ್ ಐಡಿ (FRUITS ID)", "ಆಧಾರ್", "ಬ್ಯಾಂಕ್ ಖಾತೆ"],
+        portalUrl: "https://fruits.karnataka.gov.in",
+        portalDomain: "fruits.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-SOIL-09",
+        category: "machinery",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "compost",
+        iconBg: "bg-lime-50 text-lime-700 border-lime-100",
+        tagEn: "Soil & Organic",
+        tagKn: "ಮಣ್ಣು & ಸಾವಯವ",
+        tagClass: "bg-lime-50 text-lime-800 border-lime-200/60",
+        titleEn: "Soil Health Card & PKVY (Paramparagat Krishi)",
+        titleKn: "ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಮತ್ತು ಪರಂಪರಾಗತ್ ಕೃಷಿ ವಿಕಾಸ್",
+        deptEn: "Department of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Soil Audit & Organic Aid",
+        benefitLabelKn: "ಮಣ್ಣು ಪರೀಕ್ಷೆ ಮತ್ತು ಸಾವಯವ ನೆರವು",
+        benefitAmountEn: "₹50,000 / Hectare",
+        benefitAmountKn: "₹50,000 / ಹೆಕ್ಟೇರ್‌ಗೆ",
+        benefitDescEn: "Free 12-parameter soil test report + financial assistance for organic inputs & PGS certification",
+        benefitDescKn: "ಉಚಿತ 12-ನಿಯತಾಂಕ ಮಣ್ಣು ಪರೀಕ್ಷಾ ವರದಿ + ಸಾವಯವ ಪರಿಕರಗಳು ಮತ್ತು ಪಿಜಿಎಸ್ ಪ್ರಮಾಣೀಕರಣಕ್ಕೆ ನೆರವು",
+        rulesEn: [
+          "Comprehensive soil testing for N, P, K, micronutrients, pH, EC, and Organic Carbon",
+          "Custom fertilizer advisory saving up to 25% unnecessary chemical input costs",
+          "Support for cluster organic farming, vermicompost & green manuring"
+        ],
+        rulesKn: [
+          "ಸಾರಜನಕ, ರಂಜಕ, ಪೊಟ್ಯಾಶ್, ಲಘು ಪೋಷಕಾಂಶಗಳು, ಪಿಹೆಚ್ ಮತ್ತು ಇಂಗಾಲದ ಸಮಗ್ರ ಪರೀಕ್ಷೆ",
+          "ಅನಗತ್ಯ ರಾಸಾಯನಿಕ ಗೊಬ್ಬರ ವೆಚ್ಚವನ್ನು 25% ರಷ್ಟು ಉಳಿಸುವ ವೈಜ್ಞಾನಿಕ ಕೃಷಿ ಸಲಹೆ",
+          "ಗುಂಪು ಸಾವಯವ ಕೃಷಿ, ಎರೆಹುಳು ಗೊಬ್ಬರ ಮತ್ತು ಹಸಿರೆಲೆ ಗೊಬ್ಬರಕ್ಕೆ ವಿಶೇಷ ಪ್ರೋತ್ಸಾಹ"
+        ],
+        docsEn: ["Soil Sample Receipt", "RTC / Pahani", "Aadhaar Card"],
+        docsKn: ["ಮಣ್ಣಿನ ಮಾದರಿ ರಶೀದಿ", "RTC / ಪಹಣಿ", "ಆಧಾರ್ ಕಾರ್ಡ್"],
+        portalUrl: "https://soilhealth.dac.gov.in",
+        portalDomain: "soilhealth.dac.gov.in"
+      },
+      {
+        id: "REF#GOI-SMAM-10",
+        category: "machinery",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "agriculture",
+        iconBg: "bg-rose-50 text-rose-600 border-rose-100",
+        tagEn: "Mechanization",
+        tagKn: "ಯಾಂತ್ರೀಕರಣ",
+        tagClass: "bg-rose-50 text-rose-800 border-rose-200/60",
+        titleEn: "SMAM (Sub-Mission on Agricultural Mechanization)",
+        titleKn: "ಎಸ್.ಎಂ.ಎ.ಎಂ (ಕೃಷಿ ಯಾಂತ್ರೀಕರಣ ಉಪ-ಅಭಿಯಾನ)",
+        deptEn: "Ministry of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Equipment Purchase Subsidy",
+        benefitLabelKn: "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ಸಬ್ಸಿಡಿ",
+        benefitAmountEn: "40% - 50% Subsidy",
+        benefitAmountKn: "40% - 50% ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "50% subsidy for SC/ST/Small/Women farmers; 40% for other farmers on farm implements",
+        benefitDescKn: "ಪರಿಶಿಷ್ಟ ಜಾತಿ/ಪಂಗಡ/ಮಹಿಳಾ/ಸಣ್ಣ ರೈತರಿಗೆ 50% ಸಬ್ಸಿಡಿ; ಇತರ ರೈತರಿಗೆ 40% ಸಹಾಯಧನ",
+        rulesEn: [
+          "Subsidies on tractors, power tillers, rotavators, sprayers, threshers & harvesters",
+          "Up to ₹10 Lakhs subsidy for establishing Custom Hiring Centers (CHCs) by farmer groups",
+          "Purchase directly through state-empaneled verified manufacturers"
+        ],
+        rulesKn: [
+          "ಟ್ರ್ಯಾಕ್ಟರ್, ಪವರ್ ಟಿಲ್ಲರ್, ರೋಟಾವೇಟರ್, ಸಿಂಪಡಕಗಳು, ಒಕ್ಕಣೆ ಯಂತ್ರ ಮತ್ತು ಕಟಾವು ಯಂತ್ರಗಳಿಗೆ ಸಬ್ಸಿಡಿ",
+          "ರೈತ ಸಂಘಗಳು ಕಸ್ಟಮ್ ಹೈರಿಂಗ್ ಕೇಂದ್ರಗಳನ್ನು (CHCs) ಸ್ಥಾಪಿಸಲು ₹10 ಲಕ್ಷದವರೆಗೆ ಸಹಾಯಧನ",
+          "ಸರ್ಕಾರದಿಂದ ಅನುಮೋದಿತ ಅಧಿಕೃತ ಕಂಪನಿಗಳ ಮುಖಾಂತರವೇ ನೇರ ಖರೀದಿ"
+        ],
+        docsEn: ["Pahani / RTC", "Dealer Quotation", "Aadhaar Card", "Caste Cert"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಡೀಲರ್ ಕೊಟೇಶನ್", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಜಾತಿ ಪ್ರಮಾಣಪತ್ರ"],
+        portalUrl: "https://agrimachinery.nic.in",
+        portalDomain: "agrimachinery.nic.in"
+      }
+    ];
+
+    const FILTER_TABS = {
+      en: [
+        { key: "all", label: "All Schemes [10]" },
+        { key: "income", label: "Income & Credit [3]" },
+        { key: "irrigation", label: "Irrigation & Solar [4]" },
+        { key: "insurance", label: "Crop Insurance [1]" },
+        { key: "karnataka", label: "Karnataka Flagship [3]" },
+        { key: "machinery", label: "Soil & Machinery [2]" }
+      ],
+      kn: [
+        { key: "all", label: "ಎಲ್ಲಾ ಯೋಜನೆಗಳು [10]" },
+        { key: "income", label: "ಆದಾಯ ಮತ್ತು ಸಾಲ [3]" },
+        { key: "irrigation", label: "ನೀರಾವರಿ & ಸೋಲಾರ್ [4]" },
+        { key: "insurance", label: "ಬೆಳೆ ವಿಮೆ [1]" },
+        { key: "karnataka", label: "ಕರ್ನಾಟಕ ಯೋಜನೆಗಳು [3]" },
+        { key: "machinery", label: "ಮಣ್ಣು & ಯಂತ್ರೋಪಕರಣ [2]" }
+      ]
+    };
+
+    let currentCategoryFilter = 'all';
+
+    function renderSchemes(lang, category = currentCategoryFilter) {
+      currentCategoryFilter = category;
+      const isKn = lang === 'kn';
+      const grid = document.getElementById('schemes-grid');
+      if (!grid) return;
+
+      const filtered = SCHEMES_DATA.filter(s => category === 'all' || s.category.includes(category));
+
+      const countEl = document.getElementById('scheme-count');
+      if (countEl) countEl.textContent = filtered.length;
+
+      grid.innerHTML = filtered.map(s => {
+        const title = isKn ? s.titleKn : s.titleEn;
+        const dept = isKn ? s.deptKn : s.deptEn;
+        const tag = isKn ? s.tagKn : s.tagEn;
+        const benefitLabel = isKn ? s.benefitLabelKn : s.benefitLabelEn;
+        const benefitAmount = isKn ? s.benefitAmountKn : s.benefitAmountEn;
+        const benefitDesc = isKn ? s.benefitDescKn : s.benefitDescEn;
+        const rules = isKn ? s.rulesKn : s.rulesEn;
+        const docs = isKn ? s.docsKn : s.docsEn;
+        const rulesTitle = isKn ? "ಪ್ರಮುಖ ಅರ್ಹತಾ ನಿಯಮಗಳು" : "Critical Eligibility Rules";
+        const docsLabel = isKn ? "ಅಗತ್ಯ ದಾಖಲೆಗಳು:" : "Required Documents:";
+        const portalPrefix = isKn ? "ಅಧಿಕೃತ ಪೋರ್ಟಲ್" : "Official Portal";
+
+        const rulesListHtml = rules.map(r => `
+          <li class="flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-base text-emerald-500 shrink-0 mt-0.5">check_circle</span>
+            <span class="text-xs text-slate-600 leading-relaxed">${r}</span>
+          </li>
+        `).join('');
+
+        const docsBadgesHtml = docs.map(d => `
+          <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200/60">${d}</span>
+        `).join('');
+
+        return `
+          <article data-category="${s.category}" class="scheme-bento-card ${s.gridClass} bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+                <span class="text-[11px] font-mono font-medium text-slate-500 uppercase tracking-wider">${s.id}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${s.tagClass}">${tag}</span>
+              </div>
+
+              <div class="flex items-start gap-3.5 mb-4">
+                <div class="w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-2xl">${s.icon}</span>
+                </div>
+                <div>
+                  <h3 class="font-heading font-bold text-lg ${s.gridClass.includes('lg:col-span-8') ? 'sm:text-xl' : ''} text-slate-900 leading-snug tracking-tight">${title}</h3>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">${dept}</p>
+                </div>
+              </div>
+
+              <div class="bg-slate-50/90 rounded-xl p-4 border border-slate-100 mb-4">
+                <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">${benefitLabel}</div>
+                <div class="font-heading font-extrabold ${s.gridClass.includes('lg:col-span-8') ? 'text-2xl sm:text-3xl' : 'text-2xl'} text-slate-900 tracking-tight leading-none mb-1.5">${benefitAmount}</div>
+                <div class="text-xs text-slate-600 leading-relaxed font-normal">${benefitDesc}</div>
+              </div>
+
+              <div class="mb-4">
+                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <span>${rulesTitle}</span>
+                </div>
+                <ul class="space-y-2">
+                  ${rulesListHtml}
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <div class="pt-4 border-t border-slate-100 mb-4">
+                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">${docsLabel}</div>
+                <div class="flex flex-wrap gap-1.5">
+                  ${docsBadgesHtml}
+                </div>
+              </div>
+
+              <a href="${s.portalUrl}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white transition-colors text-xs font-semibold group/btn shadow-sm">
+                <span>${portalPrefix} (${s.portalDomain})</span>
+                <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5">north_east</span>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
+    }
+
+    function updateFilterButtons(lang) {
+      const isKn = lang === 'kn';
+      const container = document.getElementById('schemes-filter-container');
+      if (!container) return;
+      const tabs = FILTER_TABS[lang] || FILTER_TABS.en;
+      container.innerHTML = tabs.map(tab => {
+        const isActive = tab.key === currentCategoryFilter;
+        const activeClass = "px-4 py-2 bg-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm transition-all duration-200";
+        const inactiveClass = "px-4 py-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 rounded-full text-xs font-semibold transition-all duration-200";
+        return `<button onclick="filterSchemes('${tab.key}', this)" class="scheme-filter-btn ${isActive ? activeClass : inactiveClass}">${tab.label}</button>`;
+      }).join('');
+    }
+
     function filterSchemes(category, btn) {
+      currentCategoryFilter = category;
       document.querySelectorAll('.scheme-filter-btn').forEach(b => {
-        b.className = "scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all";
+        b.className = "scheme-filter-btn px-4 py-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 rounded-full text-xs font-semibold transition-all duration-200";
       });
+      if (btn) {
+        btn.className = "scheme-filter-btn px-4 py-2 bg-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm transition-all duration-200";
+      }
+      renderSchemes(currentLang, category);
+    });
       btn.className = "scheme-filter-btn px-4 py-2 bg-neutral-900 text-white border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] transition-all";
 
       const cards = document.querySelectorAll('.scheme-bento-card');
@@ -123,63 +569,35 @@
     <header class="relative z-20 w-full px-4 sm:px-8 lg:px-12 pt-6 pb-2">
       <div class="max-w-7xl mx-auto bg-[#E5E8E4]/95 backdrop-blur-md rounded-full shadow-2xl px-6 sm:px-8 py-3.5 flex items-center justify-between border border-white/40">
         
-        <!-- Brand Logo: Harvestra Part of Innovation -->
+        <!-- Brand Logo: Krishi Mitra -->
         <a href="index.html" class="flex items-center gap-2.5 group select-none">
           <span class="font-heading font-bold text-2xl tracking-tight text-neutral-900 group-hover:text-black transition-colors">
-            Harvestra<sup class="text-xs font-semibold -top-2 ml-0.5">®</sup>
+            Krishi Mitra
           </span>
           <div class="flex flex-col text-[9px] leading-[11px] text-neutral-600 font-medium tracking-tight border-l border-neutral-300 pl-2">
-            <span>Part of</span>
-            <span>Innovation</span>
+            <span>ಕೃಷಿ</span>
+            <span>ಮಿತ್ರ</span>
           </div>
         </a>
 
         <!-- Center Navigation Links -->
-        <nav class="hidden md:flex items-center gap-3 text-sm text-neutral-800 font-medium select-none">
+        <nav class="hidden md:flex items-center gap-4 text-sm text-neutral-800 font-medium select-none">
           <a href="index.html" id="nav-home" class="text-neutral-900 font-semibold underline underline-offset-8 decoration-2 decoration-neutral-900 px-1">
             Home
           </a>
           <span class="text-neutral-400">•</span>
-          <a href="#schemes-section" id="nav-schemes" class="text-neutral-700 hover:text-black transition-colors px-1">
-            About
+          <a href="chat.html" id="nav-schemes" class="text-neutral-700 hover:text-black transition-colors px-1">
+            Scheme Evaluator
           </a>
-          <span class="text-neutral-400">•</span>
-          <a href="chat.html" id="nav-chat" class="text-neutral-700 hover:text-black transition-colors px-1">
-            <span id="nav-chat-text">Service</span>
-          </a>
-          <span class="text-neutral-400">•</span>
-          
-          <!-- Others Dropdown -->
-          <div class="relative group py-1">
-            <button type="button" class="flex items-center gap-1 text-neutral-700 hover:text-black transition-colors px-1 focus:outline-none">
-              <span>Others</span>
-              <svg class="w-3.5 h-3.5 text-neutral-600 group-hover:text-black transition-transform group-hover:rotate-180" viewBox="0 0 20 20" fill="currentColor">
-                <path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.938a.75.75 0 111.08 1.04l-4.25 4.51a.75.75 0 01-1.08 0l-4.25-4.51a.75.75 0 01.02-1.06z" clip-rule="evenodd" />
-              </svg>
-            </button>
-            <div class="absolute top-full left-1/2 -translate-x-1/2 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-neutral-100 py-2 hidden group-hover:block z-50">
-              <a href="chat.html" class="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-800 hover:bg-neutral-100 transition-colors font-medium">
-                <span class="material-symbols-outlined text-base text-emerald-600">smart_toy</span>
-                <span>AI Voice Assistant</span>
-              </a>
-              <a href="#schemes-section" class="flex items-center gap-2.5 px-4 py-2.5 text-xs text-neutral-800 hover:bg-neutral-100 transition-colors font-medium">
-                <span class="material-symbols-outlined text-base text-blue-600">grid_view</span>
-                <span>Government Schemes</span>
-              </a>
-              <div class="border-t border-neutral-100 my-1"></div>
-              <button id="lang-toggle-btn" class="w-full flex items-center justify-between px-4 py-2.5 text-xs text-neutral-800 hover:bg-neutral-100 transition-colors font-medium text-left">
-                <span class="flex items-center gap-2">
-                  <span class="material-symbols-outlined text-base text-purple-600">translate</span>
-                  <span id="lang-btn-label">ಕನ್ನಡಕ್ಕೆ ಬದಲಿಸಿ</span>
-                </span>
-                <span class="text-[10px] bg-neutral-200 text-neutral-700 px-1.5 py-0.5 rounded font-mono">EN/KN</span>
-              </button>
-            </div>
-          </div>
         </nav>
 
-        <!-- Right Side: Contact Us Pill Button -->
+        <!-- Right Side: Translate to Kannada & Contact Us -->
         <div class="flex items-center gap-3 shrink-0">
+          <button id="lang-toggle-btn" type="button" class="flex items-center gap-2 bg-white/90 hover:bg-white text-neutral-800 px-4 py-2 rounded-full border border-neutral-300/80 hover:border-neutral-400 text-xs font-semibold shadow-xs transition-all cursor-pointer">
+            <span class="material-symbols-outlined text-base text-emerald-700">translate</span>
+            <span id="lang-btn-label">ಕನ್ನಡಕ್ಕೆ ಬದಲಿಸಿ</span>
+          </button>
+
           <a href="#footer-section" class="flex items-center gap-3 bg-black hover:bg-neutral-900 text-white pl-5 sm:pl-6 pr-2 py-2 rounded-full transition-all group shadow-md hover:shadow-lg">
             <span class="text-xs sm:text-sm font-medium tracking-tight">Contact Us</span>
             <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-black flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
@@ -195,11 +613,6 @@
     <div class="relative z-10 max-w-7xl mx-auto px-6 lg:px-12 py-16 sm:py-24 flex flex-col justify-center flex-1">
       <div class="max-w-3xl space-y-6">
         
-        <!-- Live AI Pill -->
-        <div class="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-full bg-emerald-500/20 backdrop-blur-md border border-emerald-400/40 text-emerald-300 text-xs font-bold">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span id="hero-pill-text">Next-Generation Voice AI for Indian Farmers</span>
-        </div>
 
         <!-- Huge Display Headline -->
         <h1 id="hero-headline" class="text-4xl sm:text-6xl lg:text-7xl font-heading font-extrabold text-white tracking-tight leading-[1.08]">
@@ -239,694 +652,47 @@
   <!-- 2. COMPREHENSIVE SCHEME FORM EVALUATOR SECTION                           -->
   <!-- ========================================================================= -->
     <!-- ========================================================================= -->
-  <!-- 2. OFFICIAL GOVERNMENT SCHEMES BENTO CATALOG (PIXEL ART & LIGHT THEME)      -->
+  <!-- 2. OFFICIAL GOVERNMENT SCHEMES CATALOG (MINIMALIST & LIGHT THEME)         -->
   <!-- ========================================================================= -->
-  <section id="schemes-section" class="py-16 sm:py-24 bg-[#F4F5F0] border-t-2 border-b-2 border-neutral-900 text-neutral-900">
+  <section id="schemes-section" class="py-16 sm:py-24 bg-[#F8FAFC] border-t border-b border-slate-200/80 text-slate-900">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12">
       
       <!-- Section Header -->
-      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b-2 border-neutral-900">
+      <div class="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-10 pb-6 border-b border-slate-200/70">
         <div>
-          <div class="inline-flex items-center gap-2 px-3 py-1 bg-white border-2 border-neutral-900 shadow-[2px_2px_0px_0px_#18181B] mb-3">
-            <span class="w-2.5 h-2.5 bg-emerald-600 border border-neutral-900"></span>
-            <span id="schemes-pill" class="font-mono text-xs font-bold uppercase tracking-widest text-neutral-900">Official Farmer Directory 2026</span>
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 text-xs font-semibold border border-emerald-200/70 mb-3">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="schemes-pill">Official Farmer Directory 2026</span>
           </div>
-          <h2 id="schemes-title" class="text-3xl sm:text-5xl font-heading font-black text-neutral-950 tracking-tight leading-tight">
+          <h2 id="schemes-title" class="text-3xl sm:text-5xl font-heading font-extrabold text-slate-900 tracking-tight leading-tight">
             Government Farmer Schemes
           </h2>
-          <p id="schemes-subtitle" class="text-neutral-600 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
+          <p id="schemes-subtitle" class="text-slate-600 text-sm sm:text-base mt-2 max-w-2xl font-normal leading-relaxed">
             Verified central and Karnataka state welfare programs, direct income transfers (DBT), solar subsidies, and crop risk shields.
           </p>
         </div>
 
         <!-- Filter Count Pill -->
         <div class="shrink-0 flex items-center gap-3">
-          <div class="bg-white border-2 border-neutral-900 shadow-[3px_3px_0px_0px_#18181B] px-4 py-2 font-mono text-xs font-bold text-neutral-900 flex items-center gap-2">
-            <span class="w-2 h-2 bg-emerald-500 rounded-none border border-neutral-900"></span>
-            <span>TOTAL SCHEMES: <strong class="text-emerald-700 font-extrabold text-sm" id="scheme-count">10</strong></span>
+          <div class="bg-white border border-slate-200/80 shadow-sm rounded-full px-4 py-2 text-xs font-semibold text-slate-700 flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+            <span id="scheme-total-badge">TOTAL SCHEMES: <strong class="text-emerald-700 font-extrabold text-sm" id="scheme-count">10</strong></span>
           </div>
         </div>
       </div>
 
-      <!-- Category Filter Tabs (Neo-Brutalist Pixel Buttons) -->
-      <div class="flex flex-wrap items-center gap-2.5 mb-8">
-        <button onclick="filterSchemes('all', this)" class="scheme-filter-btn px-4 py-2 bg-neutral-900 text-white border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] transition-all">
-          All Schemes [10]
-        </button>
-        <button onclick="filterSchemes('income', this)" class="scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all">
-          Income & Credit [3]
-        </button>
-        <button onclick="filterSchemes('irrigation', this)" class="scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all">
-          Irrigation & Solar [4]
-        </button>
-        <button onclick="filterSchemes('insurance', this)" class="scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all">
-          Crop Insurance [1]
-        </button>
-        <button onclick="filterSchemes('karnataka', this)" class="scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all">
-          Karnataka Flagship [3]
-        </button>
-        <button onclick="filterSchemes('machinery', this)" class="scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all">
-          Soil & Machinery [2]
-        </button>
+      <!-- Category Filter Tabs (Minimalist Pill Buttons) -->
+      <div id="schemes-filter-container" class="flex flex-wrap items-center gap-2.5 mb-8">
+        <!-- Injected dynamically via updateFilterButtons -->
       </div>
 
-      <!-- Bento Grid Container -->
-      <div id="schemes-grid" class="grid grid-cols-12 gap-5 sm:gap-6">
-
-      <!-- Bento Card: PM-KISAN (Pradhan Mantri Kisan Samman Nidhi) -->
-      <article data-category="income" class="scheme-bento-card col-span-12 lg:col-span-8 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-KISAN-01</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-amber-100 text-amber-900 border-amber-900">CENTRAL GOVT</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="3" y="0" width="1" height="1" fill="#18181B"/><rect x="4" y="0" width="1" height="1" fill="#18181B"/><rect x="2" y="1" width="1" height="1" fill="#18181B"/><rect x="3" y="1" width="1" height="1" fill="#FCD34D"/><rect x="4" y="1" width="1" height="1" fill="#FCD34D"/><rect x="5" y="1" width="1" height="1" fill="#18181B"/><rect x="9" y="1" width="1" height="1" fill="#18181B"/><rect x="10" y="1" width="1" height="1" fill="#18181B"/><rect x="2" y="2" width="1" height="1" fill="#18181B"/><rect x="3" y="2" width="1" height="1" fill="#FCD34D"/><rect x="4" y="2" width="1" height="1" fill="#F59E0B"/><rect x="5" y="2" width="1" height="1" fill="#18181B"/><rect x="8" y="2" width="1" height="1" fill="#18181B"/><rect x="9" y="2" width="1" height="1" fill="#FCD34D"/><rect x="10" y="2" width="1" height="1" fill="#FCD34D"/><rect x="11" y="2" width="1" height="1" fill="#18181B"/><rect x="3" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="3" width="1" height="1" fill="#FCD34D"/><rect x="5" y="3" width="1" height="1" fill="#18181B"/><rect x="8" y="3" width="1" height="1" fill="#18181B"/><rect x="9" y="3" width="1" height="1" fill="#FCD34D"/><rect x="10" y="3" width="1" height="1" fill="#F59E0B"/><rect x="11" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="4" width="1" height="1" fill="#18181B"/><rect x="5" y="4" width="1" height="1" fill="#18181B"/><rect x="9" y="4" width="1" height="1" fill="#18181B"/><rect x="10" y="4" width="1" height="1" fill="#FCD34D"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="5" y="5" width="1" height="1" fill="#18181B"/><rect x="8" y="5" width="1" height="1" fill="#18181B"/><rect x="9" y="5" width="1" height="1" fill="#18181B"/><rect x="4" y="6" width="1" height="1" fill="#18181B"/><rect x="5" y="6" width="1" height="1" fill="#18181B"/><rect x="7" y="6" width="1" height="1" fill="#18181B"/><rect x="3" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="7" width="1" height="1" fill="#FCD34D"/><rect x="5" y="7" width="1" height="1" fill="#18181B"/><rect x="6" y="7" width="1" height="1" fill="#18181B"/><rect x="8" y="7" width="1" height="1" fill="#18181B"/><rect x="9" y="7" width="1" height="1" fill="#18181B"/><rect x="2" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="8" width="1" height="1" fill="#FCD34D"/><rect x="4" y="8" width="1" height="1" fill="#F59E0B"/><rect x="5" y="8" width="1" height="1" fill="#18181B"/><rect x="6" y="8" width="1" height="1" fill="#18181B"/><rect x="8" y="8" width="1" height="1" fill="#18181B"/><rect x="9" y="8" width="1" height="1" fill="#FCD34D"/><rect x="10" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#FCD34D"/><rect x="5" y="9" width="1" height="1" fill="#18181B"/><rect x="7" y="9" width="1" height="1" fill="#18181B"/><rect x="8" y="9" width="1" height="1" fill="#FCD34D"/><rect x="9" y="9" width="1" height="1" fill="#F59E0B"/><rect x="10" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="10" width="1" height="1" fill="#18181B"/><rect x="6" y="10" width="1" height="1" fill="#18181B"/><rect x="7" y="10" width="1" height="1" fill="#18181B"/><rect x="8" y="10" width="1" height="1" fill="#FCD34D"/><rect x="9" y="10" width="1" height="1" fill="#FCD34D"/><rect x="10" y="10" width="1" height="1" fill="#18181B"/><rect x="4" y="11" width="1" height="1" fill="#18181B"/><rect x="7" y="11" width="1" height="1" fill="#18181B"/><rect x="8" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="4" y="13" width="1" height="1" fill="#18181B"/><rect x="8" y="13" width="1" height="1" fill="#18181B"/><rect x="9" y="13" width="1" height="1" fill="#18181B"/><rect x="3" y="14" width="1" height="1" fill="#10B981"/><rect x="4" y="14" width="1" height="1" fill="#18181B"/><rect x="5" y="14" width="1" height="1" fill="#10B981"/><rect x="7" y="14" width="1" height="1" fill="#10B981"/><rect x="8" y="14" width="1" height="1" fill="#18181B"/><rect x="9" y="14" width="1" height="1" fill="#10B981"/><rect x="3" y="15" width="1" height="1" fill="#10B981"/><rect x="4" y="15" width="1" height="1" fill="#10B981"/><rect x="5" y="15" width="1" height="1" fill="#18181B"/><rect x="6" y="15" width="1" height="1" fill="#10B981"/><rect x="7" y="15" width="1" height="1" fill="#10B981"/><rect x="8" y="15" width="1" height="1" fill="#18181B"/><rect x="9" y="15" width="1" height="1" fill="#10B981"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Ministry of Agriculture & Farmers Welfare, GoI</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">DIRECT INCOME ASSISTANCE</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">₹6,000 / Year</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Paid in 3 equal 4-monthly installments of ₹2,000 directly via Aadhaar DBT</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">All landholder farmer families with cultivable landholding in their name</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Excludes institutional landholders, constitutional post holders & income tax payers</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Mandatory e-KYC via biometric or Aadhaar OTP authentication</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">NPCI-Active Bank A/c</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://pmkisan.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (pmkisan.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: Ganga Kalyana Scheme -->
-      <article data-category="karnataka irrigation" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#KA-GANGA-02</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-emerald-100 text-emerald-900 border-emerald-900">KARNATAKA STATE</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="6" y="0" width="1" height="1" fill="#18181B"/><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="5" y="1" width="1" height="1" fill="#18181B"/><rect x="6" y="1" width="1" height="1" fill="#38BDF8"/><rect x="7" y="1" width="1" height="1" fill="#38BDF8"/><rect x="8" y="1" width="1" height="1" fill="#18181B"/><rect x="4" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#38BDF8"/><rect x="6" y="2" width="1" height="1" fill="#38BDF8"/><rect x="7" y="2" width="1" height="1" fill="#38BDF8"/><rect x="8" y="2" width="1" height="1" fill="#38BDF8"/><rect x="9" y="2" width="1" height="1" fill="#18181B"/><rect x="3" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="3" width="1" height="1" fill="#38BDF8"/><rect x="5" y="3" width="1" height="1" fill="#38BDF8"/><rect x="6" y="3" width="1" height="1" fill="#38BDF8"/><rect x="7" y="3" width="1" height="1" fill="#38BDF8"/><rect x="8" y="3" width="1" height="1" fill="#38BDF8"/><rect x="9" y="3" width="1" height="1" fill="#38BDF8"/><rect x="10" y="3" width="1" height="1" fill="#18181B"/><rect x="2" y="4" width="1" height="1" fill="#18181B"/><rect x="3" y="4" width="1" height="1" fill="#38BDF8"/><rect x="4" y="4" width="1" height="1" fill="#38BDF8"/><rect x="5" y="4" width="1" height="1" fill="#38BDF8"/><rect x="6" y="4" width="1" height="1" fill="#38BDF8"/><rect x="7" y="4" width="1" height="1" fill="#38BDF8"/><rect x="8" y="4" width="1" height="1" fill="#38BDF8"/><rect x="9" y="4" width="1" height="1" fill="#38BDF8"/><rect x="10" y="4" width="1" height="1" fill="#38BDF8"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="2" y="5" width="1" height="1" fill="#18181B"/><rect x="3" y="5" width="1" height="1" fill="#38BDF8"/><rect x="4" y="5" width="1" height="1" fill="#38BDF8"/><rect x="5" y="5" width="1" height="1" fill="#E0F2FE"/><rect x="6" y="5" width="1" height="1" fill="#E0F2FE"/><rect x="7" y="5" width="1" height="1" fill="#E0F2FE"/><rect x="8" y="5" width="1" height="1" fill="#E0F2FE"/><rect x="9" y="5" width="1" height="1" fill="#38BDF8"/><rect x="10" y="5" width="1" height="1" fill="#38BDF8"/><rect x="11" y="5" width="1" height="1" fill="#18181B"/><rect x="2" y="6" width="1" height="1" fill="#18181B"/><rect x="3" y="6" width="1" height="1" fill="#38BDF8"/><rect x="4" y="6" width="1" height="1" fill="#38BDF8"/><rect x="5" y="6" width="1" height="1" fill="#E0F2FE"/><rect x="6" y="6" width="1" height="1" fill="#E0F2FE"/><rect x="7" y="6" width="1" height="1" fill="#E0F2FE"/><rect x="8" y="6" width="1" height="1" fill="#E0F2FE"/><rect x="9" y="6" width="1" height="1" fill="#38BDF8"/><rect x="10" y="6" width="1" height="1" fill="#38BDF8"/><rect x="11" y="6" width="1" height="1" fill="#18181B"/><rect x="3" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="7" width="1" height="1" fill="#38BDF8"/><rect x="5" y="7" width="1" height="1" fill="#38BDF8"/><rect x="6" y="7" width="1" height="1" fill="#38BDF8"/><rect x="7" y="7" width="1" height="1" fill="#38BDF8"/><rect x="8" y="7" width="1" height="1" fill="#38BDF8"/><rect x="9" y="7" width="1" height="1" fill="#38BDF8"/><rect x="10" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="8" width="1" height="1" fill="#38BDF8"/><rect x="6" y="8" width="1" height="1" fill="#38BDF8"/><rect x="7" y="8" width="1" height="1" fill="#38BDF8"/><rect x="8" y="8" width="1" height="1" fill="#38BDF8"/><rect x="9" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#18181B"/><rect x="6" y="9" width="1" height="1" fill="#38BDF8"/><rect x="7" y="9" width="1" height="1" fill="#38BDF8"/><rect x="8" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="10" width="1" height="1" fill="#18181B"/><rect x="3" y="10" width="1" height="1" fill="#18181B"/><rect x="4" y="10" width="1" height="1" fill="#18181B"/><rect x="5" y="10" width="1" height="1" fill="#18181B"/><rect x="6" y="10" width="1" height="1" fill="#18181B"/><rect x="7" y="10" width="1" height="1" fill="#18181B"/><rect x="8" y="10" width="1" height="1" fill="#18181B"/><rect x="9" y="10" width="1" height="1" fill="#18181B"/><rect x="10" y="10" width="1" height="1" fill="#18181B"/><rect x="11" y="10" width="1" height="1" fill="#18181B"/><rect x="1" y="11" width="1" height="1" fill="#18181B"/><rect x="2" y="11" width="1" height="1" fill="#38BDF8"/><rect x="3" y="11" width="1" height="1" fill="#38BDF8"/><rect x="4" y="11" width="1" height="1" fill="#38BDF8"/><rect x="5" y="11" width="1" height="1" fill="#38BDF8"/><rect x="6" y="11" width="1" height="1" fill="#38BDF8"/><rect x="7" y="11" width="1" height="1" fill="#38BDF8"/><rect x="8" y="11" width="1" height="1" fill="#38BDF8"/><rect x="9" y="11" width="1" height="1" fill="#38BDF8"/><rect x="10" y="11" width="1" height="1" fill="#38BDF8"/><rect x="11" y="11" width="1" height="1" fill="#38BDF8"/><rect x="12" y="11" width="1" height="1" fill="#18181B"/><rect x="1" y="12" width="1" height="1" fill="#18181B"/><rect x="2" y="12" width="1" height="1" fill="#38BDF8"/><rect x="3" y="12" width="1" height="1" fill="#38BDF8"/><rect x="4" y="12" width="1" height="1" fill="#38BDF8"/><rect x="5" y="12" width="1" height="1" fill="#38BDF8"/><rect x="6" y="12" width="1" height="1" fill="#38BDF8"/><rect x="7" y="12" width="1" height="1" fill="#38BDF8"/><rect x="8" y="12" width="1" height="1" fill="#38BDF8"/><rect x="9" y="12" width="1" height="1" fill="#38BDF8"/><rect x="10" y="12" width="1" height="1" fill="#38BDF8"/><rect x="11" y="12" width="1" height="1" fill="#38BDF8"/><rect x="12" y="12" width="1" height="1" fill="#18181B"/><rect x="1" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="13" width="1" height="1" fill="#0284C7"/><rect x="3" y="13" width="1" height="1" fill="#0284C7"/><rect x="4" y="13" width="1" height="1" fill="#0284C7"/><rect x="5" y="13" width="1" height="1" fill="#0284C7"/><rect x="6" y="13" width="1" height="1" fill="#0284C7"/><rect x="7" y="13" width="1" height="1" fill="#0284C7"/><rect x="8" y="13" width="1" height="1" fill="#0284C7"/><rect x="9" y="13" width="1" height="1" fill="#0284C7"/><rect x="10" y="13" width="1" height="1" fill="#0284C7"/><rect x="11" y="13" width="1" height="1" fill="#0284C7"/><rect x="12" y="13" width="1" height="1" fill="#18181B"/><rect x="1" y="14" width="1" height="1" fill="#18181B"/><rect x="2" y="14" width="1" height="1" fill="#0284C7"/><rect x="3" y="14" width="1" height="1" fill="#0284C7"/><rect x="4" y="14" width="1" height="1" fill="#0284C7"/><rect x="5" y="14" width="1" height="1" fill="#0284C7"/><rect x="6" y="14" width="1" height="1" fill="#0284C7"/><rect x="7" y="14" width="1" height="1" fill="#0284C7"/><rect x="8" y="14" width="1" height="1" fill="#0284C7"/><rect x="9" y="14" width="1" height="1" fill="#0284C7"/><rect x="10" y="14" width="1" height="1" fill="#0284C7"/><rect x="11" y="14" width="1" height="1" fill="#0284C7"/><rect x="12" y="14" width="1" height="1" fill="#18181B"/><rect x="2" y="15" width="1" height="1" fill="#18181B"/><rect x="3" y="15" width="1" height="1" fill="#18181B"/><rect x="4" y="15" width="1" height="1" fill="#18181B"/><rect x="5" y="15" width="1" height="1" fill="#18181B"/><rect x="6" y="15" width="1" height="1" fill="#18181B"/><rect x="7" y="15" width="1" height="1" fill="#18181B"/><rect x="8" y="15" width="1" height="1" fill="#18181B"/><rect x="9" y="15" width="1" height="1" fill="#18181B"/><rect x="10" y="15" width="1" height="1" fill="#18181B"/><rect x="11" y="15" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">Ganga Kalyana Scheme</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Social Welfare & Backward Classes Dept, Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">COMPLETE IRRIGATION UNIT</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">100% Free Borewell</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Full financial grant up to ₹3.75 Lakhs for drilling, pump set & ESCOM energization</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Small & marginal farmers belonging to SC, ST, OBC & Minorities</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Annual family income limit ≤ ₹1,50,000 (Rural) / ₹2,00,000 (Urban)</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Land holding between 1.5 to 5.0 acres in dryland/rainfed areas</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">RTC / Pahani</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Caste & Income Cert</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Land Map</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://kppp.karnataka.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (kppp.karnataka.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: PMFBY (Pradhan Mantri Fasal Bima Yojana) -->
-      <article data-category="insurance" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-PMFBY-03</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-blue-100 text-blue-900 border-blue-900">COMPREHENSIVE COVER</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="3" y="0" width="1" height="1" fill="#18181B"/><rect x="4" y="0" width="1" height="1" fill="#18181B"/><rect x="5" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="0" width="1" height="1" fill="#18181B"/><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="9" y="0" width="1" height="1" fill="#18181B"/><rect x="10" y="0" width="1" height="1" fill="#18181B"/><rect x="2" y="1" width="1" height="1" fill="#18181B"/><rect x="3" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="4" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="5" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="6" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="7" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="8" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="9" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="10" y="1" width="1" height="1" fill="#FFFFFF"/><rect x="11" y="1" width="1" height="1" fill="#18181B"/><rect x="1" y="2" width="1" height="1" fill="#18181B"/><rect x="2" y="2" width="1" height="1" fill="#FFFFFF"/><rect x="3" y="2" width="1" height="1" fill="#FFFFFF"/><rect x="4" y="2" width="1" height="1" fill="#3B82F6"/><rect x="5" y="2" width="1" height="1" fill="#3B82F6"/><rect x="6" y="2" width="1" height="1" fill="#3B82F6"/><rect x="7" y="2" width="1" height="1" fill="#3B82F6"/><rect x="8" y="2" width="1" height="1" fill="#3B82F6"/><rect x="9" y="2" width="1" height="1" fill="#3B82F6"/><rect x="10" y="2" width="1" height="1" fill="#FFFFFF"/><rect x="11" y="2" width="1" height="1" fill="#FFFFFF"/><rect x="12" y="2" width="1" height="1" fill="#18181B"/><rect x="0" y="3" width="1" height="1" fill="#18181B"/><rect x="1" y="3" width="1" height="1" fill="#FFFFFF"/><rect x="2" y="3" width="1" height="1" fill="#FFFFFF"/><rect x="3" y="3" width="1" height="1" fill="#3B82F6"/><rect x="4" y="3" width="1" height="1" fill="#3B82F6"/><rect x="5" y="3" width="1" height="1" fill="#3B82F6"/><rect x="6" y="3" width="1" height="1" fill="#3B82F6"/><rect x="7" y="3" width="1" height="1" fill="#3B82F6"/><rect x="8" y="3" width="1" height="1" fill="#3B82F6"/><rect x="9" y="3" width="1" height="1" fill="#3B82F6"/><rect x="10" y="3" width="1" height="1" fill="#3B82F6"/><rect x="11" y="3" width="1" height="1" fill="#FFFFFF"/><rect x="12" y="3" width="1" height="1" fill="#FFFFFF"/><rect x="13" y="3" width="1" height="1" fill="#18181B"/><rect x="0" y="4" width="1" height="1" fill="#18181B"/><rect x="1" y="4" width="1" height="1" fill="#FFFFFF"/><rect x="2" y="4" width="1" height="1" fill="#3B82F6"/><rect x="3" y="4" width="1" height="1" fill="#3B82F6"/><rect x="4" y="4" width="1" height="1" fill="#3B82F6"/><rect x="5" y="4" width="1" height="1" fill="#3B82F6"/><rect x="6" y="4" width="1" height="1" fill="#3B82F6"/><rect x="7" y="4" width="1" height="1" fill="#3B82F6"/><rect x="8" y="4" width="1" height="1" fill="#3B82F6"/><rect x="9" y="4" width="1" height="1" fill="#3B82F6"/><rect x="10" y="4" width="1" height="1" fill="#3B82F6"/><rect x="11" y="4" width="1" height="1" fill="#3B82F6"/><rect x="12" y="4" width="1" height="1" fill="#FFFFFF"/><rect x="13" y="4" width="1" height="1" fill="#18181B"/><rect x="0" y="5" width="1" height="1" fill="#18181B"/><rect x="1" y="5" width="1" height="1" fill="#FFFFFF"/><rect x="2" y="5" width="1" height="1" fill="#3B82F6"/><rect x="3" y="5" width="1" height="1" fill="#3B82F6"/><rect x="4" y="5" width="1" height="1" fill="#3B82F6"/><rect x="5" y="5" width="1" height="1" fill="#3B82F6"/><rect x="6" y="5" width="1" height="1" fill="#3B82F6"/><rect x="7" y="5" width="1" height="1" fill="#3B82F6"/><rect x="8" y="5" width="1" height="1" fill="#3B82F6"/><rect x="9" y="5" width="1" height="1" fill="#3B82F6"/><rect x="10" y="5" width="1" height="1" fill="#3B82F6"/><rect x="11" y="5" width="1" height="1" fill="#3B82F6"/><rect x="12" y="5" width="1" height="1" fill="#FFFFFF"/><rect x="13" y="5" width="1" height="1" fill="#18181B"/><rect x="0" y="6" width="1" height="1" fill="#18181B"/><rect x="1" y="6" width="1" height="1" fill="#FFFFFF"/><rect x="2" y="6" width="1" height="1" fill="#3B82F6"/><rect x="3" y="6" width="1" height="1" fill="#3B82F6"/><rect x="4" y="6" width="1" height="1" fill="#3B82F6"/><rect x="5" y="6" width="1" height="1" fill="#3B82F6"/><rect x="6" y="6" width="1" height="1" fill="#3B82F6"/><rect x="7" y="6" width="1" height="1" fill="#3B82F6"/><rect x="8" y="6" width="1" height="1" fill="#3B82F6"/><rect x="9" y="6" width="1" height="1" fill="#3B82F6"/><rect x="10" y="6" width="1" height="1" fill="#3B82F6"/><rect x="11" y="6" width="1" height="1" fill="#3B82F6"/><rect x="12" y="6" width="1" height="1" fill="#FFFFFF"/><rect x="13" y="6" width="1" height="1" fill="#18181B"/><rect x="1" y="7" width="1" height="1" fill="#18181B"/><rect x="2" y="7" width="1" height="1" fill="#FFFFFF"/><rect x="3" y="7" width="1" height="1" fill="#3B82F6"/><rect x="4" y="7" width="1" height="1" fill="#3B82F6"/><rect x="5" y="7" width="1" height="1" fill="#3B82F6"/><rect x="6" y="7" width="1" height="1" fill="#3B82F6"/><rect x="7" y="7" width="1" height="1" fill="#3B82F6"/><rect x="8" y="7" width="1" height="1" fill="#3B82F6"/><rect x="9" y="7" width="1" height="1" fill="#3B82F6"/><rect x="10" y="7" width="1" height="1" fill="#3B82F6"/><rect x="11" y="7" width="1" height="1" fill="#FFFFFF"/><rect x="12" y="7" width="1" height="1" fill="#18181B"/><rect x="1" y="8" width="1" height="1" fill="#18181B"/><rect x="2" y="8" width="1" height="1" fill="#FFFFFF"/><rect x="3" y="8" width="1" height="1" fill="#3B82F6"/><rect x="4" y="8" width="1" height="1" fill="#3B82F6"/><rect x="5" y="8" width="1" height="1" fill="#3B82F6"/><rect x="6" y="8" width="1" height="1" fill="#3B82F6"/><rect x="7" y="8" width="1" height="1" fill="#3B82F6"/><rect x="8" y="8" width="1" height="1" fill="#3B82F6"/><rect x="9" y="8" width="1" height="1" fill="#3B82F6"/><rect x="10" y="8" width="1" height="1" fill="#3B82F6"/><rect x="11" y="8" width="1" height="1" fill="#FFFFFF"/><rect x="12" y="8" width="1" height="1" fill="#18181B"/><rect x="2" y="9" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#FFFFFF"/><rect x="4" y="9" width="1" height="1" fill="#3B82F6"/><rect x="5" y="9" width="1" height="1" fill="#3B82F6"/><rect x="6" y="9" width="1" height="1" fill="#3B82F6"/><rect x="7" y="9" width="1" height="1" fill="#3B82F6"/><rect x="8" y="9" width="1" height="1" fill="#3B82F6"/><rect x="9" y="9" width="1" height="1" fill="#3B82F6"/><rect x="10" y="9" width="1" height="1" fill="#FFFFFF"/><rect x="11" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="10" width="1" height="1" fill="#18181B"/><rect x="3" y="10" width="1" height="1" fill="#FFFFFF"/><rect x="4" y="10" width="1" height="1" fill="#3B82F6"/><rect x="5" y="10" width="1" height="1" fill="#3B82F6"/><rect x="6" y="10" width="1" height="1" fill="#3B82F6"/><rect x="7" y="10" width="1" height="1" fill="#3B82F6"/><rect x="8" y="10" width="1" height="1" fill="#3B82F6"/><rect x="9" y="10" width="1" height="1" fill="#3B82F6"/><rect x="10" y="10" width="1" height="1" fill="#FFFFFF"/><rect x="11" y="10" width="1" height="1" fill="#18181B"/><rect x="3" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="11" width="1" height="1" fill="#FFFFFF"/><rect x="5" y="11" width="1" height="1" fill="#3B82F6"/><rect x="6" y="11" width="1" height="1" fill="#3B82F6"/><rect x="7" y="11" width="1" height="1" fill="#3B82F6"/><rect x="8" y="11" width="1" height="1" fill="#3B82F6"/><rect x="9" y="11" width="1" height="1" fill="#FFFFFF"/><rect x="10" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#FFFFFF"/><rect x="6" y="12" width="1" height="1" fill="#3B82F6"/><rect x="7" y="12" width="1" height="1" fill="#3B82F6"/><rect x="8" y="12" width="1" height="1" fill="#FFFFFF"/><rect x="9" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="13" width="1" height="1" fill="#18181B"/><rect x="6" y="13" width="1" height="1" fill="#FFFFFF"/><rect x="7" y="13" width="1" height="1" fill="#FFFFFF"/><rect x="8" y="13" width="1" height="1" fill="#18181B"/><rect x="6" y="14" width="1" height="1" fill="#18181B"/><rect x="7" y="14" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">PMFBY (Pradhan Mantri Fasal Bima Yojana)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">MoA&FW & Samrakshane Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">CROP LOSS RISK COVER</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">1.5% - 2.0% Premium</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Government pays the rest; covers drought, floods, hailstorms & pest attacks</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Farmers cultivating notified crops (Paddy, Ragi, Togari, Cotton, Maize, etc.)</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Both loanee and non-loanee farmers eligible across notified hoblis</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Post-harvest loss coverage up to 14 days for crops drying on field</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Sowing Certificate</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Bank Passbook</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://samrakshane.karnataka.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (samrakshane.karnataka.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: PM-KUSUM (Solar Agricultural Pumpsets) -->
-      <article data-category="irrigation" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-KUSUM-04</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-amber-100 text-amber-900 border-amber-900">SOLAR ENERGY</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="4" y="0" width="1" height="1" fill="#18181B"/><rect x="9" y="0" width="1" height="1" fill="#18181B"/><rect x="3" y="1" width="1" height="1" fill="#18181B"/><rect x="4" y="1" width="1" height="1" fill="#F97316"/><rect x="5" y="1" width="1" height="1" fill="#18181B"/><rect x="8" y="1" width="1" height="1" fill="#18181B"/><rect x="9" y="1" width="1" height="1" fill="#F97316"/><rect x="10" y="1" width="1" height="1" fill="#18181B"/><rect x="4" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#F97316"/><rect x="6" y="2" width="1" height="1" fill="#F97316"/><rect x="7" y="2" width="1" height="1" fill="#F97316"/><rect x="8" y="2" width="1" height="1" fill="#F97316"/><rect x="9" y="2" width="1" height="1" fill="#18181B"/><rect x="2" y="3" width="1" height="1" fill="#18181B"/><rect x="3" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="3" width="1" height="1" fill="#F97316"/><rect x="5" y="3" width="1" height="1" fill="#F97316"/><rect x="6" y="3" width="1" height="1" fill="#F97316"/><rect x="7" y="3" width="1" height="1" fill="#F97316"/><rect x="8" y="3" width="1" height="1" fill="#F97316"/><rect x="9" y="3" width="1" height="1" fill="#F97316"/><rect x="10" y="3" width="1" height="1" fill="#18181B"/><rect x="11" y="3" width="1" height="1" fill="#18181B"/><rect x="3" y="4" width="1" height="1" fill="#18181B"/><rect x="4" y="4" width="1" height="1" fill="#F97316"/><rect x="5" y="4" width="1" height="1" fill="#F97316"/><rect x="6" y="4" width="1" height="1" fill="#F97316"/><rect x="7" y="4" width="1" height="1" fill="#F97316"/><rect x="8" y="4" width="1" height="1" fill="#F97316"/><rect x="9" y="4" width="1" height="1" fill="#F97316"/><rect x="10" y="4" width="1" height="1" fill="#18181B"/><rect x="4" y="5" width="1" height="1" fill="#18181B"/><rect x="5" y="5" width="1" height="1" fill="#F97316"/><rect x="6" y="5" width="1" height="1" fill="#F97316"/><rect x="7" y="5" width="1" height="1" fill="#F97316"/><rect x="8" y="5" width="1" height="1" fill="#F97316"/><rect x="9" y="5" width="1" height="1" fill="#18181B"/><rect x="3" y="6" width="1" height="1" fill="#18181B"/><rect x="4" y="6" width="1" height="1" fill="#F97316"/><rect x="5" y="6" width="1" height="1" fill="#18181B"/><rect x="8" y="6" width="1" height="1" fill="#18181B"/><rect x="9" y="6" width="1" height="1" fill="#F97316"/><rect x="10" y="6" width="1" height="1" fill="#18181B"/><rect x="4" y="7" width="1" height="1" fill="#18181B"/><rect x="9" y="7" width="1" height="1" fill="#18181B"/><rect x="2" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="8" width="1" height="1" fill="#18181B"/><rect x="4" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="8" width="1" height="1" fill="#18181B"/><rect x="6" y="8" width="1" height="1" fill="#18181B"/><rect x="7" y="8" width="1" height="1" fill="#18181B"/><rect x="8" y="8" width="1" height="1" fill="#18181B"/><rect x="9" y="8" width="1" height="1" fill="#18181B"/><rect x="10" y="8" width="1" height="1" fill="#18181B"/><rect x="11" y="8" width="1" height="1" fill="#18181B"/><rect x="1" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="3" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="4" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#60A5FA"/><rect x="6" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="7" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="8" y="9" width="1" height="1" fill="#18181B"/><rect x="9" y="9" width="1" height="1" fill="#60A5FA"/><rect x="10" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="11" y="9" width="1" height="1" fill="#1D4ED8"/><rect x="12" y="9" width="1" height="1" fill="#18181B"/><rect x="1" y="10" width="1" height="1" fill="#18181B"/><rect x="2" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="3" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="4" y="10" width="1" height="1" fill="#18181B"/><rect x="5" y="10" width="1" height="1" fill="#60A5FA"/><rect x="6" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="7" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="8" y="10" width="1" height="1" fill="#18181B"/><rect x="9" y="10" width="1" height="1" fill="#60A5FA"/><rect x="10" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="11" y="10" width="1" height="1" fill="#1D4ED8"/><rect x="12" y="10" width="1" height="1" fill="#18181B"/><rect x="1" y="11" width="1" height="1" fill="#18181B"/><rect x="2" y="11" width="1" height="1" fill="#18181B"/><rect x="3" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="11" width="1" height="1" fill="#18181B"/><rect x="5" y="11" width="1" height="1" fill="#18181B"/><rect x="6" y="11" width="1" height="1" fill="#18181B"/><rect x="7" y="11" width="1" height="1" fill="#18181B"/><rect x="8" y="11" width="1" height="1" fill="#18181B"/><rect x="9" y="11" width="1" height="1" fill="#18181B"/><rect x="10" y="11" width="1" height="1" fill="#18181B"/><rect x="11" y="11" width="1" height="1" fill="#18181B"/><rect x="12" y="11" width="1" height="1" fill="#18181B"/><rect x="1" y="12" width="1" height="1" fill="#18181B"/><rect x="2" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="3" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#60A5FA"/><rect x="6" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="7" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="8" y="12" width="1" height="1" fill="#18181B"/><rect x="9" y="12" width="1" height="1" fill="#60A5FA"/><rect x="10" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="11" y="12" width="1" height="1" fill="#1D4ED8"/><rect x="12" y="12" width="1" height="1" fill="#18181B"/><rect x="1" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="3" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="4" y="13" width="1" height="1" fill="#18181B"/><rect x="5" y="13" width="1" height="1" fill="#60A5FA"/><rect x="6" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="7" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="8" y="13" width="1" height="1" fill="#18181B"/><rect x="9" y="13" width="1" height="1" fill="#60A5FA"/><rect x="10" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="11" y="13" width="1" height="1" fill="#1D4ED8"/><rect x="12" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="14" width="1" height="1" fill="#18181B"/><rect x="3" y="14" width="1" height="1" fill="#18181B"/><rect x="4" y="14" width="1" height="1" fill="#18181B"/><rect x="5" y="14" width="1" height="1" fill="#18181B"/><rect x="6" y="14" width="1" height="1" fill="#18181B"/><rect x="7" y="14" width="1" height="1" fill="#18181B"/><rect x="8" y="14" width="1" height="1" fill="#18181B"/><rect x="9" y="14" width="1" height="1" fill="#18181B"/><rect x="10" y="14" width="1" height="1" fill="#18181B"/><rect x="11" y="14" width="1" height="1" fill="#18181B"/><rect x="5" y="15" width="1" height="1" fill="#18181B"/><rect x="6" y="15" width="1" height="1" fill="#18181B"/><rect x="7" y="15" width="1" height="1" fill="#18181B"/><rect x="8" y="15" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">PM-KUSUM (Solar Agricultural Pumpsets)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Ministry of New & Renewable Energy & KREDL Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">CLEAN SOLAR IRRIGATION</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">Up to 90% Subsidy</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">30% Central + up to 60% Karnataka state subsidy on 3 to 7.5 HP standalone solar pumps</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Landholders with confirmed ground/open water source without grid connection</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Eliminates dependency on diesel pumps and erratic night power supplies</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Priority for farmers utilizing micro-irrigation systems</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">RTC (Pahani)</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Water Source Cert</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">NOC</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://souramitra.com" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (souramitra.com)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: PMKSY (Per Drop More Crop — Drip & Sprinkler) -->
-      <article data-category="irrigation" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-PMKSY-05</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-cyan-100 text-cyan-900 border-cyan-900">WATER EFFICIENCY</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="1" width="1" height="1" fill="#18181B"/><rect x="7" y="1" width="1" height="1" fill="#7DD3FC"/><rect x="8" y="1" width="1" height="1" fill="#7DD3FC"/><rect x="9" y="1" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#18181B"/><rect x="6" y="2" width="1" height="1" fill="#7DD3FC"/><rect x="7" y="2" width="1" height="1" fill="#7DD3FC"/><rect x="8" y="2" width="1" height="1" fill="#7DD3FC"/><rect x="9" y="2" width="1" height="1" fill="#7DD3FC"/><rect x="10" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="3" width="1" height="1" fill="#18181B"/><rect x="6" y="3" width="1" height="1" fill="#7DD3FC"/><rect x="7" y="3" width="1" height="1" fill="#7DD3FC"/><rect x="8" y="3" width="1" height="1" fill="#7DD3FC"/><rect x="9" y="3" width="1" height="1" fill="#7DD3FC"/><rect x="10" y="3" width="1" height="1" fill="#18181B"/><rect x="6" y="4" width="1" height="1" fill="#18181B"/><rect x="7" y="4" width="1" height="1" fill="#7DD3FC"/><rect x="8" y="4" width="1" height="1" fill="#7DD3FC"/><rect x="9" y="4" width="1" height="1" fill="#18181B"/><rect x="7" y="5" width="1" height="1" fill="#18181B"/><rect x="8" y="5" width="1" height="1" fill="#18181B"/><rect x="4" y="6" width="1" height="1" fill="#18181B"/><rect x="11" y="6" width="1" height="1" fill="#18181B"/><rect x="3" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="7" width="1" height="1" fill="#22C55E"/><rect x="5" y="7" width="1" height="1" fill="#18181B"/><rect x="10" y="7" width="1" height="1" fill="#18181B"/><rect x="11" y="7" width="1" height="1" fill="#22C55E"/><rect x="12" y="7" width="1" height="1" fill="#18181B"/><rect x="2" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="8" width="1" height="1" fill="#22C55E"/><rect x="4" y="8" width="1" height="1" fill="#22C55E"/><rect x="5" y="8" width="1" height="1" fill="#22C55E"/><rect x="6" y="8" width="1" height="1" fill="#18181B"/><rect x="9" y="8" width="1" height="1" fill="#18181B"/><rect x="10" y="8" width="1" height="1" fill="#22C55E"/><rect x="11" y="8" width="1" height="1" fill="#22C55E"/><rect x="12" y="8" width="1" height="1" fill="#22C55E"/><rect x="13" y="8" width="1" height="1" fill="#18181B"/><rect x="2" y="9" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#22C55E"/><rect x="4" y="9" width="1" height="1" fill="#22C55E"/><rect x="5" y="9" width="1" height="1" fill="#22C55E"/><rect x="6" y="9" width="1" height="1" fill="#18181B"/><rect x="9" y="9" width="1" height="1" fill="#18181B"/><rect x="10" y="9" width="1" height="1" fill="#22C55E"/><rect x="11" y="9" width="1" height="1" fill="#22C55E"/><rect x="12" y="9" width="1" height="1" fill="#22C55E"/><rect x="13" y="9" width="1" height="1" fill="#18181B"/><rect x="3" y="10" width="1" height="1" fill="#18181B"/><rect x="4" y="10" width="1" height="1" fill="#22C55E"/><rect x="5" y="10" width="1" height="1" fill="#18181B"/><rect x="10" y="10" width="1" height="1" fill="#18181B"/><rect x="11" y="10" width="1" height="1" fill="#22C55E"/><rect x="12" y="10" width="1" height="1" fill="#18181B"/><rect x="4" y="11" width="1" height="1" fill="#18181B"/><rect x="11" y="11" width="1" height="1" fill="#18181B"/><rect x="7" y="12" width="1" height="1" fill="#18181B"/><rect x="8" y="12" width="1" height="1" fill="#18181B"/><rect x="6" y="13" width="1" height="1" fill="#18181B"/><rect x="7" y="13" width="1" height="1" fill="#0EA5E9"/><rect x="8" y="13" width="1" height="1" fill="#0EA5E9"/><rect x="9" y="13" width="1" height="1" fill="#18181B"/><rect x="6" y="14" width="1" height="1" fill="#18181B"/><rect x="7" y="14" width="1" height="1" fill="#0EA5E9"/><rect x="8" y="14" width="1" height="1" fill="#0EA5E9"/><rect x="9" y="14" width="1" height="1" fill="#18181B"/><rect x="7" y="15" width="1" height="1" fill="#18181B"/><rect x="8" y="15" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">PMKSY (Per Drop More Crop — Drip & Sprinkler)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Department of Agriculture & Horticulture, Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">MICRO-IRRIGATION SUBSIDY</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">70% to 90% Subsidy</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">90% subsidy for small/marginal farmers (≤ 5 acres); 70% for other farmers (≤ 12.5 acres)</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Cultivable landholding between 0.5 and 12.5 acres</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Functional water source (borewell, open well, or lift pipe)</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Must not have availed drip subsidy for the same survey number in 3 years</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Water Source Proof</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Small Farmer Cert</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://pmksy.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (pmksy.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: Kisan Credit Card (KCC) & Interest Subvention -->
-      <article data-category="income" class="scheme-bento-card col-span-12 lg:col-span-6 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#RBI-KCC-06</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-emerald-100 text-emerald-900 border-emerald-900">FARM CREDIT</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="1" y="0" width="1" height="1" fill="#18181B"/><rect x="2" y="0" width="1" height="1" fill="#18181B"/><rect x="3" y="0" width="1" height="1" fill="#18181B"/><rect x="4" y="0" width="1" height="1" fill="#18181B"/><rect x="5" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="0" width="1" height="1" fill="#18181B"/><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="9" y="0" width="1" height="1" fill="#18181B"/><rect x="10" y="0" width="1" height="1" fill="#18181B"/><rect x="11" y="0" width="1" height="1" fill="#18181B"/><rect x="12" y="0" width="1" height="1" fill="#18181B"/><rect x="13" y="0" width="1" height="1" fill="#18181B"/><rect x="0" y="1" width="1" height="1" fill="#18181B"/><rect x="1" y="1" width="1" height="1" fill="#10B981"/><rect x="2" y="1" width="1" height="1" fill="#10B981"/><rect x="3" y="1" width="1" height="1" fill="#10B981"/><rect x="4" y="1" width="1" height="1" fill="#10B981"/><rect x="5" y="1" width="1" height="1" fill="#10B981"/><rect x="6" y="1" width="1" height="1" fill="#10B981"/><rect x="7" y="1" width="1" height="1" fill="#10B981"/><rect x="8" y="1" width="1" height="1" fill="#10B981"/><rect x="9" y="1" width="1" height="1" fill="#10B981"/><rect x="10" y="1" width="1" height="1" fill="#10B981"/><rect x="11" y="1" width="1" height="1" fill="#10B981"/><rect x="12" y="1" width="1" height="1" fill="#10B981"/><rect x="13" y="1" width="1" height="1" fill="#10B981"/><rect x="14" y="1" width="1" height="1" fill="#18181B"/><rect x="0" y="2" width="1" height="1" fill="#18181B"/><rect x="1" y="2" width="1" height="1" fill="#10B981"/><rect x="2" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="3" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="4" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="5" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="6" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="7" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="8" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="9" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="10" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="11" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="12" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="13" y="2" width="1" height="1" fill="#F3F4F6"/><rect x="14" y="2" width="1" height="1" fill="#18181B"/><rect x="0" y="3" width="1" height="1" fill="#18181B"/><rect x="1" y="3" width="1" height="1" fill="#10B981"/><rect x="2" y="3" width="1" height="1" fill="#10B981"/><rect x="3" y="3" width="1" height="1" fill="#10B981"/><rect x="4" y="3" width="1" height="1" fill="#10B981"/><rect x="5" y="3" width="1" height="1" fill="#10B981"/><rect x="6" y="3" width="1" height="1" fill="#10B981"/><rect x="7" y="3" width="1" height="1" fill="#10B981"/><rect x="8" y="3" width="1" height="1" fill="#10B981"/><rect x="9" y="3" width="1" height="1" fill="#10B981"/><rect x="10" y="3" width="1" height="1" fill="#10B981"/><rect x="11" y="3" width="1" height="1" fill="#10B981"/><rect x="12" y="3" width="1" height="1" fill="#10B981"/><rect x="13" y="3" width="1" height="1" fill="#10B981"/><rect x="14" y="3" width="1" height="1" fill="#18181B"/><rect x="0" y="4" width="1" height="1" fill="#18181B"/><rect x="1" y="4" width="1" height="1" fill="#10B981"/><rect x="2" y="4" width="1" height="1" fill="#10B981"/><rect x="3" y="4" width="1" height="1" fill="#18181B"/><rect x="4" y="4" width="1" height="1" fill="#18181B"/><rect x="5" y="4" width="1" height="1" fill="#FDE047"/><rect x="6" y="4" width="1" height="1" fill="#FDE047"/><rect x="7" y="4" width="1" height="1" fill="#10B981"/><rect x="8" y="4" width="1" height="1" fill="#10B981"/><rect x="9" y="4" width="1" height="1" fill="#18181B"/><rect x="10" y="4" width="1" height="1" fill="#18181B"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="12" y="4" width="1" height="1" fill="#18181B"/><rect x="13" y="4" width="1" height="1" fill="#18181B"/><rect x="14" y="4" width="1" height="1" fill="#18181B"/><rect x="0" y="5" width="1" height="1" fill="#18181B"/><rect x="1" y="5" width="1" height="1" fill="#10B981"/><rect x="2" y="5" width="1" height="1" fill="#10B981"/><rect x="3" y="5" width="1" height="1" fill="#18181B"/><rect x="4" y="5" width="1" height="1" fill="#FDE047"/><rect x="5" y="5" width="1" height="1" fill="#FDE047"/><rect x="6" y="5" width="1" height="1" fill="#FDE047"/><rect x="7" y="5" width="1" height="1" fill="#FDE047"/><rect x="8" y="5" width="1" height="1" fill="#10B981"/><rect x="9" y="5" width="1" height="1" fill="#10B981"/><rect x="10" y="5" width="1" height="1" fill="#18181B"/><rect x="11" y="5" width="1" height="1" fill="#18181B"/><rect x="12" y="5" width="1" height="1" fill="#18181B"/><rect x="13" y="5" width="1" height="1" fill="#18181B"/><rect x="14" y="5" width="1" height="1" fill="#18181B"/><rect x="0" y="6" width="1" height="1" fill="#18181B"/><rect x="1" y="6" width="1" height="1" fill="#10B981"/><rect x="2" y="6" width="1" height="1" fill="#10B981"/><rect x="3" y="6" width="1" height="1" fill="#10B981"/><rect x="4" y="6" width="1" height="1" fill="#18181B"/><rect x="5" y="6" width="1" height="1" fill="#FDE047"/><rect x="6" y="6" width="1" height="1" fill="#FDE047"/><rect x="7" y="6" width="1" height="1" fill="#10B981"/><rect x="8" y="6" width="1" height="1" fill="#10B981"/><rect x="9" y="6" width="1" height="1" fill="#10B981"/><rect x="10" y="6" width="1" height="1" fill="#18181B"/><rect x="11" y="6" width="1" height="1" fill="#18181B"/><rect x="12" y="6" width="1" height="1" fill="#18181B"/><rect x="13" y="6" width="1" height="1" fill="#18181B"/><rect x="14" y="6" width="1" height="1" fill="#18181B"/><rect x="0" y="7" width="1" height="1" fill="#18181B"/><rect x="1" y="7" width="1" height="1" fill="#10B981"/><rect x="2" y="7" width="1" height="1" fill="#10B981"/><rect x="3" y="7" width="1" height="1" fill="#10B981"/><rect x="4" y="7" width="1" height="1" fill="#10B981"/><rect x="5" y="7" width="1" height="1" fill="#10B981"/><rect x="6" y="7" width="1" height="1" fill="#10B981"/><rect x="7" y="7" width="1" height="1" fill="#10B981"/><rect x="8" y="7" width="1" height="1" fill="#10B981"/><rect x="9" y="7" width="1" height="1" fill="#10B981"/><rect x="10" y="7" width="1" height="1" fill="#10B981"/><rect x="11" y="7" width="1" height="1" fill="#10B981"/><rect x="12" y="7" width="1" height="1" fill="#10B981"/><rect x="13" y="7" width="1" height="1" fill="#10B981"/><rect x="14" y="7" width="1" height="1" fill="#18181B"/><rect x="0" y="8" width="1" height="1" fill="#18181B"/><rect x="1" y="8" width="1" height="1" fill="#10B981"/><rect x="2" y="8" width="1" height="1" fill="#10B981"/><rect x="3" y="8" width="1" height="1" fill="#10B981"/><rect x="4" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="8" width="1" height="1" fill="#18181B"/><rect x="6" y="8" width="1" height="1" fill="#18181B"/><rect x="7" y="8" width="1" height="1" fill="#18181B"/><rect x="8" y="8" width="1" height="1" fill="#18181B"/><rect x="9" y="8" width="1" height="1" fill="#10B981"/><rect x="10" y="8" width="1" height="1" fill="#10B981"/><rect x="11" y="8" width="1" height="1" fill="#10B981"/><rect x="12" y="8" width="1" height="1" fill="#10B981"/><rect x="13" y="8" width="1" height="1" fill="#10B981"/><rect x="14" y="8" width="1" height="1" fill="#18181B"/><rect x="1" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="9" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#18181B"/><rect x="6" y="9" width="1" height="1" fill="#18181B"/><rect x="7" y="9" width="1" height="1" fill="#18181B"/><rect x="8" y="9" width="1" height="1" fill="#18181B"/><rect x="9" y="9" width="1" height="1" fill="#18181B"/><rect x="10" y="9" width="1" height="1" fill="#18181B"/><rect x="11" y="9" width="1" height="1" fill="#18181B"/><rect x="12" y="9" width="1" height="1" fill="#18181B"/><rect x="13" y="9" width="1" height="1" fill="#18181B"/><rect x="6" y="10" width="1" height="1" fill="#18181B"/><rect x="7" y="10" width="1" height="1" fill="#18181B"/><rect x="8" y="10" width="1" height="1" fill="#18181B"/><rect x="9" y="10" width="1" height="1" fill="#18181B"/><rect x="5" y="11" width="1" height="1" fill="#18181B"/><rect x="6" y="11" width="1" height="1" fill="#FDE047"/><rect x="7" y="11" width="1" height="1" fill="#FDE047"/><rect x="8" y="11" width="1" height="1" fill="#FDE047"/><rect x="9" y="11" width="1" height="1" fill="#FDE047"/><rect x="10" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#FDE047"/><rect x="6" y="12" width="1" height="1" fill="#FDE047"/><rect x="7" y="12" width="1" height="1" fill="#FDE047"/><rect x="8" y="12" width="1" height="1" fill="#FDE047"/><rect x="9" y="12" width="1" height="1" fill="#FDE047"/><rect x="10" y="12" width="1" height="1" fill="#FDE047"/><rect x="11" y="12" width="1" height="1" fill="#18181B"/><rect x="4" y="13" width="1" height="1" fill="#18181B"/><rect x="5" y="13" width="1" height="1" fill="#FDE047"/><rect x="6" y="13" width="1" height="1" fill="#F59E0B"/><rect x="7" y="13" width="1" height="1" fill="#FDE047"/><rect x="8" y="13" width="1" height="1" fill="#FDE047"/><rect x="9" y="13" width="1" height="1" fill="#F59E0B"/><rect x="10" y="13" width="1" height="1" fill="#FDE047"/><rect x="11" y="13" width="1" height="1" fill="#18181B"/><rect x="5" y="14" width="1" height="1" fill="#18181B"/><rect x="6" y="14" width="1" height="1" fill="#FDE047"/><rect x="7" y="14" width="1" height="1" fill="#FDE047"/><rect x="8" y="14" width="1" height="1" fill="#FDE047"/><rect x="9" y="14" width="1" height="1" fill="#FDE047"/><rect x="10" y="14" width="1" height="1" fill="#18181B"/><rect x="6" y="15" width="1" height="1" fill="#18181B"/><rect x="7" y="15" width="1" height="1" fill="#18181B"/><rect x="8" y="15" width="1" height="1" fill="#18181B"/><rect x="9" y="15" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">Kisan Credit Card (KCC) & Interest Subvention</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Reserve Bank of India & NABARD</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">CONCESSIONAL LOAN FACILITY</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">4.0% Effective Interest</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Credit limit up to ₹3,00,000; base 7% interest minus 3% prompt repayment incentive</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">All farmers, owner cultivators, tenant farmers, oral lessees & sharecroppers</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Collateral-free agricultural loans up to ₹1,60,000</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Simple revolving credit card valid for 5 years with annual review</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">PAN Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Crop Declaration</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://myscheme.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (myscheme.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: Karnataka Krishi Bhagya Scheme -->
-      <article data-category="karnataka irrigation" class="scheme-bento-card col-span-12 lg:col-span-6 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#KA-BHAGYA-07</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-purple-100 text-purple-900 border-purple-900">KARNATAKA STATE</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="2" y="0" width="1" height="1" fill="#18181B"/><rect x="3" y="0" width="1" height="1" fill="#18181B"/><rect x="4" y="0" width="1" height="1" fill="#18181B"/><rect x="5" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="0" width="1" height="1" fill="#18181B"/><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="9" y="0" width="1" height="1" fill="#18181B"/><rect x="10" y="0" width="1" height="1" fill="#18181B"/><rect x="11" y="0" width="1" height="1" fill="#18181B"/><rect x="1" y="1" width="1" height="1" fill="#18181B"/><rect x="2" y="1" width="1" height="1" fill="#15803D"/><rect x="3" y="1" width="1" height="1" fill="#15803D"/><rect x="4" y="1" width="1" height="1" fill="#15803D"/><rect x="5" y="1" width="1" height="1" fill="#15803D"/><rect x="6" y="1" width="1" height="1" fill="#15803D"/><rect x="7" y="1" width="1" height="1" fill="#15803D"/><rect x="8" y="1" width="1" height="1" fill="#15803D"/><rect x="9" y="1" width="1" height="1" fill="#15803D"/><rect x="10" y="1" width="1" height="1" fill="#15803D"/><rect x="11" y="1" width="1" height="1" fill="#15803D"/><rect x="12" y="1" width="1" height="1" fill="#18181B"/><rect x="0" y="2" width="1" height="1" fill="#18181B"/><rect x="1" y="2" width="1" height="1" fill="#15803D"/><rect x="2" y="2" width="1" height="1" fill="#15803D"/><rect x="3" y="2" width="1" height="1" fill="#18181B"/><rect x="4" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#18181B"/><rect x="6" y="2" width="1" height="1" fill="#18181B"/><rect x="7" y="2" width="1" height="1" fill="#18181B"/><rect x="8" y="2" width="1" height="1" fill="#18181B"/><rect x="9" y="2" width="1" height="1" fill="#18181B"/><rect x="10" y="2" width="1" height="1" fill="#18181B"/><rect x="11" y="2" width="1" height="1" fill="#15803D"/><rect x="12" y="2" width="1" height="1" fill="#15803D"/><rect x="13" y="2" width="1" height="1" fill="#18181B"/><rect x="0" y="3" width="1" height="1" fill="#18181B"/><rect x="1" y="3" width="1" height="1" fill="#15803D"/><rect x="2" y="3" width="1" height="1" fill="#18181B"/><rect x="3" y="3" width="1" height="1" fill="#60A5FA"/><rect x="4" y="3" width="1" height="1" fill="#60A5FA"/><rect x="5" y="3" width="1" height="1" fill="#60A5FA"/><rect x="6" y="3" width="1" height="1" fill="#60A5FA"/><rect x="7" y="3" width="1" height="1" fill="#60A5FA"/><rect x="8" y="3" width="1" height="1" fill="#60A5FA"/><rect x="9" y="3" width="1" height="1" fill="#60A5FA"/><rect x="10" y="3" width="1" height="1" fill="#60A5FA"/><rect x="11" y="3" width="1" height="1" fill="#18181B"/><rect x="12" y="3" width="1" height="1" fill="#15803D"/><rect x="13" y="3" width="1" height="1" fill="#18181B"/><rect x="0" y="4" width="1" height="1" fill="#18181B"/><rect x="1" y="4" width="1" height="1" fill="#15803D"/><rect x="2" y="4" width="1" height="1" fill="#18181B"/><rect x="3" y="4" width="1" height="1" fill="#60A5FA"/><rect x="4" y="4" width="1" height="1" fill="#60A5FA"/><rect x="5" y="4" width="1" height="1" fill="#60A5FA"/><rect x="6" y="4" width="1" height="1" fill="#60A5FA"/><rect x="7" y="4" width="1" height="1" fill="#60A5FA"/><rect x="8" y="4" width="1" height="1" fill="#60A5FA"/><rect x="9" y="4" width="1" height="1" fill="#60A5FA"/><rect x="10" y="4" width="1" height="1" fill="#60A5FA"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="12" y="4" width="1" height="1" fill="#15803D"/><rect x="13" y="4" width="1" height="1" fill="#18181B"/><rect x="0" y="5" width="1" height="1" fill="#18181B"/><rect x="1" y="5" width="1" height="1" fill="#15803D"/><rect x="2" y="5" width="1" height="1" fill="#18181B"/><rect x="3" y="5" width="1" height="1" fill="#60A5FA"/><rect x="4" y="5" width="1" height="1" fill="#60A5FA"/><rect x="5" y="5" width="1" height="1" fill="#2563EB"/><rect x="6" y="5" width="1" height="1" fill="#2563EB"/><rect x="7" y="5" width="1" height="1" fill="#2563EB"/><rect x="8" y="5" width="1" height="1" fill="#2563EB"/><rect x="9" y="5" width="1" height="1" fill="#60A5FA"/><rect x="10" y="5" width="1" height="1" fill="#60A5FA"/><rect x="11" y="5" width="1" height="1" fill="#18181B"/><rect x="12" y="5" width="1" height="1" fill="#15803D"/><rect x="13" y="5" width="1" height="1" fill="#18181B"/><rect x="0" y="6" width="1" height="1" fill="#18181B"/><rect x="1" y="6" width="1" height="1" fill="#15803D"/><rect x="2" y="6" width="1" height="1" fill="#18181B"/><rect x="3" y="6" width="1" height="1" fill="#60A5FA"/><rect x="4" y="6" width="1" height="1" fill="#60A5FA"/><rect x="5" y="6" width="1" height="1" fill="#2563EB"/><rect x="6" y="6" width="1" height="1" fill="#2563EB"/><rect x="7" y="6" width="1" height="1" fill="#2563EB"/><rect x="8" y="6" width="1" height="1" fill="#2563EB"/><rect x="9" y="6" width="1" height="1" fill="#60A5FA"/><rect x="10" y="6" width="1" height="1" fill="#60A5FA"/><rect x="11" y="6" width="1" height="1" fill="#18181B"/><rect x="12" y="6" width="1" height="1" fill="#15803D"/><rect x="13" y="6" width="1" height="1" fill="#18181B"/><rect x="0" y="7" width="1" height="1" fill="#18181B"/><rect x="1" y="7" width="1" height="1" fill="#15803D"/><rect x="2" y="7" width="1" height="1" fill="#18181B"/><rect x="3" y="7" width="1" height="1" fill="#60A5FA"/><rect x="4" y="7" width="1" height="1" fill="#60A5FA"/><rect x="5" y="7" width="1" height="1" fill="#2563EB"/><rect x="6" y="7" width="1" height="1" fill="#2563EB"/><rect x="7" y="7" width="1" height="1" fill="#2563EB"/><rect x="8" y="7" width="1" height="1" fill="#2563EB"/><rect x="9" y="7" width="1" height="1" fill="#60A5FA"/><rect x="10" y="7" width="1" height="1" fill="#60A5FA"/><rect x="11" y="7" width="1" height="1" fill="#18181B"/><rect x="12" y="7" width="1" height="1" fill="#15803D"/><rect x="13" y="7" width="1" height="1" fill="#18181B"/><rect x="0" y="8" width="1" height="1" fill="#18181B"/><rect x="1" y="8" width="1" height="1" fill="#15803D"/><rect x="2" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="8" width="1" height="1" fill="#60A5FA"/><rect x="4" y="8" width="1" height="1" fill="#60A5FA"/><rect x="5" y="8" width="1" height="1" fill="#60A5FA"/><rect x="6" y="8" width="1" height="1" fill="#60A5FA"/><rect x="7" y="8" width="1" height="1" fill="#60A5FA"/><rect x="8" y="8" width="1" height="1" fill="#60A5FA"/><rect x="9" y="8" width="1" height="1" fill="#60A5FA"/><rect x="10" y="8" width="1" height="1" fill="#60A5FA"/><rect x="11" y="8" width="1" height="1" fill="#18181B"/><rect x="12" y="8" width="1" height="1" fill="#15803D"/><rect x="13" y="8" width="1" height="1" fill="#18181B"/><rect x="0" y="9" width="1" height="1" fill="#18181B"/><rect x="1" y="9" width="1" height="1" fill="#15803D"/><rect x="2" y="9" width="1" height="1" fill="#15803D"/><rect x="3" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#18181B"/><rect x="6" y="9" width="1" height="1" fill="#18181B"/><rect x="7" y="9" width="1" height="1" fill="#18181B"/><rect x="8" y="9" width="1" height="1" fill="#18181B"/><rect x="9" y="9" width="1" height="1" fill="#18181B"/><rect x="10" y="9" width="1" height="1" fill="#18181B"/><rect x="11" y="9" width="1" height="1" fill="#15803D"/><rect x="12" y="9" width="1" height="1" fill="#15803D"/><rect x="13" y="9" width="1" height="1" fill="#18181B"/><rect x="1" y="10" width="1" height="1" fill="#18181B"/><rect x="2" y="10" width="1" height="1" fill="#15803D"/><rect x="3" y="10" width="1" height="1" fill="#15803D"/><rect x="4" y="10" width="1" height="1" fill="#15803D"/><rect x="5" y="10" width="1" height="1" fill="#15803D"/><rect x="6" y="10" width="1" height="1" fill="#15803D"/><rect x="7" y="10" width="1" height="1" fill="#15803D"/><rect x="8" y="10" width="1" height="1" fill="#15803D"/><rect x="9" y="10" width="1" height="1" fill="#15803D"/><rect x="10" y="10" width="1" height="1" fill="#15803D"/><rect x="11" y="10" width="1" height="1" fill="#15803D"/><rect x="12" y="10" width="1" height="1" fill="#18181B"/><rect x="2" y="11" width="1" height="1" fill="#18181B"/><rect x="3" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="11" width="1" height="1" fill="#18181B"/><rect x="5" y="11" width="1" height="1" fill="#18181B"/><rect x="6" y="11" width="1" height="1" fill="#18181B"/><rect x="7" y="11" width="1" height="1" fill="#18181B"/><rect x="8" y="11" width="1" height="1" fill="#18181B"/><rect x="9" y="11" width="1" height="1" fill="#18181B"/><rect x="10" y="11" width="1" height="1" fill="#18181B"/><rect x="11" y="11" width="1" height="1" fill="#18181B"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#18181B"/><rect x="10" y="12" width="1" height="1" fill="#18181B"/><rect x="11" y="12" width="1" height="1" fill="#18181B"/><rect x="3" y="13" width="1" height="1" fill="#18181B"/><rect x="4" y="13" width="1" height="1" fill="#86EFAC"/><rect x="5" y="13" width="1" height="1" fill="#86EFAC"/><rect x="6" y="13" width="1" height="1" fill="#18181B"/><rect x="9" y="13" width="1" height="1" fill="#18181B"/><rect x="10" y="13" width="1" height="1" fill="#86EFAC"/><rect x="11" y="13" width="1" height="1" fill="#86EFAC"/><rect x="12" y="13" width="1" height="1" fill="#18181B"/><rect x="4" y="14" width="1" height="1" fill="#18181B"/><rect x="5" y="14" width="1" height="1" fill="#18181B"/><rect x="10" y="14" width="1" height="1" fill="#18181B"/><rect x="11" y="14" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">Karnataka Krishi Bhagya Scheme</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Department of Agriculture, Govt of Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">RAINWATER HARVESTING</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">80% - 90% Subsidy</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Financial assistance for farm pond (Krishi Honda) excavation, polythene lining & pump</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Rainfed/dryland farmers across 100+ notified dry taluks in 25 districts</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Promotes on-farm water security to sustain crops through dry spells</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Packages include farm ponds, pump sets, and shade net polyhouses</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Bank Passbook</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">RSK Field Form</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://raitamitra.karnataka.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (raitamitra.karnataka.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: Raitha Siri Scheme (Millet Promotion) -->
-      <article data-category="karnataka income" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#KA-SIRI-08</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-yellow-100 text-yellow-900 border-yellow-900">MILLET MISSION</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="1" width="1" height="1" fill="#18181B"/><rect x="7" y="1" width="1" height="1" fill="#EAB308"/><rect x="8" y="1" width="1" height="1" fill="#EAB308"/><rect x="9" y="1" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#18181B"/><rect x="6" y="2" width="1" height="1" fill="#EAB308"/><rect x="7" y="2" width="1" height="1" fill="#CA8A04"/><rect x="8" y="2" width="1" height="1" fill="#EAB308"/><rect x="9" y="2" width="1" height="1" fill="#EAB308"/><rect x="10" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="3" width="1" height="1" fill="#18181B"/><rect x="6" y="3" width="1" height="1" fill="#EAB308"/><rect x="7" y="3" width="1" height="1" fill="#CA8A04"/><rect x="8" y="3" width="1" height="1" fill="#EAB308"/><rect x="9" y="3" width="1" height="1" fill="#EAB308"/><rect x="10" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="4" width="1" height="1" fill="#18181B"/><rect x="5" y="4" width="1" height="1" fill="#EAB308"/><rect x="6" y="4" width="1" height="1" fill="#EAB308"/><rect x="7" y="4" width="1" height="1" fill="#CA8A04"/><rect x="8" y="4" width="1" height="1" fill="#EAB308"/><rect x="9" y="4" width="1" height="1" fill="#EAB308"/><rect x="10" y="4" width="1" height="1" fill="#EAB308"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="4" y="5" width="1" height="1" fill="#18181B"/><rect x="5" y="5" width="1" height="1" fill="#EAB308"/><rect x="6" y="5" width="1" height="1" fill="#EAB308"/><rect x="7" y="5" width="1" height="1" fill="#CA8A04"/><rect x="8" y="5" width="1" height="1" fill="#EAB308"/><rect x="9" y="5" width="1" height="1" fill="#EAB308"/><rect x="10" y="5" width="1" height="1" fill="#EAB308"/><rect x="11" y="5" width="1" height="1" fill="#18181B"/><rect x="5" y="6" width="1" height="1" fill="#18181B"/><rect x="6" y="6" width="1" height="1" fill="#EAB308"/><rect x="7" y="6" width="1" height="1" fill="#CA8A04"/><rect x="8" y="6" width="1" height="1" fill="#EAB308"/><rect x="9" y="6" width="1" height="1" fill="#EAB308"/><rect x="10" y="6" width="1" height="1" fill="#18181B"/><rect x="5" y="7" width="1" height="1" fill="#18181B"/><rect x="6" y="7" width="1" height="1" fill="#EAB308"/><rect x="7" y="7" width="1" height="1" fill="#CA8A04"/><rect x="8" y="7" width="1" height="1" fill="#EAB308"/><rect x="9" y="7" width="1" height="1" fill="#EAB308"/><rect x="10" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="8" width="1" height="1" fill="#EAB308"/><rect x="6" y="8" width="1" height="1" fill="#EAB308"/><rect x="7" y="8" width="1" height="1" fill="#CA8A04"/><rect x="8" y="8" width="1" height="1" fill="#EAB308"/><rect x="9" y="8" width="1" height="1" fill="#EAB308"/><rect x="10" y="8" width="1" height="1" fill="#EAB308"/><rect x="11" y="8" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#EAB308"/><rect x="6" y="9" width="1" height="1" fill="#EAB308"/><rect x="7" y="9" width="1" height="1" fill="#CA8A04"/><rect x="8" y="9" width="1" height="1" fill="#EAB308"/><rect x="9" y="9" width="1" height="1" fill="#EAB308"/><rect x="10" y="9" width="1" height="1" fill="#EAB308"/><rect x="11" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="10" width="1" height="1" fill="#18181B"/><rect x="6" y="10" width="1" height="1" fill="#EAB308"/><rect x="7" y="10" width="1" height="1" fill="#CA8A04"/><rect x="8" y="10" width="1" height="1" fill="#EAB308"/><rect x="9" y="10" width="1" height="1" fill="#EAB308"/><rect x="10" y="10" width="1" height="1" fill="#18181B"/><rect x="6" y="11" width="1" height="1" fill="#18181B"/><rect x="7" y="11" width="1" height="1" fill="#16A34A"/><rect x="8" y="11" width="1" height="1" fill="#16A34A"/><rect x="9" y="11" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#18181B"/><rect x="6" y="12" width="1" height="1" fill="#16A34A"/><rect x="7" y="12" width="1" height="1" fill="#16A34A"/><rect x="8" y="12" width="1" height="1" fill="#16A34A"/><rect x="9" y="12" width="1" height="1" fill="#18181B"/><rect x="4" y="13" width="1" height="1" fill="#18181B"/><rect x="5" y="13" width="1" height="1" fill="#16A34A"/><rect x="6" y="13" width="1" height="1" fill="#16A34A"/><rect x="7" y="13" width="1" height="1" fill="#18181B"/><rect x="3" y="14" width="1" height="1" fill="#18181B"/><rect x="4" y="14" width="1" height="1" fill="#16A34A"/><rect x="5" y="14" width="1" height="1" fill="#16A34A"/><rect x="6" y="14" width="1" height="1" fill="#18181B"/><rect x="4" y="15" width="1" height="1" fill="#18181B"/><rect x="5" y="15" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">Raitha Siri Scheme (Millet Promotion)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Department of Agriculture, Govt of Karnataka</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">MILLET CULTIVATION INCENTIVE</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">₹10,000 / Hectare</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Direct financial incentive to farmers growing climate-smart Siridhanya millets</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Farmers cultivating certified millets: Ragi, Jowar, Bajra, Foxtail, Kodo & Little millet</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Crops verified via the official Karnataka Crop Survey (Bele Darshak) mobile app</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Direct DBT credit into the farmer's registered bank account</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC (Millet entry)</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">FRUITS ID</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Bank A/c</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://fruits.karnataka.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (fruits.karnataka.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: Soil Health Card & PKVY (Paramparagat Krishi) -->
-      <article data-category="machinery" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-SOIL-09</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-lime-100 text-lime-900 border-lime-900">SOIL & ORGANIC</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="6" y="0" width="1" height="1" fill="#18181B"/><rect x="7" y="0" width="1" height="1" fill="#18181B"/><rect x="8" y="0" width="1" height="1" fill="#18181B"/><rect x="9" y="0" width="1" height="1" fill="#18181B"/><rect x="6" y="1" width="1" height="1" fill="#18181B"/><rect x="7" y="1" width="1" height="1" fill="#16A34A"/><rect x="8" y="1" width="1" height="1" fill="#16A34A"/><rect x="9" y="1" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#18181B"/><rect x="6" y="2" width="1" height="1" fill="#16A34A"/><rect x="7" y="2" width="1" height="1" fill="#16A34A"/><rect x="8" y="2" width="1" height="1" fill="#16A34A"/><rect x="9" y="2" width="1" height="1" fill="#16A34A"/><rect x="10" y="2" width="1" height="1" fill="#18181B"/><rect x="4" y="3" width="1" height="1" fill="#18181B"/><rect x="5" y="3" width="1" height="1" fill="#16A34A"/><rect x="6" y="3" width="1" height="1" fill="#16A34A"/><rect x="7" y="3" width="1" height="1" fill="#4ADE80"/><rect x="8" y="3" width="1" height="1" fill="#4ADE80"/><rect x="9" y="3" width="1" height="1" fill="#16A34A"/><rect x="10" y="3" width="1" height="1" fill="#16A34A"/><rect x="11" y="3" width="1" height="1" fill="#18181B"/><rect x="5" y="4" width="1" height="1" fill="#18181B"/><rect x="6" y="4" width="1" height="1" fill="#16A34A"/><rect x="7" y="4" width="1" height="1" fill="#16A34A"/><rect x="8" y="4" width="1" height="1" fill="#16A34A"/><rect x="9" y="4" width="1" height="1" fill="#16A34A"/><rect x="10" y="4" width="1" height="1" fill="#18181B"/><rect x="6" y="5" width="1" height="1" fill="#18181B"/><rect x="7" y="5" width="1" height="1" fill="#16A34A"/><rect x="8" y="5" width="1" height="1" fill="#16A34A"/><rect x="9" y="5" width="1" height="1" fill="#18181B"/><rect x="6" y="6" width="1" height="1" fill="#18181B"/><rect x="7" y="6" width="1" height="1" fill="#18181B"/><rect x="8" y="6" width="1" height="1" fill="#18181B"/><rect x="9" y="6" width="1" height="1" fill="#18181B"/><rect x="5" y="7" width="1" height="1" fill="#18181B"/><rect x="6" y="7" width="1" height="1" fill="#854D0E"/><rect x="7" y="7" width="1" height="1" fill="#854D0E"/><rect x="8" y="7" width="1" height="1" fill="#854D0E"/><rect x="9" y="7" width="1" height="1" fill="#854D0E"/><rect x="10" y="7" width="1" height="1" fill="#18181B"/><rect x="4" y="8" width="1" height="1" fill="#18181B"/><rect x="5" y="8" width="1" height="1" fill="#854D0E"/><rect x="6" y="8" width="1" height="1" fill="#854D0E"/><rect x="7" y="8" width="1" height="1" fill="#854D0E"/><rect x="8" y="8" width="1" height="1" fill="#854D0E"/><rect x="9" y="8" width="1" height="1" fill="#854D0E"/><rect x="10" y="8" width="1" height="1" fill="#854D0E"/><rect x="11" y="8" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#854D0E"/><rect x="5" y="9" width="1" height="1" fill="#854D0E"/><rect x="6" y="9" width="1" height="1" fill="#854D0E"/><rect x="7" y="9" width="1" height="1" fill="#A16207"/><rect x="8" y="9" width="1" height="1" fill="#A16207"/><rect x="9" y="9" width="1" height="1" fill="#854D0E"/><rect x="10" y="9" width="1" height="1" fill="#854D0E"/><rect x="11" y="9" width="1" height="1" fill="#854D0E"/><rect x="12" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="10" width="1" height="1" fill="#18181B"/><rect x="3" y="10" width="1" height="1" fill="#854D0E"/><rect x="4" y="10" width="1" height="1" fill="#854D0E"/><rect x="5" y="10" width="1" height="1" fill="#854D0E"/><rect x="6" y="10" width="1" height="1" fill="#A16207"/><rect x="7" y="10" width="1" height="1" fill="#A16207"/><rect x="8" y="10" width="1" height="1" fill="#A16207"/><rect x="9" y="10" width="1" height="1" fill="#A16207"/><rect x="10" y="10" width="1" height="1" fill="#854D0E"/><rect x="11" y="10" width="1" height="1" fill="#854D0E"/><rect x="12" y="10" width="1" height="1" fill="#854D0E"/><rect x="13" y="10" width="1" height="1" fill="#18181B"/><rect x="1" y="11" width="1" height="1" fill="#18181B"/><rect x="2" y="11" width="1" height="1" fill="#854D0E"/><rect x="3" y="11" width="1" height="1" fill="#854D0E"/><rect x="4" y="11" width="1" height="1" fill="#854D0E"/><rect x="5" y="11" width="1" height="1" fill="#A16207"/><rect x="6" y="11" width="1" height="1" fill="#A16207"/><rect x="7" y="11" width="1" height="1" fill="#A16207"/><rect x="8" y="11" width="1" height="1" fill="#A16207"/><rect x="9" y="11" width="1" height="1" fill="#A16207"/><rect x="10" y="11" width="1" height="1" fill="#A16207"/><rect x="11" y="11" width="1" height="1" fill="#854D0E"/><rect x="12" y="11" width="1" height="1" fill="#854D0E"/><rect x="13" y="11" width="1" height="1" fill="#854D0E"/><rect x="14" y="11" width="1" height="1" fill="#18181B"/><rect x="1" y="12" width="1" height="1" fill="#18181B"/><rect x="2" y="12" width="1" height="1" fill="#854D0E"/><rect x="3" y="12" width="1" height="1" fill="#854D0E"/><rect x="4" y="12" width="1" height="1" fill="#854D0E"/><rect x="5" y="12" width="1" height="1" fill="#854D0E"/><rect x="6" y="12" width="1" height="1" fill="#854D0E"/><rect x="7" y="12" width="1" height="1" fill="#854D0E"/><rect x="8" y="12" width="1" height="1" fill="#854D0E"/><rect x="9" y="12" width="1" height="1" fill="#854D0E"/><rect x="10" y="12" width="1" height="1" fill="#854D0E"/><rect x="11" y="12" width="1" height="1" fill="#854D0E"/><rect x="12" y="12" width="1" height="1" fill="#854D0E"/><rect x="13" y="12" width="1" height="1" fill="#854D0E"/><rect x="14" y="12" width="1" height="1" fill="#18181B"/><rect x="1" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="13" width="1" height="1" fill="#854D0E"/><rect x="3" y="13" width="1" height="1" fill="#854D0E"/><rect x="4" y="13" width="1" height="1" fill="#854D0E"/><rect x="5" y="13" width="1" height="1" fill="#854D0E"/><rect x="6" y="13" width="1" height="1" fill="#854D0E"/><rect x="7" y="13" width="1" height="1" fill="#854D0E"/><rect x="8" y="13" width="1" height="1" fill="#854D0E"/><rect x="9" y="13" width="1" height="1" fill="#854D0E"/><rect x="10" y="13" width="1" height="1" fill="#854D0E"/><rect x="11" y="13" width="1" height="1" fill="#854D0E"/><rect x="12" y="13" width="1" height="1" fill="#854D0E"/><rect x="13" y="13" width="1" height="1" fill="#854D0E"/><rect x="14" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="14" width="1" height="1" fill="#18181B"/><rect x="3" y="14" width="1" height="1" fill="#18181B"/><rect x="4" y="14" width="1" height="1" fill="#18181B"/><rect x="5" y="14" width="1" height="1" fill="#18181B"/><rect x="6" y="14" width="1" height="1" fill="#18181B"/><rect x="7" y="14" width="1" height="1" fill="#18181B"/><rect x="8" y="14" width="1" height="1" fill="#18181B"/><rect x="9" y="14" width="1" height="1" fill="#18181B"/><rect x="10" y="14" width="1" height="1" fill="#18181B"/><rect x="11" y="14" width="1" height="1" fill="#18181B"/><rect x="12" y="14" width="1" height="1" fill="#18181B"/><rect x="13" y="14" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">Soil Health Card & PKVY (Paramparagat Krishi)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Department of Agriculture & Farmers Welfare, GoI</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">SOIL AUDIT & ORGANIC AID</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">₹50,000 / Hectare</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">Free 12-parameter soil test report + financial assistance for organic inputs & PGS certification</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Comprehensive soil testing for N, P, K, micronutrients, pH, EC, and Organic Carbon</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Custom fertilizer advisory saving up to 25% unnecessary chemical input costs</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Support for cluster organic farming, vermicompost & green manuring</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Soil Sample Receipt</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">RTC / Pahani</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://soilhealth.dac.gov.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (soilhealth.dac.gov.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
-
-      <!-- Bento Card: SMAM (Sub-Mission on Agricultural Mechanization) -->
-      <article data-category="machinery" class="scheme-bento-card col-span-12 lg:col-span-4 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] hover:shadow-[7px_7px_0px_0px_#18181B] hover:-translate-x-0.5 hover:-translate-y-0.5 transition-all p-5 sm:p-6 flex flex-col justify-between">
-        
-        <div>
-          <!-- Top Meta Bar: Code + Pixel Badge -->
-          <div class="flex items-center justify-between gap-2 pb-3 mb-3 border-b-2 border-neutral-900">
-            <span class="font-mono text-[11px] font-bold tracking-wider text-neutral-500 uppercase">REF#GOI-SMAM-10</span>
-            <div class="flex items-center gap-1.5">
-              <span class="inline-block w-2 h-2 bg-emerald-500 border border-neutral-900"></span>
-              <span class="font-mono text-[10px] font-bold px-2 py-0.5 uppercase border-2 border-neutral-900 bg-rose-100 text-rose-900 border-rose-900">MECHANIZATION</span>
-            </div>
-          </div>
-
-          <!-- Header: Pixel Icon + Title + Issuing Authority -->
-          <div class="flex items-start gap-3.5 mb-4">
-            <div class="w-12 h-12 bg-[#F4F5F0] border-2 border-neutral-900 flex items-center justify-center shrink-0 p-1">
-              <svg viewBox="0 0 16 16" width="32" height="32" style="shape-rendering: crispEdges; image-rendering: pixelated;" class="shrink-0"><rect x="5" y="1" width="1" height="1" fill="#18181B"/><rect x="6" y="1" width="1" height="1" fill="#18181B"/><rect x="7" y="1" width="1" height="1" fill="#18181B"/><rect x="8" y="1" width="1" height="1" fill="#18181B"/><rect x="9" y="1" width="1" height="1" fill="#18181B"/><rect x="10" y="1" width="1" height="1" fill="#18181B"/><rect x="4" y="2" width="1" height="1" fill="#18181B"/><rect x="5" y="2" width="1" height="1" fill="#DC2626"/><rect x="6" y="2" width="1" height="1" fill="#DC2626"/><rect x="7" y="2" width="1" height="1" fill="#DC2626"/><rect x="8" y="2" width="1" height="1" fill="#DC2626"/><rect x="9" y="2" width="1" height="1" fill="#DC2626"/><rect x="10" y="2" width="1" height="1" fill="#DC2626"/><rect x="11" y="2" width="1" height="1" fill="#18181B"/><rect x="3" y="3" width="1" height="1" fill="#18181B"/><rect x="4" y="3" width="1" height="1" fill="#DC2626"/><rect x="5" y="3" width="1" height="1" fill="#DC2626"/><rect x="6" y="3" width="1" height="1" fill="#DC2626"/><rect x="7" y="3" width="1" height="1" fill="#DC2626"/><rect x="8" y="3" width="1" height="1" fill="#DC2626"/><rect x="9" y="3" width="1" height="1" fill="#DC2626"/><rect x="10" y="3" width="1" height="1" fill="#DC2626"/><rect x="11" y="3" width="1" height="1" fill="#DC2626"/><rect x="12" y="3" width="1" height="1" fill="#18181B"/><rect x="2" y="4" width="1" height="1" fill="#18181B"/><rect x="3" y="4" width="1" height="1" fill="#DC2626"/><rect x="4" y="4" width="1" height="1" fill="#DC2626"/><rect x="5" y="4" width="1" height="1" fill="#18181B"/><rect x="6" y="4" width="1" height="1" fill="#18181B"/><rect x="7" y="4" width="1" height="1" fill="#18181B"/><rect x="8" y="4" width="1" height="1" fill="#18181B"/><rect x="9" y="4" width="1" height="1" fill="#18181B"/><rect x="10" y="4" width="1" height="1" fill="#18181B"/><rect x="11" y="4" width="1" height="1" fill="#18181B"/><rect x="12" y="4" width="1" height="1" fill="#18181B"/><rect x="2" y="5" width="1" height="1" fill="#18181B"/><rect x="3" y="5" width="1" height="1" fill="#DC2626"/><rect x="4" y="5" width="1" height="1" fill="#18181B"/><rect x="12" y="5" width="1" height="1" fill="#18181B"/><rect x="1" y="6" width="1" height="1" fill="#18181B"/><rect x="2" y="6" width="1" height="1" fill="#DC2626"/><rect x="3" y="6" width="1" height="1" fill="#DC2626"/><rect x="4" y="6" width="1" height="1" fill="#18181B"/><rect x="5" y="6" width="1" height="1" fill="#18181B"/><rect x="6" y="6" width="1" height="1" fill="#18181B"/><rect x="7" y="6" width="1" height="1" fill="#18181B"/><rect x="8" y="6" width="1" height="1" fill="#18181B"/><rect x="9" y="6" width="1" height="1" fill="#18181B"/><rect x="10" y="6" width="1" height="1" fill="#18181B"/><rect x="11" y="6" width="1" height="1" fill="#18181B"/><rect x="12" y="6" width="1" height="1" fill="#18181B"/><rect x="0" y="7" width="1" height="1" fill="#18181B"/><rect x="1" y="7" width="1" height="1" fill="#DC2626"/><rect x="2" y="7" width="1" height="1" fill="#DC2626"/><rect x="3" y="7" width="1" height="1" fill="#DC2626"/><rect x="4" y="7" width="1" height="1" fill="#DC2626"/><rect x="5" y="7" width="1" height="1" fill="#DC2626"/><rect x="6" y="7" width="1" height="1" fill="#DC2626"/><rect x="7" y="7" width="1" height="1" fill="#DC2626"/><rect x="8" y="7" width="1" height="1" fill="#DC2626"/><rect x="9" y="7" width="1" height="1" fill="#DC2626"/><rect x="10" y="7" width="1" height="1" fill="#DC2626"/><rect x="11" y="7" width="1" height="1" fill="#DC2626"/><rect x="12" y="7" width="1" height="1" fill="#DC2626"/><rect x="13" y="7" width="1" height="1" fill="#18181B"/><rect x="0" y="8" width="1" height="1" fill="#18181B"/><rect x="1" y="8" width="1" height="1" fill="#DC2626"/><rect x="2" y="8" width="1" height="1" fill="#DC2626"/><rect x="3" y="8" width="1" height="1" fill="#DC2626"/><rect x="4" y="8" width="1" height="1" fill="#DC2626"/><rect x="5" y="8" width="1" height="1" fill="#DC2626"/><rect x="6" y="8" width="1" height="1" fill="#DC2626"/><rect x="7" y="8" width="1" height="1" fill="#DC2626"/><rect x="8" y="8" width="1" height="1" fill="#DC2626"/><rect x="9" y="8" width="1" height="1" fill="#DC2626"/><rect x="10" y="8" width="1" height="1" fill="#DC2626"/><rect x="11" y="8" width="1" height="1" fill="#DC2626"/><rect x="12" y="8" width="1" height="1" fill="#DC2626"/><rect x="13" y="8" width="1" height="1" fill="#18181B"/><rect x="0" y="9" width="1" height="1" fill="#18181B"/><rect x="1" y="9" width="1" height="1" fill="#18181B"/><rect x="2" y="9" width="1" height="1" fill="#18181B"/><rect x="3" y="9" width="1" height="1" fill="#18181B"/><rect x="4" y="9" width="1" height="1" fill="#18181B"/><rect x="5" y="9" width="1" height="1" fill="#DC2626"/><rect x="6" y="9" width="1" height="1" fill="#DC2626"/><rect x="7" y="9" width="1" height="1" fill="#DC2626"/><rect x="8" y="9" width="1" height="1" fill="#18181B"/><rect x="9" y="9" width="1" height="1" fill="#18181B"/><rect x="10" y="9" width="1" height="1" fill="#18181B"/><rect x="11" y="9" width="1" height="1" fill="#18181B"/><rect x="12" y="9" width="1" height="1" fill="#18181B"/><rect x="13" y="9" width="1" height="1" fill="#18181B"/><rect x="0" y="10" width="1" height="1" fill="#18181B"/><rect x="1" y="10" width="1" height="1" fill="#4B5563"/><rect x="2" y="10" width="1" height="1" fill="#4B5563"/><rect x="3" y="10" width="1" height="1" fill="#4B5563"/><rect x="4" y="10" width="1" height="1" fill="#18181B"/><rect x="5" y="10" width="1" height="1" fill="#DC2626"/><rect x="6" y="10" width="1" height="1" fill="#DC2626"/><rect x="7" y="10" width="1" height="1" fill="#18181B"/><rect x="8" y="10" width="1" height="1" fill="#4B5563"/><rect x="9" y="10" width="1" height="1" fill="#4B5563"/><rect x="10" y="10" width="1" height="1" fill="#4B5563"/><rect x="11" y="10" width="1" height="1" fill="#4B5563"/><rect x="12" y="10" width="1" height="1" fill="#4B5563"/><rect x="13" y="10" width="1" height="1" fill="#18181B"/><rect x="0" y="11" width="1" height="1" fill="#18181B"/><rect x="1" y="11" width="1" height="1" fill="#4B5563"/><rect x="2" y="11" width="1" height="1" fill="#4B5563"/><rect x="3" y="11" width="1" height="1" fill="#4B5563"/><rect x="4" y="11" width="1" height="1" fill="#18181B"/><rect x="5" y="11" width="1" height="1" fill="#DC2626"/><rect x="6" y="11" width="1" height="1" fill="#DC2626"/><rect x="7" y="11" width="1" height="1" fill="#18181B"/><rect x="8" y="11" width="1" height="1" fill="#4B5563"/><rect x="9" y="11" width="1" height="1" fill="#4B5563"/><rect x="10" y="11" width="1" height="1" fill="#4B5563"/><rect x="11" y="11" width="1" height="1" fill="#4B5563"/><rect x="12" y="11" width="1" height="1" fill="#4B5563"/><rect x="13" y="11" width="1" height="1" fill="#18181B"/><rect x="0" y="12" width="1" height="1" fill="#18181B"/><rect x="1" y="12" width="1" height="1" fill="#4B5563"/><rect x="2" y="12" width="1" height="1" fill="#4B5563"/><rect x="3" y="12" width="1" height="1" fill="#4B5563"/><rect x="4" y="12" width="1" height="1" fill="#18181B"/><rect x="5" y="12" width="1" height="1" fill="#DC2626"/><rect x="6" y="12" width="1" height="1" fill="#DC2626"/><rect x="7" y="12" width="1" height="1" fill="#18181B"/><rect x="8" y="12" width="1" height="1" fill="#4B5563"/><rect x="9" y="12" width="1" height="1" fill="#4B5563"/><rect x="10" y="12" width="1" height="1" fill="#4B5563"/><rect x="11" y="12" width="1" height="1" fill="#4B5563"/><rect x="12" y="12" width="1" height="1" fill="#4B5563"/><rect x="13" y="12" width="1" height="1" fill="#18181B"/><rect x="0" y="13" width="1" height="1" fill="#18181B"/><rect x="1" y="13" width="1" height="1" fill="#18181B"/><rect x="2" y="13" width="1" height="1" fill="#18181B"/><rect x="3" y="13" width="1" height="1" fill="#18181B"/><rect x="4" y="13" width="1" height="1" fill="#18181B"/><rect x="7" y="13" width="1" height="1" fill="#18181B"/><rect x="8" y="13" width="1" height="1" fill="#18181B"/><rect x="9" y="13" width="1" height="1" fill="#18181B"/><rect x="10" y="13" width="1" height="1" fill="#18181B"/><rect x="11" y="13" width="1" height="1" fill="#18181B"/><rect x="12" y="13" width="1" height="1" fill="#18181B"/><rect x="13" y="13" width="1" height="1" fill="#18181B"/></svg>
-            </div>
-            <div>
-              <h3 class="font-heading font-black text-lg sm:text-xl text-neutral-900 leading-snug tracking-tight">SMAM (Sub-Mission on Agricultural Mechanization)</h3>
-              <p class="text-[11px] text-neutral-500 font-medium mt-0.5">Ministry of Agriculture & Farmers Welfare, GoI</p>
-            </div>
-          </div>
-
-          <!-- Highlight Benefit Callout Box (Zero Gradient, High Contrast Flat) -->
-          <div class="bg-[#F8F9F5] border-2 border-neutral-900 p-3.5 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-widest mb-0.5">EQUIPMENT PURCHASE SUBSIDY</div>
-            <div class="font-heading font-black text-2xl sm:text-3xl text-neutral-950 tracking-tight leading-none mb-1">40% - 50% Subsidy</div>
-            <div class="text-xs text-neutral-700 leading-relaxed font-normal">50% subsidy for SC/ST/Small/Women farmers; 40% for other farmers on farm implements</div>
-          </div>
-
-          <!-- Eligibility Checklist -->
-          <div class="mb-4">
-            <div class="font-mono text-[11px] font-bold text-neutral-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <span>CRITICAL ELIGIBILITY RULES</span>
-            </div>
-            <ul class="space-y-1.5">
-              <li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Subsidies on tractors, power tillers, rotavators, sprayers, threshers & harvesters</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Up to ₹10 Lakhs subsidy for establishing Custom Hiring Centers (CHCs) by farmer groups</span></li><li class="flex items-start gap-2"><span class="font-mono font-bold text-emerald-600 text-xs shrink-0 select-none">[✔]</span><span class="text-xs text-neutral-700 leading-snug">Purchase directly through state-empaneled verified manufacturers</span></li>
-            </ul>
-          </div>
-        </div>
-
-        <div>
-          <!-- Mandatory Documentation Tags -->
-          <div class="pt-3 border-t-2 border-neutral-200 mb-4">
-            <div class="font-mono text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1.5">REQUIRED DOCUMENTS:</div>
-            <div class="flex flex-wrap gap-1.5">
-              <span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Pahani / RTC</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Dealer Quotation</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Aadhaar Card</span><span class="font-mono text-[10px] bg-neutral-100 text-neutral-800 border border-neutral-300 px-2 py-0.5 rounded-none">Caste Cert</span>
-            </div>
-          </div>
-
-          <!-- Action Portal Button -->
-          <a href="https://agrimachinery.nic.in" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 bg-neutral-900 text-white hover:bg-emerald-600 hover:text-white transition-colors border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider group/btn">
-            <span>Official Portal (agrimachinery.nic.in)</span>
-            <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5 font-bold">north_east</span>
-          </a>
-        </div>
-
-      </article>
-    
+      <!-- Schemes Grid Container -->
+      <div id="schemes-grid" class="grid grid-cols-12 gap-6">
+        <!-- Rendered dynamically via renderSchemes -->
       </div>
-
-      <!-- Bottom Advisory Banner (Pixel Art Neo-Brutalist Light Box) -->
-      <div class="mt-12 bg-white border-2 border-neutral-900 shadow-[4px_4px_0px_0px_#18181B] p-6 sm:p-8 flex flex-col md:flex-row items-center justify-between gap-6">
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 bg-amber-100 border-2 border-neutral-900 flex items-center justify-center shrink-0">
-            <span class="material-symbols-outlined text-2xl text-amber-900 font-bold">verified_user</span>
-          </div>
-          <div>
-            <h4 class="font-heading font-black text-lg text-neutral-950">Official FRUITS & Aadhaar DBT Compliance</h4>
-            <p class="text-xs text-neutral-600 mt-0.5 leading-relaxed">
-              All Karnataka government benefits are deposited via Direct Benefit Transfer through Karnataka FRUITS (FID). Ensure your land Pahani/RTC is linked with Aadhaar and NPCI bank seeding.
-            </p>
-          </div>
-        </div>
-        <div class="flex items-center gap-3 shrink-0 w-full sm:w-auto">
-          <a href="chat.html" class="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 text-white border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] flex items-center justify-center gap-2">
-            <span class="material-symbols-outlined text-base">mic</span>
-            <span>Ask Voice AI Assistant</span>
-          </a>
-        </div>
-      </div>
-
     </div>
   </section>
+
 
   <!-- ========================================================================= -->
   <!-- 3. FOOTER                                                                 -->
@@ -1023,7 +789,11 @@
         badgeVer: "AI Portal",
         footerCopy: "Karnataka National Hackathon Prototype 2026",
         footerHelpline: "Kisan Call Center: 1551 (Toll-Free)",
-        footerAesthetics: "© 2026 Krishi Mitra. Built with Harvestra & Arva aesthetics."
+        footerAesthetics: "© 2026 Krishi Mitra. Built with Harvestra & Arva aesthetics.",
+        schemesPill: "Official Farmer Directory 2026",
+        schemesTitle: "Government Farmer Schemes",
+        schemesSub: "Verified central and Karnataka state welfare programs, direct income transfers (DBT), solar subsidies, and crop risk shields.",
+        totalSchemesLabel: "TOTAL SCHEMES:"
       },
       kn: {
         pageTitle: "ಕೃಷಿ ಮಿತ್ರ — ಕರ್ನಾಟಕ ರೈತ ಯೋಜನೆಗಳ ಅರ್ಹತಾ ಪೋರ್ಟಲ್",
@@ -1034,7 +804,7 @@
         btnLaunchChat: "ಎಐ ಚಾಟ್ ಪ್ರಾರಂಭಿಸಿ",
         btnLangToggle: "Switch to English",
         pillText: "ಭಾರತೀಯ ರೈತರಿಗಾಗಿ ನವೀನ ಧ್ವನಿ ಎಐ ತಂತ್ರಜ್ಞಾನ",
-        headline: "ರೈತರ ಉಜ್ವಲ ಭವಿಷ್ಯಕ್ಕಾಗಿ <br/><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-white\">ಪ್ರತಿ ಬೆಳೆಗೆ ಭದ್ರತೆ</span> ನೀಡುವ ಕೃಷಿ ಮಿತ್ರ.",
+        headline: "ಪ್ರತಿ ಬೆಳೆಯ ಮೂಲಕ <br/><span class=\"text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-white\">ಉತ್ತಮ ಭವಿಷ್ಯವನ್ನು</span> ರೂಪಿಸುವುದು.",
         subtext: "ಕನ್ನಡದಲ್ಲಿ ನೇರವಾಗಿ ಮಾತನಾಡಿ ನಿಮ್ಮ ಜಮೀನಿಗೆ ಸಿಗುವ ಎಲ್ಲಾ ಸರ್ಕಾರಿ ಸೌಲಭ್ಯ, ಸಹಾಯಧನ, ಬೆಳೆ ವಿಮೆ ಮತ್ತು ಹನಿ ನೀರಾವರಿ ಯೋಜನೆಗಳ ಅಧಿಕೃತ ಮಾಹಿತಿಯನ್ನು ಕ್ಷಣಾರ್ಧದಲ್ಲಿ ಪಡೆಯಿರಿ.",
         ctaMain: "ಧ್ವನಿ ಎಐ ಸಹಾಯಕ ಪ್ರಾರಂಭಿಸಿ",
         ctaSec: "ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ವಿವರ",
@@ -1058,7 +828,11 @@
         badgeVer: "ಎಐ ಪೋರ್ಟಲ್",
         footerCopy: "ಕರ್ನಾಟಕ ರಾಷ್ಟ್ರೀಯ ಹ್ಯಾಕಥಾನ್ ಪ್ರೊಟೊಟೈಪ್ 2026",
         footerHelpline: "ಕಿಸಾನ್ ಸಹಾಯವಾಣಿ: 1551 (ಉಚಿತ ಕರೆ)",
-        footerAesthetics: "© 2026 ಕೃಷಿ ಮಿತ್ರ. ಹಾರ್ವೆಸ್ಟ್ರಾ ಮತ್ತು ಆರ್ವಾ ಶೈಲಿಯ ನವೀನ ವಿನ್ಯಾಸ."
+        footerAesthetics: "© 2026 ಕೃಷಿ ಮಿತ್ರ. ಹಾರ್ವೆಸ್ಟ್ರಾ ಮತ್ತು ಆರ್ವಾ ಶೈಲಿಯ ನವೀನ ವಿನ್ಯಾಸ.",
+        schemesPill: "ಅಧಿಕೃತ ರೈತ ಯೋಜನೆಗಳ ಕೈಪಿಡಿ 2026",
+        schemesTitle: "ಸರ್ಕಾರಿ ರೈತ ಕಲ್ಯಾಣ ಯೋಜನೆಗಳು",
+        schemesSub: "ಪರಿಶೀಲಿಸಲಾದ ಕೇಂದ್ರ ಮತ್ತು ಕರ್ನಾಟಕ ರಾಜ್ಯದ ಕಲ್ಯಾಣ ಯೋಜನೆಗಳು, ನೇರ ನಗದು ವರ್ಗಾವಣೆ (DBT), ಸೌರ ಪಂಪ್ ಸಬ್ಸಿಡಿ ಮತ್ತು ಬೆಳೆ ವಿಮಾ ರಕ್ಷಣೆ.",
+        totalSchemesLabel: "ಒಟ್ಟು ಯೋಜನೆಗಳು:"
       }
     };
 
@@ -1135,11 +909,17 @@
       safeSetText('schemes-title', t.schemesTitle);
       safeSetText('schemes-subtitle', t.schemesSub);
       
+      const badgeEl = document.getElementById('scheme-total-badge');
+      if (badgeEl) {
+        badgeEl.innerHTML = `${t.totalSchemesLabel} <strong class="text-emerald-700 font-extrabold text-sm" id="scheme-count">10</strong>`;
+      }
+
+      updateFilterButtons(lang);
+      renderSchemes(lang);
+
       safeSetText('footer-copy', t.footerCopy);
       safeSetText('footer-helpline', t.footerHelpline);
       safeSetText('footer-aesthetics', t.footerAesthetics);
-
-// Schemes bento grid ready
     }
 
     document.getElementById('lang-toggle-btn').addEventListener('click', () => {
@@ -1222,31 +1002,484 @@
       }
     };
 
-    // Initialize on load
-    setLanguage(currentLang);
-  
-    // Category Filter for Government Schemes Bento Grid
-    function filterSchemes(category, btn) {
-      document.querySelectorAll('.scheme-filter-btn').forEach(b => {
-        b.className = "scheme-filter-btn px-4 py-2 bg-white text-neutral-800 hover:bg-neutral-100 border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider transition-all";
-      });
-      btn.className = "scheme-filter-btn px-4 py-2 bg-neutral-900 text-white border-2 border-neutral-900 font-mono text-xs font-bold uppercase tracking-wider shadow-[2px_2px_0px_0px_#000] transition-all";
 
-      const cards = document.querySelectorAll('.scheme-bento-card');
-      let visibleCount = 0;
-      cards.forEach(card => {
-        const cat = card.getAttribute('data-category') || '';
-        if (category === 'all' || cat.includes(category)) {
-          card.style.display = 'flex';
-          visibleCount++;
-        } else {
-          card.style.display = 'none';
-        }
-      });
+    const SCHEMES_DATA = [
+      {
+        id: "REF#GOI-KISAN-01",
+        category: "income",
+        gridClass: "col-span-12 lg:col-span-8",
+        icon: "payments",
+        iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
+        tagEn: "Central Govt",
+        tagKn: "ಕೇಂದ್ರ ಸರ್ಕಾರ",
+        tagClass: "bg-amber-50 text-amber-800 border-amber-200/60",
+        titleEn: "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+        titleKn: "ಪಿಎಂ-ಕಿಸಾನ್ (ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ)",
+        deptEn: "Ministry of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Direct Income Assistance",
+        benefitLabelKn: "ನೇರ ಆದಾಯ ನೆರವು",
+        benefitAmountEn: "₹6,000 / Year",
+        benefitAmountKn: "₹6,000 / ವರ್ಷಕ್ಕೆ",
+        benefitDescEn: "Paid in 3 equal 4-monthly installments of ₹2,000 directly via Aadhaar DBT",
+        benefitDescKn: "ಆಧಾರ್ ಡಿಬಿಟಿ ಮೂಲಕ ವರ್ಷಕ್ಕೆ 3 ಕಂತುಗಳಲ್ಲಿ ತಲಾ ₹2,000 ನೇರ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ",
+        rulesEn: [
+          "All landholder farmer families with cultivable landholding in their name",
+          "Excludes institutional landholders, constitutional post holders & income tax payers",
+          "Mandatory e-KYC via biometric or Aadhaar OTP authentication"
+        ],
+        rulesKn: [
+          "ತಮ್ಮ ಹೆಸರಿನಲ್ಲಿ ಸಾಗುವಳಿ ಜಮೀನು ಹೊಂದಿರುವ ಎಲ್ಲಾ ರೈತ ಕುಟುಂಬಗಳು",
+          "ಸಾಂಸ್ಥಿಕ ಭೂಹಿಡುವಳಿದಾರರು, ಸಾಂವಿಧಾನಿಕ ಹುದ್ದೆ ಹೊಂದಿರುವವರು ಹಾಗೂ ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರಿಗೆ ಅನ್ವಯಿಸುವುದಿಲ್ಲ",
+          "ಬಯೋಮೆಟ್ರಿಕ್ ಅಥವಾ ಆಧಾರ್ ಒಟಿಪಿ ಮೂಲಕ ಇ-ಕೆವೈಸಿ ಮಾಡಿಸುವುದು ಕಡ್ಡಾಯ"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "NPCI-Active Bank A/c"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "NPCI ಬ್ಯಾಂಕ್ ಖಾತೆ"],
+        portalUrl: "https://pmkisan.gov.in",
+        portalDomain: "pmkisan.gov.in"
+      },
+      {
+        id: "REF#KA-GANGA-02",
+        category: "karnataka irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "water_drop",
+        iconBg: "bg-sky-50 text-sky-600 border-sky-100",
+        tagEn: "Karnataka State",
+        tagKn: "ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Ganga Kalyana Scheme",
+        titleKn: "ಗಂಗಾ ಕಲ್ಯಾಣ ಯೋಜನೆ",
+        deptEn: "Social Welfare & Backward Classes Dept, Karnataka",
+        deptKn: "ಸಮಾಜ ಕಲ್ಯಾಣ ಮತ್ತು ಹಿಂದುಳಿದ ವರ್ಗಗಳ ಇಲಾಖೆ, ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Complete Irrigation Unit",
+        benefitLabelKn: "ಸಂಪೂರ್ಣ ನೀರಾವರಿ ಘಟಕ",
+        benefitAmountEn: "100% Free Borewell",
+        benefitAmountKn: "100% ಉಚಿತ ಬೋರ್ವೆಲ್",
+        benefitDescEn: "Full financial grant up to ₹3.75 Lakhs for drilling, pump set & ESCOM energization",
+        benefitDescKn: "ಕೊಳವೆಬಾವಿ ಕೊರೆಯಲು, ಪಂಪ್‌ಸೆಟ್ ಅಳವಡಿಕೆ ಮತ್ತು ಎಸ್ಕಾಂ ವಿದ್ಯುದ್ದೀಕರಣಕ್ಕೆ ₹3.75 ಲಕ್ಷದವರೆಗೆ ಪೂರ್ಣ ಸಹಾಯಧನ",
+        rulesEn: [
+          "Small & marginal farmers belonging to SC, ST, OBC & Minorities",
+          "Annual family income limit ≤ ₹1,50,000 (Rural) / ₹2,00,000 (Urban)",
+          "Land holding between 1.5 to 5.0 acres in dryland/rainfed areas"
+        ],
+        rulesKn: [
+          "ಪರಿಶಿಷ್ಟ ಜಾತಿ, ಪರಿಶಿಷ್ಟ ಪಂಗಡ ಹಾಗೂ ಹಿಂದುಳಿದ ವರ್ಗಗಳ ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರು",
+          "ಕುಟುಂಬದ ವಾರ್ಷಿಕ ಆದಾಯ ಮಿತಿ ಗ್ರಾಮೀಣ ಪ್ರದೇಶಕ್ಕೆ ₹1,50,000 / ನಗರ ಪ್ರದೇಶಕ್ಕೆ ₹2,00,000 ಒಳಗಿರಬೇಕು",
+          "ಒಣಭೂಮಿ ಪ್ರದೇಶದಲ್ಲಿ ಕನಿಷ್ಠ 1.5 ರಿಂದ 5.0 ಎಕರೆ ಜಮೀನು ಹೊಂದಿರಬೇಕು"
+        ],
+        docsEn: ["RTC / Pahani", "Caste & Income Cert", "Aadhaar", "Land Map"],
+        docsKn: ["ಆರ್‌ಟಿಸಿ / ಪಹಣಿ", "ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ", "ಆಧಾರ್", "ಜಮೀನಿನ ನಕ್ಷೆ"],
+        portalUrl: "https://kppp.karnataka.gov.in",
+        portalDomain: "kppp.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-PMFBY-03",
+        category: "insurance",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "shield",
+        iconBg: "bg-blue-50 text-blue-600 border-blue-100",
+        tagEn: "Comprehensive Cover",
+        tagKn: "ಸಮಗ್ರ ವಿಮಾ ರಕ್ಷಣೆ",
+        tagClass: "bg-blue-50 text-blue-800 border-blue-200/60",
+        titleEn: "PMFBY (Pradhan Mantri Fasal Bima Yojana)",
+        titleKn: "ಪಿಎಂಎಫ್‌ಬಿವೈ (ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ)",
+        deptEn: "MoA&FW & Samrakshane Karnataka",
+        deptKn: "ಕೃಷಿ ಸಚಿವಾಲಯ ಮತ್ತು ಸಂರಕ್ಷಣೆ ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Crop Loss Risk Cover",
+        benefitLabelKn: "ಬೆಳೆ ನಷ್ಟ ವಿಮಾ ರಕ್ಷಣೆ",
+        benefitAmountEn: "1.5% - 2.0% Premium",
+        benefitAmountKn: "1.5% - 2.0% ಪ್ರೀಮಿಯಂ",
+        benefitDescEn: "Government pays the rest; covers drought, floods, hailstorms & pest attacks",
+        benefitDescKn: "ಉಳಿದ ಪ್ರೀಮಿಯಂ ಮೊತ್ತವನ್ನು ಸರ್ಕಾರವೇ ಭರಿಸುತ್ತದೆ; ಬರ, ಅತಿವೃಷ್ಟಿ, ಆಲಿಕಲ್ಲು ಮಳೆ ಮತ್ತು ಕೀಟಬಾಧೆಗೆ ರಕ್ಷಣೆ",
+        rulesEn: [
+          "Farmers cultivating notified crops (Paddy, Ragi, Togari, Cotton, Maize, etc.)",
+          "Both loanee and non-loanee farmers eligible across notified hoblis",
+          "Post-harvest loss coverage up to 14 days for crops drying on field"
+        ],
+        rulesKn: [
+          "ಅಧಿಸೂಚಿತ ಬೆಳೆಗಳನ್ನು (ಭತ್ತ, ರಾಗಿ, ತೊಗರಿ, ಹತ್ತಿ, ಜೋಳ ಇತ್ಯಾದಿ) ಬೆಳೆಯುವ ರೈತರು",
+          "ಸಾಲ ಪಡೆದ ಮತ್ತು ಸಾಲ ಪಡೆಯದ ಎಲ್ಲಾ ರೈತರು ಅಧಿಸೂಚಿತ ಹೋಬಳಿಗಳಲ್ಲಿ ಅರ್ಹರು",
+          "ಹೊಲದಲ್ಲಿ ಒಣಗಲು ಹಾಕಿದ ಬೆಳೆಗಳಿಗೆ ಕಟಾವಿನ ನಂತರ 14 ದಿನಗಳವರೆಗೆ ಸ್ಥಳೀಯ ನಷ್ಟ ಪರಿಹಾರ ಲಭ್ಯ"
+        ],
+        docsEn: ["Pahani / RTC", "Sowing Certificate", "Bank Passbook"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಬೆಳೆ ಬಿತ್ತನೆ ದೃಢೀಕರಣ ಪತ್ರ", "ಬ್ಯಾಂಕ್ ಪಾಸ್ ಪುಸ್ತಕ"],
+        portalUrl: "https://samrakshane.karnataka.gov.in",
+        portalDomain: "samrakshane.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-KUSUM-04",
+        category: "irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "solar_power",
+        iconBg: "bg-amber-50 text-amber-600 border-amber-100",
+        tagEn: "Solar Energy",
+        tagKn: "ಸೌರ ಶಕ್ತಿ",
+        tagClass: "bg-amber-50 text-amber-800 border-amber-200/60",
+        titleEn: "PM-KUSUM (Solar Agricultural Pumpsets)",
+        titleKn: "ಪಿಎಂ-ಕುಸುಮ್ (ಸೌರ ಕೃಷಿ ಪಂಪ್‌ಸೆಟ್ ಯೋಜನೆ)",
+        deptEn: "Ministry of New & Renewable Energy & KREDL Karnataka",
+        deptKn: "ನವೀಕರಿಸಬಹುದಾದ ಇಂಧನ ಸಚಿವಾಲಯ ಮತ್ತು ಕ್ರೆಡಲ್ ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Clean Solar Irrigation",
+        benefitLabelKn: "ಸ್ವಾವಲಂಬಿ ಸೌರ ನೀರಾವರಿ",
+        benefitAmountEn: "Up to 90% Subsidy",
+        benefitAmountKn: "90% ವರೆಗೆ ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "30% Central + up to 60% Karnataka state subsidy on 3 to 7.5 HP standalone solar pumps",
+        benefitDescKn: "3 ರಿಂದ 7.5 ಹೆಚ್‌ಪಿ ಸ್ಟ್ಯಾಂಡ್‌ಅಲೋನ್ ಸೋಲಾರ್ ಪಂಪ್‌ಗಳಿಗೆ ಕೇಂದ್ರ (30%) + ರಾಜ್ಯ (60%) ವರೆಗೆ ಸಹಾಯಧನ",
+        rulesEn: [
+          "Landholders with confirmed ground/open water source without grid connection",
+          "Eliminates dependency on diesel pumps and erratic night power supplies",
+          "Priority for farmers utilizing micro-irrigation systems"
+        ],
+        rulesKn: [
+          "ವಿದ್ಯುತ್ ಸಂಪರ್ಕವಿಲ್ಲದ, ಖಚಿತ ನೀರಾವರಿ ಮೂಲ (ಬೋರ್ವೆಲ್/ಬಾವಿ) ಹೊಂದಿರುವ ರೈತರು",
+          "ಡೀಸೆಲ್ ವೆಚ್ಚ ಹಾಗೂ ರಾತ್ರಿ ವಿದ್ಯುತ್ ಸರಬರಾಜಿನ ಅನಿಶ್ಚಿತತೆಯನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ತಪ್ಪಿಸುತ್ತದೆ",
+          "ಹನಿ ನೀರಾವರಿ ಅಳವಡಿಸಿಕೊಂಡ ರೈತರಿಗೆ ಮೊದಲ ಆದ್ಯತೆ"
+        ],
+        docsEn: ["RTC (Pahani)", "Water Source Cert", "Aadhaar Card", "NOC"],
+        docsKn: ["ಆರ್‌ಟಿಸಿ (ಪಹಣಿ)", "ನೀರಿನ ಮೂಲ ದೃಢೀಕರಣ", "ಆಧಾರ್ ಕಾರ್ಡ್", "ನಿರಾಕ್ಷೇಪಣಾ ಪತ್ರ"],
+        portalUrl: "https://souramitra.com",
+        portalDomain: "souramitra.com"
+      },
+      {
+        id: "REF#GOI-PMKSY-05",
+        category: "irrigation",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "waves",
+        iconBg: "bg-teal-50 text-teal-600 border-teal-100",
+        tagEn: "Water Efficiency",
+        tagKn: "ನೀರಿನ ಮಿತವ್ಯಯ",
+        tagClass: "bg-teal-50 text-teal-800 border-teal-200/60",
+        titleEn: "PMKSY (Per Drop More Crop — Drip & Sprinkler)",
+        titleKn: "ಪಿಎಂಕೆಎಸ್‌ವೈ (ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿ ಯೋಜನೆ)",
+        deptEn: "Department of Agriculture & Horticulture, Karnataka",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ತೋಟಗಾರಿಕೆ ಇಲಾಖೆ, ಕರ್ನಾಟಕ",
+        benefitLabelEn: "Micro-Irrigation Subsidy",
+        benefitLabelKn: "ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ ಸಹಾಯಧನ",
+        benefitAmountEn: "70% to 90% Subsidy",
+        benefitAmountKn: "70% ರಿಂದ 90% ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "90% subsidy for small/marginal farmers (≤ 5 acres); 70% for other farmers (≤ 12.5 acres)",
+        benefitDescKn: "ಸಣ್ಣ/ಅತಿಸಣ್ಣ ರೈತರಿಗೆ (≤ 5 ಎಕರೆ) 90% ಸಬ್ಸಿಡಿ; ಇತರ ರೈತರಿಗೆ (≤ 12.5 ಎಕರೆ) 70% ಸಬ್ಸಿಡಿ",
+        rulesEn: [
+          "Cultivable landholding between 0.5 and 12.5 acres",
+          "Functional water source (borewell, open well, or lift pipe)",
+          "Must not have availed drip subsidy for the same survey number in 3 years"
+        ],
+        rulesKn: [
+          "0.5 ಎಕರೆಯಿಂದ 12.5 ಎಕರೆವರೆಗೆ ಸಾಗುವಳಿ ಜಮೀನು ಹೊಂದಿರುವ ರೈತರು",
+          "ಚಾಲ್ತಿಯಲ್ಲಿರುವ ನೀರಿನ ಮೂಲ (ಕೊಳವೆಬಾವಿ, ತೆರೆದ ಬಾವಿ ಅಥವಾ ನದಿ ಮೂಲ) ಇರಬೇಕು",
+          "ಕಳೆದ 3 ವರ್ಷಗಳಲ್ಲಿ ಅದೇ ಸರ್ವೆ ನಂಬರಿಗೆ ಹನಿ ನೀರಾವರಿ ಸಹಾಯಧನ ಪಡೆದಿರಬಾರದು"
+        ],
+        docsEn: ["Pahani / RTC", "Water Source Proof", "Small Farmer Cert"],
+        docsKn: ["ಪಹಣಿ / RTC", "ನೀರಿನ ಲಭ್ಯತೆ ದೃಢೀಕರಣ", "ಸಣ್ಣ ರೈತರ ಪ್ರಮಾಣಪತ್ರ"],
+        portalUrl: "https://pmksy.gov.in",
+        portalDomain: "pmksy.gov.in"
+      },
+      {
+        id: "REF#RBI-KCC-06",
+        category: "income",
+        gridClass: "col-span-12 lg:col-span-6",
+        icon: "credit_score",
+        iconBg: "bg-indigo-50 text-indigo-600 border-indigo-100",
+        tagEn: "Farm Credit",
+        tagKn: "ಕೃಷಿ ಸಾಲ",
+        tagClass: "bg-indigo-50 text-indigo-800 border-indigo-200/60",
+        titleEn: "Kisan Credit Card (KCC) & Interest Subvention",
+        titleKn: "ಕಿಸಾನ್ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ (KCC) ಮತ್ತು ಬಡ್ಡಿ ರಿಯಾಯಿತಿ",
+        deptEn: "Reserve Bank of India & NABARD",
+        deptKn: "ರಿಸರ್ವ್ ಬ್ಯಾಂಕ್ ಆಫ್ ಇಂಡಿಯಾ (RBI) & ನಬಾರ್ಡ್",
+        benefitLabelEn: "Concessional Loan Facility",
+        benefitLabelKn: "ರಿಯಾಯಿತಿ ದರದ ಬೆಳೆ ಸಾಲ",
+        benefitAmountEn: "4.0% Effective Interest",
+        benefitAmountKn: "4.0% ರಿಯಾಯಿತಿ ಬಡ್ಡಿ ದರ",
+        benefitDescEn: "Credit limit up to ₹3,00,000; base 7% interest minus 3% prompt repayment incentive",
+        benefitDescKn: "₹3,00,000 ವರೆಗೆ ಸಾಲ ಮಿತಿ; 7% ಮೂಲ ಬಡ್ಡಿಯಲ್ಲಿ ಸಮಯಕ್ಕೆ ಸರಿಯಾಗಿ ಮರುಪಾವತಿಸಿದರೆ 3% ಬಡ್ಡಿ ಸಹಾಯಧನ",
+        rulesEn: [
+          "All farmers, owner cultivators, tenant farmers, oral lessees & sharecroppers",
+          "Collateral-free agricultural loans up to ₹1,60,000",
+          "Simple revolving credit card valid for 5 years with annual review"
+        ],
+        rulesKn: [
+          "ಸ್ವಂತ ಭೂಮಿ ಹೊಂದಿರುವ ರೈತರು, ಗೇಣಿದಾರರು ಮತ್ತು ಪಾಲುದಾರ ರೈತರೆಲ್ಲರೂ ಅರ್ಹರು",
+          "₹1,60,000 ವರೆಗೆ ಯಾವುದೇ ಭದ್ರತೆ (ಶ್ಯೂರಿಟಿ) ರಹಿತ ಸಾಲ ಸೌಲಭ್ಯ",
+          "ವಾರ್ಷಿಕ ನವೀಕರಣದೊಂದಿಗೆ 5 ವರ್ಷಗಳ ಮಾನ್ಯತೆಯುಳ್ಳ ಸರಳ ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "PAN Card", "Crop Declaration"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಪ್ಯಾನ್ ಕಾರ್ಡ್", "ಬೆಳೆ ಘೋಷಣಾ ಪತ್ರ"],
+        portalUrl: "https://myscheme.gov.in",
+        portalDomain: "myscheme.gov.in"
+      },
+      {
+        id: "REF#KA-BHAGYA-07",
+        category: "karnataka irrigation",
+        gridClass: "col-span-12 lg:col-span-6",
+        icon: "water",
+        iconBg: "bg-cyan-50 text-cyan-600 border-cyan-100",
+        tagEn: "Karnataka State",
+        tagKn: "ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Karnataka Krishi Bhagya Scheme",
+        titleKn: "ಕರ್ನಾಟಕ ಕೃಷಿ ಭಾಗ್ಯ ಯೋಜನೆ",
+        deptEn: "Department of Agriculture, Govt of Karnataka",
+        deptKn: "ಕೃಷಿ ಇಲಾಖೆ, ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        benefitLabelEn: "Rainwater Harvesting",
+        benefitLabelKn: "ಮಳೆನೀರು ಕೊಯ್ಲು ಮತ್ತು ಕೃಷಿ ಹೊಂಡ",
+        benefitAmountEn: "80% - 90% Subsidy",
+        benefitAmountKn: "80% - 90% ಸಹಾಯಧನ",
+        benefitDescEn: "Financial assistance for farm pond (Krishi Honda) excavation, polythene lining & pump",
+        benefitDescKn: "ಕೃಷಿ ಹೊಂಡ ನಿರ್ಮಾಣ, ಪಾಲಿಥೀನ್ ಹೊದಿಕೆ (ಲೈನಿಂಗ್) ಮತ್ತು ಪಂಪ್‌ಸೆಟ್ ಖರೀದಿಗೆ ಆರ್ಥಿಕ ನೆರವು",
+        rulesEn: [
+          "Rainfed/dryland farmers across 100+ notified dry taluks in 25 districts",
+          "Promotes on-farm water security to sustain crops through dry spells",
+          "Packages include farm ponds, pump sets, and shade net polyhouses"
+        ],
+        rulesKn: [
+          "25 ಜಿಲ್ಲೆಗಳ 100 ಕ್ಕೂ ಹೆಚ್ಚು ಅಧಿಸೂಚಿತ ಒಣ ತಾಲ್ಲೂಕುಗಳ ಮಳೆಯಾಶ್ರಿತ ರೈತರು",
+          "ಬರಗಾಲದ ಸಮಯದಲ್ಲಿ ಬೆಳೆ ರಕ್ಷಿಸಲು ಹೊಲದಲ್ಲೇ ನೀರಿನ ಭದ್ರತೆ ಕಲ್ಪಿಸುತ್ತದೆ",
+          "ಕೃಷಿ ಹೊಂಡ, ಡೀಸೆಲ್ ಪಂಪ್‌ಸೆಟ್ ಮತ್ತು ನೆರಳು ಪರದೆ ಪಾಲಿಹೌಸ್ ಒಳಗೊಂಡ ಪ್ಯಾಕೇಜ್"
+        ],
+        docsEn: ["Pahani / RTC", "Aadhaar Card", "Bank Passbook", "RSK Field Form"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಬ್ಯಾಂಕ್ ಪಾಸ್ ಪುಸ್ತಕ", "ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರದ ಅರ್ಜಿ"],
+        portalUrl: "https://raitamitra.karnataka.gov.in",
+        portalDomain: "raitamitra.karnataka.gov.in"
+      },
+      {
+        id: "REF#KA-SIRI-08",
+        category: "karnataka income",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "eco",
+        iconBg: "bg-emerald-50 text-emerald-600 border-emerald-100",
+        tagEn: "Millet Mission",
+        tagKn: "ಸಿರಿಧಾನ್ಯ ಮಿಷನ್",
+        tagClass: "bg-emerald-50 text-emerald-800 border-emerald-200/60",
+        titleEn: "Raitha Siri Scheme (Millet Promotion)",
+        titleKn: "ರೈತ ಸಿರಿ ಯೋಜನೆ (ಸಿರಿಧಾನ್ಯ ಪ್ರೋತ್ಸಾಹ)",
+        deptEn: "Department of Agriculture, Govt of Karnataka",
+        deptKn: "ಕೃಷಿ ಇಲಾಖೆ, ಕರ್ನಾಟಕ ಸರ್ಕಾರ",
+        benefitLabelEn: "Millet Cultivation Incentive",
+        benefitLabelKn: "ಸಿರಿಧಾನ್ಯ ಬೆಳೆ ಪ್ರೋತ್ಸಾಹಧನ",
+        benefitAmountEn: "₹10,000 / Hectare",
+        benefitAmountKn: "₹10,000 / ಹೆಕ್ಟೇರ್‌ಗೆ",
+        benefitDescEn: "Direct financial incentive to farmers growing climate-smart Siridhanya millets",
+        benefitDescKn: "ವಾತಾವರಣ ಸ್ನೇಹಿ ಸಿರಿಧಾನ್ಯಗಳನ್ನು ಬೆಳೆಯುವ ರೈತರಿಗೆ ನೇರ ಆರ್ಥಿಕ ಪ್ರೋತ್ಸಾಹಧನ",
+        rulesEn: [
+          "Farmers cultivating certified millets: Ragi, Jowar, Bajra, Foxtail, Kodo & Little millet",
+          "Crops verified via the official Karnataka Crop Survey (Bele Darshak) mobile app",
+          "Direct DBT credit into the farmer's registered bank account"
+        ],
+        rulesKn: [
+          "ಅಧಿಸೂಚಿತ ಸಿರಿಧಾನ್ಯಗಳಾದ ರಾಗಿ, ಜೋಳ, ಸಜ್ಜೆ, ನವಣೆ, ಹಾರಕ, ಕೊರಲೆ ಬೆಳೆಯುವ ರೈತರು",
+          "ಕರ್ನಾಟಕ ಸರ್ಕಾರದ ಅಧಿಕೃತ ಬೆಳೆ ಸಮೀಕ್ಷೆ (Bele Darshak) ಆ್ಯಪ್ ಮೂಲಕ ದೃಢೀಕರಿಸಿರಬೇಕು",
+          "ರೈತರ ನೋಂದಾಯಿತ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ನೇರವಾಗಿ ಡಿಬಿಟಿ ಮೂಲಕ ಜಮೆ"
+        ],
+        docsEn: ["Pahani / RTC (Millet entry)", "FRUITS ID", "Aadhaar", "Bank A/c"],
+        docsKn: ["ಪಹಣಿ / RTC (ಸಿರಿಧಾನ್ಯ)", "ಫ್ರೂಟ್ಸ್ ಐಡಿ (FRUITS ID)", "ಆಧಾರ್", "ಬ್ಯಾಂಕ್ ಖಾತೆ"],
+        portalUrl: "https://fruits.karnataka.gov.in",
+        portalDomain: "fruits.karnataka.gov.in"
+      },
+      {
+        id: "REF#GOI-SOIL-09",
+        category: "machinery",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "compost",
+        iconBg: "bg-lime-50 text-lime-700 border-lime-100",
+        tagEn: "Soil & Organic",
+        tagKn: "ಮಣ್ಣು & ಸಾವಯವ",
+        tagClass: "bg-lime-50 text-lime-800 border-lime-200/60",
+        titleEn: "Soil Health Card & PKVY (Paramparagat Krishi)",
+        titleKn: "ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಮತ್ತು ಪರಂಪರಾಗತ್ ಕೃಷಿ ವಿಕಾಸ್",
+        deptEn: "Department of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Soil Audit & Organic Aid",
+        benefitLabelKn: "ಮಣ್ಣು ಪರೀಕ್ಷೆ ಮತ್ತು ಸಾವಯವ ನೆರವು",
+        benefitAmountEn: "₹50,000 / Hectare",
+        benefitAmountKn: "₹50,000 / ಹೆಕ್ಟೇರ್‌ಗೆ",
+        benefitDescEn: "Free 12-parameter soil test report + financial assistance for organic inputs & PGS certification",
+        benefitDescKn: "ಉಚಿತ 12-ನಿಯತಾಂಕ ಮಣ್ಣು ಪರೀಕ್ಷಾ ವರದಿ + ಸಾವಯವ ಪರಿಕರಗಳು ಮತ್ತು ಪಿಜಿಎಸ್ ಪ್ರಮಾಣೀಕರಣಕ್ಕೆ ನೆರವು",
+        rulesEn: [
+          "Comprehensive soil testing for N, P, K, micronutrients, pH, EC, and Organic Carbon",
+          "Custom fertilizer advisory saving up to 25% unnecessary chemical input costs",
+          "Support for cluster organic farming, vermicompost & green manuring"
+        ],
+        rulesKn: [
+          "ಸಾರಜನಕ, ರಂಜಕ, ಪೊಟ್ಯಾಶ್, ಲಘು ಪೋಷಕಾಂಶಗಳು, ಪಿಹೆಚ್ ಮತ್ತು ಇಂಗಾಲದ ಸಮಗ್ರ ಪರೀಕ್ಷೆ",
+          "ಅನಗತ್ಯ ರಾಸಾಯನಿಕ ಗೊಬ್ಬರ ವೆಚ್ಚವನ್ನು 25% ರಷ್ಟು ಉಳಿಸುವ ವೈಜ್ಞಾನಿಕ ಕೃಷಿ ಸಲಹೆ",
+          "ಗುಂಪು ಸಾವಯವ ಕೃಷಿ, ಎರೆಹುಳು ಗೊಬ್ಬರ ಮತ್ತು ಹಸಿರೆಲೆ ಗೊಬ್ಬರಕ್ಕೆ ವಿಶೇಷ ಪ್ರೋತ್ಸಾಹ"
+        ],
+        docsEn: ["Soil Sample Receipt", "RTC / Pahani", "Aadhaar Card"],
+        docsKn: ["ಮಣ್ಣಿನ ಮಾದರಿ ರಶೀದಿ", "RTC / ಪಹಣಿ", "ಆಧಾರ್ ಕಾರ್ಡ್"],
+        portalUrl: "https://soilhealth.dac.gov.in",
+        portalDomain: "soilhealth.dac.gov.in"
+      },
+      {
+        id: "REF#GOI-SMAM-10",
+        category: "machinery",
+        gridClass: "col-span-12 lg:col-span-4",
+        icon: "agriculture",
+        iconBg: "bg-rose-50 text-rose-600 border-rose-100",
+        tagEn: "Mechanization",
+        tagKn: "ಯಾಂತ್ರೀಕರಣ",
+        tagClass: "bg-rose-50 text-rose-800 border-rose-200/60",
+        titleEn: "SMAM (Sub-Mission on Agricultural Mechanization)",
+        titleKn: "ಎಸ್.ಎಂ.ಎ.ಎಂ (ಕೃಷಿ ಯಾಂತ್ರೀಕರಣ ಉಪ-ಅಭಿಯಾನ)",
+        deptEn: "Ministry of Agriculture & Farmers Welfare, GoI",
+        deptKn: "ಕೃಷಿ ಮತ್ತು ರೈತರ ಕಲ್ಯಾಣ ಸಚಿವಾಲಯ, ಭಾರತ ಸರ್ಕಾರ",
+        benefitLabelEn: "Equipment Purchase Subsidy",
+        benefitLabelKn: "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ಸಬ್ಸಿಡಿ",
+        benefitAmountEn: "40% - 50% Subsidy",
+        benefitAmountKn: "40% - 50% ಸಬ್ಸಿಡಿ",
+        benefitDescEn: "50% subsidy for SC/ST/Small/Women farmers; 40% for other farmers on farm implements",
+        benefitDescKn: "ಪರಿಶಿಷ್ಟ ಜಾತಿ/ಪಂಗಡ/ಮಹಿಳಾ/ಸಣ್ಣ ರೈತರಿಗೆ 50% ಸಬ್ಸಿಡಿ; ಇತರ ರೈತರಿಗೆ 40% ಸಹಾಯಧನ",
+        rulesEn: [
+          "Subsidies on tractors, power tillers, rotavators, sprayers, threshers & harvesters",
+          "Up to ₹10 Lakhs subsidy for establishing Custom Hiring Centers (CHCs) by farmer groups",
+          "Purchase directly through state-empaneled verified manufacturers"
+        ],
+        rulesKn: [
+          "ಟ್ರ್ಯಾಕ್ಟರ್, ಪವರ್ ಟಿಲ್ಲರ್, ರೋಟಾವೇಟರ್, ಸಿಂಪಡಕಗಳು, ಒಕ್ಕಣೆ ಯಂತ್ರ ಮತ್ತು ಕಟಾವು ಯಂತ್ರಗಳಿಗೆ ಸಬ್ಸಿಡಿ",
+          "ರೈತ ಸಂಘಗಳು ಕಸ್ಟಮ್ ಹೈರಿಂಗ್ ಕೇಂದ್ರಗಳನ್ನು (CHCs) ಸ್ಥಾಪಿಸಲು ₹10 ಲಕ್ಷದವರೆಗೆ ಸಹಾಯಧನ",
+          "ಸರ್ಕಾರದಿಂದ ಅನುಮೋದಿತ ಅಧಿಕೃತ ಕಂಪನಿಗಳ ಮುಖಾಂತರವೇ ನೇರ ಖರೀದಿ"
+        ],
+        docsEn: ["Pahani / RTC", "Dealer Quotation", "Aadhaar Card", "Caste Cert"],
+        docsKn: ["ಪಹಣಿ / RTC", "ಡೀಲರ್ ಕೊಟೇಶನ್", "ಆಧಾರ್ ಕಾರ್ಡ್", "ಜಾತಿ ಪ್ರಮಾಣಪತ್ರ"],
+        portalUrl: "https://agrimachinery.nic.in",
+        portalDomain: "agrimachinery.nic.in"
+      }
+    ];
+
+    const FILTER_TABS = {
+      en: [
+        { key: "all", label: "All Schemes [10]" },
+        { key: "income", label: "Income & Credit [3]" },
+        { key: "irrigation", label: "Irrigation & Solar [4]" },
+        { key: "insurance", label: "Crop Insurance [1]" },
+        { key: "karnataka", label: "Karnataka Flagship [3]" },
+        { key: "machinery", label: "Soil & Machinery [2]" }
+      ],
+      kn: [
+        { key: "all", label: "ಎಲ್ಲಾ ಯೋಜನೆಗಳು [10]" },
+        { key: "income", label: "ಆದಾಯ ಮತ್ತು ಸಾಲ [3]" },
+        { key: "irrigation", label: "ನೀರಾವರಿ & ಸೋಲಾರ್ [4]" },
+        { key: "insurance", label: "ಬೆಳೆ ವಿಮೆ [1]" },
+        { key: "karnataka", label: "ಕರ್ನಾಟಕ ಯೋಜನೆಗಳು [3]" },
+        { key: "machinery", label: "ಮಣ್ಣು & ಯಂತ್ರೋಪಕರಣ [2]" }
+      ]
+    };
+
+    let currentCategoryFilter = 'all';
+
+    function renderSchemes(lang, category = currentCategoryFilter) {
+      currentCategoryFilter = category;
+      const isKn = lang === 'kn';
+      const grid = document.getElementById('schemes-grid');
+      if (!grid) return;
+
+      const filtered = SCHEMES_DATA.filter(s => category === 'all' || s.category.includes(category));
+
       const countEl = document.getElementById('scheme-count');
-      if (countEl) countEl.textContent = visibleCount;
+      if (countEl) countEl.textContent = filtered.length;
+
+      grid.innerHTML = filtered.map(s => {
+        const title = isKn ? s.titleKn : s.titleEn;
+        const dept = isKn ? s.deptKn : s.deptEn;
+        const tag = isKn ? s.tagKn : s.tagEn;
+        const benefitLabel = isKn ? s.benefitLabelKn : s.benefitLabelEn;
+        const benefitAmount = isKn ? s.benefitAmountKn : s.benefitAmountEn;
+        const benefitDesc = isKn ? s.benefitDescKn : s.benefitDescEn;
+        const rules = isKn ? s.rulesKn : s.rulesEn;
+        const docs = isKn ? s.docsKn : s.docsEn;
+        const rulesTitle = isKn ? "ಪ್ರಮುಖ ಅರ್ಹತಾ ನಿಯಮಗಳು" : "Critical Eligibility Rules";
+        const docsLabel = isKn ? "ಅಗತ್ಯ ದಾಖಲೆಗಳು:" : "Required Documents:";
+        const portalPrefix = isKn ? "ಅಧಿಕೃತ ಪೋರ್ಟಲ್" : "Official Portal";
+
+        const rulesListHtml = rules.map(r => `
+          <li class="flex items-start gap-2.5">
+            <span class="material-symbols-outlined text-base text-emerald-500 shrink-0 mt-0.5">check_circle</span>
+            <span class="text-xs text-slate-600 leading-relaxed">${r}</span>
+          </li>
+        `).join('');
+
+        const docsBadgesHtml = docs.map(d => `
+          <span class="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium border border-slate-200/60">${d}</span>
+        `).join('');
+
+        return `
+          <article data-category="${s.category}" class="scheme-bento-card ${s.gridClass} bg-white rounded-2xl border border-slate-200/80 shadow-sm hover:shadow-xl hover:border-emerald-300 hover:-translate-y-1 transition-all duration-300 p-6 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between gap-2 pb-3 mb-4 border-b border-slate-100">
+                <span class="text-[11px] font-mono font-medium text-slate-500 uppercase tracking-wider">${s.id}</span>
+                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-semibold ${s.tagClass}">${tag}</span>
+              </div>
+
+              <div class="flex items-start gap-3.5 mb-4">
+                <div class="w-11 h-11 rounded-xl ${s.iconBg} flex items-center justify-center shrink-0 shadow-sm">
+                  <span class="material-symbols-outlined text-2xl">${s.icon}</span>
+                </div>
+                <div>
+                  <h3 class="font-heading font-bold text-lg ${s.gridClass.includes('lg:col-span-8') ? 'sm:text-xl' : ''} text-slate-900 leading-snug tracking-tight">${title}</h3>
+                  <p class="text-xs text-slate-500 font-medium mt-0.5">${dept}</p>
+                </div>
+              </div>
+
+              <div class="bg-slate-50/90 rounded-xl p-4 border border-slate-100 mb-4">
+                <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1">${benefitLabel}</div>
+                <div class="font-heading font-extrabold ${s.gridClass.includes('lg:col-span-8') ? 'text-2xl sm:text-3xl' : 'text-2xl'} text-slate-900 tracking-tight leading-none mb-1.5">${benefitAmount}</div>
+                <div class="text-xs text-slate-600 leading-relaxed font-normal">${benefitDesc}</div>
+              </div>
+
+              <div class="mb-4">
+                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2.5 flex items-center gap-1.5">
+                  <span>${rulesTitle}</span>
+                </div>
+                <ul class="space-y-2">
+                  ${rulesListHtml}
+                </ul>
+              </div>
+            </div>
+
+            <div>
+              <div class="pt-4 border-t border-slate-100 mb-4">
+                <div class="text-[11px] font-bold text-slate-500 uppercase tracking-wider mb-2">${docsLabel}</div>
+                <div class="flex flex-wrap gap-1.5">
+                  ${docsBadgesHtml}
+                </div>
+              </div>
+
+              <a href="${s.portalUrl}" target="_blank" rel="noopener noreferrer" class="w-full flex items-center justify-between px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white transition-colors text-xs font-semibold group/btn shadow-sm">
+                <span>${portalPrefix} (${s.portalDomain})</span>
+                <span class="material-symbols-outlined text-sm transition-transform group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5">north_east</span>
+              </a>
+            </div>
+          </article>
+        `;
+      }).join('');
     }
 
+    function updateFilterButtons(lang) {
+      const isKn = lang === 'kn';
+      const container = document.getElementById('schemes-filter-container');
+      if (!container) return;
+      const tabs = FILTER_TABS[lang] || FILTER_TABS.en;
+      container.innerHTML = tabs.map(tab => {
+        const isActive = tab.key === currentCategoryFilter;
+        const activeClass = "px-4 py-2 bg-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm transition-all duration-200";
+        const inactiveClass = "px-4 py-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 rounded-full text-xs font-semibold transition-all duration-200";
+        return `<button onclick="filterSchemes('${tab.key}', this)" class="scheme-filter-btn ${isActive ? activeClass : inactiveClass}">${tab.label}</button>`;
+      }).join('');
+    }
+
+    function filterSchemes(category, btn) {
+      currentCategoryFilter = category;
+      document.querySelectorAll('.scheme-filter-btn').forEach(b => {
+        b.className = "scheme-filter-btn px-4 py-2 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-slate-200/80 rounded-full text-xs font-semibold transition-all duration-200";
+      });
+      if (btn) {
+        btn.className = "scheme-filter-btn px-4 py-2 bg-emerald-600 text-white rounded-full text-xs font-semibold shadow-sm transition-all duration-200";
+      }
+      renderSchemes(currentLang, category);
+    }
+
+    // Initialize page language and schemes catalog on load
+    setLanguage(currentLang);
   </script>
 
 </body>
