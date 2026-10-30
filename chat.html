@@ -899,6 +899,7 @@
 
       stream.appendChild(div);
       stream.scrollTop = stream.scrollHeight;
+      return div;
     }
 
     let currentSessionId = 'km_' + Math.random().toString(36).substring(2, 9);
@@ -1075,10 +1076,8 @@
           botHtml += `</div>`;
         }
 
-        if (data.audio && data.mime_type) {
-          botHtml += `<audio controls preload="none" class="w-full max-w-sm mt-3"><source src="data:${data.mime_type};base64,${data.audio}" type="${data.mime_type}"></audio>`;
-        }
-        appendChatMsg('bot', botHtml);
+        const replyBubble = appendChatMsg('bot', botHtml);
+        narrateReply(replyBubble, data.reply, data);
 
       } catch (err) {
         removeTypingIndicator();
@@ -1088,6 +1087,51 @@
           : 'Sorry, Krishi Mitra could not be reached. Please try again. ';
         appendChatMsg('bot', `<p class="text-rose-700">${escapeHtml(message + (err.message || ''))}</p>`);
       }
+    }
+
+    function narrateReply(replyBubble, replyText, responseData = {}) {
+      if (responseData.audio && responseData.mime_type) {
+        try {
+          const bytes = Uint8Array.from(
+            atob(responseData.audio),
+            character => character.charCodeAt(0)
+          );
+          const audioUrl = URL.createObjectURL(
+            new Blob([bytes], { type: responseData.mime_type })
+          );
+          const player = document.createElement('audio');
+          player.controls = true;
+          player.autoplay = true;
+          player.preload = 'auto';
+          player.className = 'w-full max-w-sm mt-3';
+          player.src = audioUrl;
+          player.addEventListener('ended', () => URL.revokeObjectURL(audioUrl), { once: true });
+          player.addEventListener('error', () => {
+            URL.revokeObjectURL(audioUrl);
+            speakReply(replyText);
+          }, { once: true });
+          replyBubble.querySelector('.space-y-3')?.appendChild(player);
+          player.play().catch(() => speakReply(replyText));
+          return;
+        } catch (error) {
+          console.error('[chat] audio playback setup failed', { message: error.message });
+        }
+      }
+      speakReply(replyText);
+    }
+
+    function speakReply(text) {
+      if (!('speechSynthesis' in window) || !text) return;
+      window.speechSynthesis.cancel();
+      const utterance = new SpeechSynthesisUtterance(text);
+      const languagePrefix = currentLanguage === 'kn' ? 'kn' : 'en';
+      utterance.lang = currentLanguage === 'kn' ? 'kn-IN' : 'en-IN';
+      utterance.rate = 0.92;
+      const voice = window.speechSynthesis.getVoices()
+        .find(candidate => candidate.lang.toLowerCase().startsWith(languagePrefix));
+      if (voice) utterance.voice = voice;
+      else if (currentLanguage === 'kn') return;
+      window.speechSynthesis.speak(utterance);
     }
 
     function updateLiveProfileBar() {

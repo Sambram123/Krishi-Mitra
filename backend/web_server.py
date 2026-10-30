@@ -541,7 +541,8 @@ def handle_chat(payload: dict[str, Any], request_id: str = "local") -> dict[str,
         reply = _local_chat_reply(language, missing)
         model_mode = "Local assistant (set GROQ_API_KEY to enable natural chat)"
 
-    if language == "kn" and sarvam_api_key:
+    if sarvam_api_key:
+        speech_language = "kn" if language == "kn" else "en"
         try:
             speech_client = SarvamAI(
                 api_subscription_key=sarvam_api_key,
@@ -549,12 +550,16 @@ def handle_chat(payload: dict[str, Any], request_id: str = "local") -> dict[str,
             )
             speech = _sarvam_request(
                 request_id,
-                "Kannada speech synthesis",
+                f"{speech_language} speech synthesis",
                 lambda: speech_client.text_to_speech.convert(
                     text=reply,
                     model="bulbul:v4-flash",
-                    language_code="kn-IN",
-                    speaker="chaitra_kn_conversation",
+                    language_code="kn-IN" if speech_language == "kn" else "en-IN",
+                    speaker=(
+                        "chaitra_kn_conversation"
+                        if speech_language == "kn"
+                        else "simran_en_conversation"
+                    ),
                     output_audio_codec="wav",
                 ),
             )
@@ -565,16 +570,19 @@ def handle_chat(payload: dict[str, Any], request_id: str = "local") -> dict[str,
                 and all(isinstance(segment, str) for segment in audio_segments)
             ):
                 audio = "".join(audio_segments)
-                model_mode += " + Kannada speech"
+                speech_label = "Kannada" if speech_language == "kn" else "English"
+                model_mode += f" + {speech_label} speech"
             else:
                 LOGGER.warning(
-                    "request_id=%s stage=Kannada speech synthesis status=invalid_response",
+                    "request_id=%s stage=%s speech synthesis status=invalid_response",
                     request_id,
+                    speech_language,
                 )
         except APIError as error:
             LOGGER.warning(
-                "request_id=%s stage=Kannada speech synthesis status=text_fallback error=%s",
+                "request_id=%s stage=%s speech synthesis status=text_fallback error=%s",
                 request_id,
+                speech_language,
                 error,
             )
 

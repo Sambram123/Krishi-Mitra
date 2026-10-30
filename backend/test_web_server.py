@@ -345,6 +345,37 @@ class TestWebServer(unittest.TestCase):
         self.assertEqual(synthesize.call_args.kwargs["language_code"], "kn-IN")
         self.assertEqual(synthesize.call_args.kwargs["speaker"], "chaitra_kn_conversation")
 
+    def test_english_chat_generates_sarvam_speech(self):
+        completions = Mock(return_value=SimpleNamespace(
+            choices=[SimpleNamespace(message=SimpleNamespace(
+                content="For tomatoes, keep the soil evenly moist."
+            ))]
+        ))
+        synthesize = Mock(return_value=SimpleNamespace(audios=["ZW5nbGlzaA=="]))
+        groq_client = SimpleNamespace(
+            chat=SimpleNamespace(completions=SimpleNamespace(create=completions)),
+        )
+        sarvam_client = SimpleNamespace(
+            text_to_speech=SimpleNamespace(convert=synthesize),
+        )
+        with patch.dict("os.environ", {
+            "GROQ_API_KEY": "groq-configured-key",
+            "SARVAM_API_KEY": "sarvam-configured-key",
+        }, clear=True):
+            with patch("backend.web_server.Groq", return_value=groq_client):
+                with patch("backend.web_server.SarvamAI", return_value=sarvam_client):
+                    response = handle_chat({
+                        "message": "How should I water tomatoes?",
+                        "language": "en",
+                        "profile": {},
+                    }, request_id="english-chat")
+
+        self.assertEqual(response["audio"], "ZW5nbGlzaA==")
+        self.assertEqual(response["mime_type"], "audio/wav")
+        self.assertIn("English speech", response["model_mode"])
+        self.assertEqual(synthesize.call_args.kwargs["language_code"], "en-IN")
+        self.assertEqual(synthesize.call_args.kwargs["speaker"], "simran_en_conversation")
+
     def test_chat_falls_back_when_groq_is_unavailable(self):
         with patch.dict("os.environ", {"GROQ_API_KEY": "configured-key"}, clear=True):
             with patch(
