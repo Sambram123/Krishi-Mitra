@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
@@ -16,7 +16,6 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
       theme: {
         extend: {
           colors: {
@@ -24,9 +23,6 @@
               emerald: '#059669',
               green: '#047857',
               leaf: '#10B981',
-              darkBg: '#090D14',
-              sidebar: '#0E1420',
-              chatBubble: '#151E2E',
               accent: '#3B82F6'
             }
           },
@@ -61,35 +57,244 @@
       width: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #090D14;
+      background: #F1F5F9;
     }
     ::-webkit-scrollbar-thumb {
-      background: #1F2937;
+      background: #CBD5E1;
       border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94A3B8;
+    }
+
+    /* From Uiverse.io by Nawsome - Multi-ring Loader */ 
+    .pl {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+
+    .pl__ring {
+      animation: ringA 2s linear infinite;
+    }
+
+    .pl__ring--a {
+      stroke: #f42f25;
+    }
+
+    .pl__ring--b {
+      animation-name: ringB;
+      stroke: #f49725;
+    }
+
+    .pl__ring--c {
+      animation-name: ringC;
+      stroke: #255ff4;
+    }
+
+    .pl__ring--d {
+      animation-name: ringD;
+      stroke: #f42582;
+    }
+
+    /* Animations */
+    @keyframes ringA {
+      from, 4% {
+        stroke-dasharray: 0 660;
+        stroke-width: 20;
+        stroke-dashoffset: -330;
+      }
+
+      12% {
+        stroke-dasharray: 60 600;
+        stroke-width: 30;
+        stroke-dashoffset: -335;
+      }
+
+      32% {
+        stroke-dasharray: 60 600;
+        stroke-width: 30;
+        stroke-dashoffset: -595;
+      }
+
+      40%, 54% {
+        stroke-dasharray: 0 660;
+        stroke-width: 20;
+        stroke-dashoffset: -660;
+      }
+
+      62% {
+        stroke-dasharray: 60 600;
+        stroke-width: 30;
+        stroke-dashoffset: -665;
+      }
+
+      82% {
+        stroke-dasharray: 60 600;
+        stroke-width: 30;
+        stroke-dashoffset: -925;
+      }
+
+      90%, to {
+        stroke-dasharray: 0 660;
+        stroke-width: 20;
+        stroke-dashoffset: -990;
+      }
+    }
+
+    @keyframes ringB {
+      from, 12% {
+        stroke-dasharray: 0 220;
+        stroke-width: 20;
+        stroke-dashoffset: -110;
+      }
+
+      20% {
+        stroke-dasharray: 20 200;
+        stroke-width: 30;
+        stroke-dashoffset: -115;
+      }
+
+      40% {
+        stroke-dasharray: 20 200;
+        stroke-width: 30;
+        stroke-dashoffset: -195;
+      }
+
+      48%, 62% {
+        stroke-dasharray: 0 220;
+        stroke-width: 20;
+        stroke-dashoffset: -220;
+      }
+
+      70% {
+        stroke-dasharray: 20 200;
+        stroke-width: 30;
+        stroke-dashoffset: -225;
+      }
+
+      90% {
+        stroke-dasharray: 20 200;
+        stroke-width: 30;
+        stroke-dashoffset: -305;
+      }
+
+      98%, to {
+        stroke-dasharray: 0 220;
+        stroke-width: 20;
+        stroke-dashoffset: -330;
+      }
+    }
+
+    @keyframes ringC {
+      from {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: 0;
+      }
+
+      8% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -5;
+      }
+
+      28% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -175;
+      }
+
+      36%, 58% {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: -220;
+      }
+
+      66% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -225;
+      }
+
+      86% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -395;
+      }
+
+      94%, to {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: -440;
+      }
+    }
+
+    @keyframes ringD {
+      from, 8% {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: 0;
+      }
+
+      16% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -5;
+      }
+
+      36% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -175;
+      }
+
+      44%, 50% {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: -220;
+      }
+
+      58% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -225;
+      }
+
+      78% {
+        stroke-dasharray: 40 400;
+        stroke-width: 30;
+        stroke-dashoffset: -395;
+      }
+
+      86%, to {
+        stroke-dasharray: 0 440;
+        stroke-width: 20;
+        stroke-dashoffset: -440;
+      }
     }
   </style>
 </head>
-<body class="bg-[#090D14] text-slate-100 antialiased font-sans h-screen flex overflow-hidden">
+<body class="bg-[#F8FAFC] text-slate-800 antialiased font-sans h-screen flex overflow-hidden">
 
   <!-- ========================================================================= -->
-  <!-- 1. LEFT SIDEBAR (ChatGPT / Gemini style)                                  -->
+  <!-- 1. LEFT SIDEBAR (Clean Light Agritech Style)                              -->
   <!-- ========================================================================= -->
-  <aside id="sidebar" class="w-72 bg-[#0E1420] border-r border-slate-800/80 flex flex-col justify-between shrink-0 transition-all duration-300 z-30 hidden md:flex">
+  <aside id="sidebar" class="w-72 bg-white border-r border-slate-200/90 flex flex-col justify-between shrink-0 transition-all duration-300 z-30 hidden md:flex shadow-sm">
     
     <div class="p-4 space-y-4">
       
       <!-- App Brand & Back to Home -->
-      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-200/80">
         <a href="index.html" class="flex items-center gap-2.5 group">
           <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shadow-sm">
             <span class="material-symbols-outlined text-xl">eco</span>
           </div>
           <div>
-            <h1 class="font-heading font-extrabold text-sm text-white group-hover:text-emerald-400 transition-colors">Krishi Mitra AI</h1>
-            <span class="text-[10px] text-slate-400">Digital Grama Sevak</span>
+            <h1 class="font-heading font-extrabold text-sm text-slate-900 group-hover:text-emerald-600 transition-colors">Krishi Mitra AI</h1>
+            <span class="text-[10px] text-slate-500 font-medium">Digital Grama Sevak</span>
           </div>
         </a>
-        <a href="index.html" class="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors" title="Back to Home">
+        <a href="index.html" class="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors" title="Back to Home">
           <span class="material-symbols-outlined text-lg">home</span>
         </a>
       </div>
@@ -100,16 +305,16 @@
           <span class="material-symbols-outlined text-sm">add</span>
           <span id="sb-new-chat">New Consultation</span>
         </span>
-        <span class="text-[10px] bg-emerald-700/80 px-1.5 py-0.5 rounded">Ctrl + K</span>
+        <span class="text-[10px] bg-emerald-700 text-white px-1.5 py-0.5 rounded font-mono">Ctrl + K</span>
       </button>
 
       <!-- Language Toggle Switch (Bilingual) -->
-      <button id="chat-lang-btn" class="w-full py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700/80 text-slate-200 text-xs font-semibold flex items-center justify-between border border-slate-700/60 transition-colors">
+      <button id="chat-lang-btn" class="w-full py-2 px-3 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold flex items-center justify-between border border-slate-200 transition-colors shadow-2xs">
         <span class="flex items-center gap-2">
-          <span class="material-symbols-outlined text-emerald-400 text-base">translate</span>
+          <span class="material-symbols-outlined text-emerald-600 text-base">translate</span>
           <span id="chat-lang-label">Switch to Kannada (ಕನ್ನಡ)</span>
         </span>
-        <span class="text-[10px] font-bold text-emerald-400 uppercase" id="current-lang-code">EN</span>
+        <span class="text-[10px] font-bold text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5 rounded uppercase font-mono" id="current-lang-code">EN</span>
       </button>
 
       <!-- Historical / Suggested Consultations -->
@@ -118,26 +323,26 @@
           Quick Dialect Presets
         </div>
         
-        <button onclick="loadPersonaQuery('kalaburagi')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
-          <span class="material-symbols-outlined text-amber-400 text-base shrink-0">dry</span>
+        <button onclick="loadPersonaQuery('kalaburagi')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+          <span class="material-symbols-outlined text-amber-600 text-base shrink-0">dry</span>
           <div class="truncate">
-            <div class="font-medium truncate" id="ps-1-title">Kalaburagi Drought Claim</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-1-title">Kalaburagi Drought Claim</div>
             <div class="text-[10px] text-slate-500">3 Acres • Red Gram • PMFBY</div>
           </div>
         </button>
 
-        <button onclick="loadPersonaQuery('mandya')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
-          <span class="material-symbols-outlined text-blue-400 text-base shrink-0">water_drop</span>
+        <button onclick="loadPersonaQuery('mandya')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+          <span class="material-symbols-outlined text-blue-600 text-base shrink-0">water_drop</span>
           <div class="truncate">
-            <div class="font-medium truncate" id="ps-2-title">Mandya Drip Subsidy</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-2-title">Mandya Drip Subsidy</div>
             <div class="text-[10px] text-slate-500">2.5 Acres • Sugarcane • 90% Drip</div>
           </div>
         </button>
 
-        <button onclick="loadPersonaQuery('machinery')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-800/80 text-slate-300 hover:text-white text-xs flex items-center gap-2.5 transition-colors group">
-          <span class="material-symbols-outlined text-emerald-400 text-base shrink-0">agriculture</span>
+        <button onclick="loadPersonaQuery('machinery')" class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-transparent hover:border-slate-200 group">
+          <span class="material-symbols-outlined text-emerald-600 text-base shrink-0">agriculture</span>
           <div class="truncate">
-            <div class="font-medium truncate" id="ps-3-title">Power Tiller Mechanization</div>
+            <div class="font-semibold text-slate-800 group-hover:text-emerald-700 truncate" id="ps-3-title">Power Tiller Mechanization</div>
             <div class="text-[10px] text-slate-500">5 Acres • Belagavi • ₹1,00,000 Cap</div>
           </div>
         </button>
@@ -146,17 +351,17 @@
     </div>
 
     <!-- Sidebar Bottom Trust Badge -->
-    <div class="p-4 border-t border-slate-800/80 space-y-2 text-xs">
-      <div class="flex items-center gap-2 text-slate-400">
-        <span class="material-symbols-outlined text-emerald-400 text-base">verified</span>
+    <div class="p-4 border-t border-slate-200/90 space-y-2 text-xs">
+      <div class="flex items-center gap-2 text-slate-500">
+        <span class="material-symbols-outlined text-emerald-600 text-base">verified</span>
         <span class="text-[11px] font-medium" id="sb-audit-label">Zero-Hallucination Engine</span>
       </div>
-      <a href="tel:1551" class="w-full py-2 px-3 rounded-lg bg-slate-800/60 hover:bg-slate-800 text-amber-300 font-bold text-xs flex items-center justify-between transition-colors">
+      <a href="tel:1551" class="w-full py-2 px-3 rounded-xl bg-amber-50 hover:bg-amber-100/80 text-amber-900 border border-amber-200/80 font-bold text-xs flex items-center justify-between transition-colors shadow-2xs">
         <span class="flex items-center gap-1.5">
           <span class="material-symbols-outlined text-sm">support_agent</span>
           <span>Kisan Helpline 1551</span>
         </span>
-        <span class="text-[10px] bg-amber-400/20 text-amber-300 px-1.5 py-0.5 rounded">Toll-Free</span>
+        <span class="text-[10px] bg-amber-100 text-amber-800 border border-amber-300/80 px-1.5 py-0.5 rounded font-semibold">Toll-Free</span>
       </a>
     </div>
 
@@ -164,32 +369,32 @@
 
 
   <!-- ========================================================================= -->
-  <!-- 2. MAIN CHAT AREA (Full-height conversational view)                       -->
+  <!-- 2. MAIN CHAT AREA (Clean Light Aesthetic)                                 -->
   <!-- ========================================================================= -->
-  <main class="flex-1 flex flex-col h-full bg-[#090D14] relative">
+  <main class="flex-1 flex flex-col h-full bg-[#F8FAFC] relative">
     
     <!-- Top Mobile / Minimal App Bar -->
-    <div class="h-14 border-b border-slate-800/80 px-4 sm:px-6 flex items-center justify-between shrink-0 bg-[#090D14]/90 backdrop-blur z-20">
+    <div class="h-14 border-b border-slate-200/90 px-4 sm:px-6 flex items-center justify-between shrink-0 bg-white/90 backdrop-blur z-20 shadow-xs">
       <div class="flex items-center gap-3">
         <!-- Mobile Sidebar Toggle -->
-        <button id="mobile-sidebar-toggle" class="md:hidden p-1.5 rounded-lg text-slate-400 hover:bg-slate-800">
+        <button id="mobile-sidebar-toggle" class="md:hidden p-1.5 rounded-lg text-slate-500 hover:bg-slate-100">
           <span class="material-symbols-outlined">menu</span>
         </button>
-        <span class="font-bold text-sm text-white flex items-center gap-2">
+        <span class="font-bold text-sm text-slate-900 flex items-center gap-2">
           <span id="chat-top-brand">Digital Grama Sevak (ಕೃಷಿ ಮಿತ್ರ)</span>
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
         </span>
       </div>
 
       <!-- Action items -->
       <div class="flex items-center gap-3">
         <!-- Language button on header for mobile -->
-        <button id="mobile-lang-btn" class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-800 text-emerald-400 text-xs font-bold border border-slate-700">
+        <button id="mobile-lang-btn" class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-emerald-700 text-xs font-bold border border-slate-200">
           <span class="material-symbols-outlined text-sm">translate</span>
           <span id="mobile-lang-code">KN</span>
         </button>
         <!-- Return home -->
-        <a href="index.html" class="flex items-center gap-1 text-xs text-slate-400 hover:text-white transition-colors">
+        <a href="index.html" class="flex items-center gap-1 text-xs text-slate-500 hover:text-emerald-700 font-medium transition-colors">
           <span class="material-symbols-outlined text-sm">home</span>
           <span id="chat-home-link-text" class="hidden sm:inline">Home Portal</span>
         </a>
@@ -204,19 +409,19 @@
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
           <span class="material-symbols-outlined text-xl">smart_toy</span>
         </div>
-        <div class="space-y-3 bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm p-5 max-w-[90%] shadow-md text-slate-200">
-          <h2 class="font-bold text-white text-base" id="msg-welcome-title">
+        <div class="space-y-3 bg-white border border-slate-200/90 rounded-3xl rounded-tl-sm p-6 max-w-[90%] shadow-sm text-slate-700">
+          <h2 class="font-bold text-slate-900 text-base" id="msg-welcome-title">
             Welcome to Krishi Mitra Voice AI! 🙏
           </h2>
-          <p class="text-xs sm:text-sm text-slate-300 leading-relaxed" id="msg-welcome-body">
+          <p class="text-xs sm:text-sm text-slate-600 leading-relaxed" id="msg-welcome-body">
             I am your automated agricultural officer. You can tap the <strong>big microphone button</strong> below to speak in your local dialect, or type your query.
           </p>
-          <div class="p-3 bg-slate-900/70 border border-slate-800 rounded-xl space-y-1.5 text-xs text-slate-400">
-            <div class="font-bold text-emerald-400 flex items-center gap-1" id="msg-welcome-tips-title">
-              <span class="material-symbols-outlined text-sm">tips_and_updates</span>
+          <div class="p-4 bg-slate-50 border border-slate-200/70 rounded-2xl space-y-2 text-xs text-slate-600">
+            <div class="font-bold text-emerald-700 flex items-center gap-1.5" id="msg-welcome-tips-title">
+              <span class="material-symbols-outlined text-base">tips_and_updates</span>
               <span>Things you can speak / ask:</span>
             </div>
-            <ul class="list-disc list-inside space-y-1 pl-1 text-[11px]" id="msg-welcome-tips-list">
+            <ul class="list-disc list-inside space-y-1.5 pl-1 text-[11px] text-slate-600" id="msg-welcome-tips-list">
               <li id="welcome-tip-1">"I have 3 acres dryland in Kalaburagi growing red gram, crops dried up due to drought."</li>
               <li id="welcome-tip-2">"Can I get 90% subsidy for drip irrigation on my 2.5 acres land in Mandya?"</li>
               <li id="welcome-tip-3">"I have 5 acres in Belagavi, is there government subsidy to purchase a Power Tiller?"</li>
@@ -227,40 +432,27 @@
 
     </div>
 
-    <!-- Real-Time Extracted Profile Pill Bar (Floating above input) -->
-    <div id="live-profile-bar" class="max-w-4xl w-full mx-auto px-4 sm:px-8 pb-2">
-      <div class="flex items-center justify-between bg-slate-900/90 border border-slate-800/80 rounded-2xl px-4 py-2 text-xs text-slate-300 backdrop-blur-md">
-        <div class="flex items-center gap-2 overflow-x-auto">
-          <span id="pill-label-active" class="text-slate-500 font-bold uppercase text-[10px]">Active Profile:</span>
-          <span id="pill-district" class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-semibold text-[11px]">Mandya</span>
-          <span id="pill-land" class="px-2 py-0.5 rounded-md bg-slate-800 text-white font-semibold text-[11px]">2.5 Acres</span>
-          <span id="pill-crop" class="px-2 py-0.5 rounded-md bg-slate-800 text-emerald-400 font-semibold text-[11px]">Sugarcane</span>
-          <span id="pill-status" class="px-2 py-0.5 rounded-md bg-emerald-950 text-emerald-300 border border-emerald-800/80 font-bold text-[10px]">Verified</span>
-        </div>
-        <button onclick="clearActiveProfile()" id="pill-btn-reset" class="text-slate-500 hover:text-slate-300 text-[10px] font-bold underline pl-2 shrink-0">Reset</button>
-      </div>
-    </div>
 
     <!-- ======================================================================= -->
-    <!-- 3. VOICE-FIRST INPUT CONTROLLER (Large Audio Mic + Text bar)             -->
+    <!-- 3. VOICE-FIRST INPUT CONTROLLER (Light Minimalist Controller)             -->
     <!-- ======================================================================= -->
-    <div class="p-4 sm:p-6 bg-[#0E1420]/90 border-t border-slate-800 shrink-0">
+    <div class="p-4 sm:p-6 bg-white/90 border-t border-slate-200/90 shrink-0 backdrop-blur-md shadow-xs">
       <div class="max-w-3xl w-full mx-auto space-y-4">
 
         <!-- Live Audio Waveform & Speech Recognition Overlay (Visible when recording) -->
-        <div id="waveform-modal" class="hidden p-4 rounded-2xl bg-gradient-to-r from-emerald-950/80 via-slate-900/90 to-teal-950/80 border border-emerald-500/40 text-center space-y-3">
+        <div id="waveform-modal" class="hidden p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-center space-y-3 shadow-sm">
           <div class="flex items-center justify-center gap-1.5 h-8">
-            <span class="waveform-bar w-1.5 h-3 bg-emerald-400 rounded-full animate-bounce"></span>
-            <span class="waveform-bar w-1.5 h-6 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.1s]"></span>
-            <span class="waveform-bar w-1.5 h-8 bg-emerald-300 rounded-full animate-bounce [animation-delay:0.2s]"></span>
-            <span class="waveform-bar w-1.5 h-5 bg-teal-400 rounded-full animate-bounce [animation-delay:0.15s]"></span>
-            <span class="waveform-bar w-1.5 h-7 bg-emerald-400 rounded-full animate-bounce [animation-delay:0.25s]"></span>
-            <span class="waveform-bar w-1.5 h-4 bg-teal-300 rounded-full animate-bounce [animation-delay:0.05s]"></span>
+            <span class="waveform-bar w-1.5 h-3 bg-emerald-500 rounded-full animate-bounce"></span>
+            <span class="waveform-bar w-1.5 h-6 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.1s]"></span>
+            <span class="waveform-bar w-1.5 h-8 bg-emerald-600 rounded-full animate-bounce [animation-delay:0.2s]"></span>
+            <span class="waveform-bar w-1.5 h-5 bg-teal-500 rounded-full animate-bounce [animation-delay:0.15s]"></span>
+            <span class="waveform-bar w-1.5 h-7 bg-emerald-500 rounded-full animate-bounce [animation-delay:0.25s]"></span>
+            <span class="waveform-bar w-1.5 h-4 bg-teal-600 rounded-full animate-bounce [animation-delay:0.05s]"></span>
           </div>
-          <div class="text-xs text-emerald-300 font-bold animate-pulse" id="mic-status-label">
+          <div class="text-xs text-emerald-800 font-bold animate-pulse" id="mic-status-label">
             Listening to spoken Kannada / English... ಮಾತನಾಡಿ...
           </div>
-          <p class="text-[11px] text-slate-400" id="mic-subtext-label">
+          <p class="text-[11px] text-slate-600" id="mic-subtext-label">
             Speak about your land, crop, district or compensation problem
           </p>
         </div>
@@ -269,22 +461,22 @@
         <div class="flex items-center gap-3">
 
           <!-- Prominent Voice Recording Button -->
-          <button id="mic-trigger-btn" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-lg shadow-emerald-950/60 active:scale-95 transition-all shrink-0 cursor-pointer" title="Speak with AI in Kannada or English">
+          <button id="mic-trigger-btn" class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-md active:scale-95 transition-all shrink-0 cursor-pointer" title="Speak with AI in Kannada or English">
             <span id="mic-icon" class="material-symbols-outlined text-3xl">mic</span>
           </button>
 
           <!-- Text Input Form -->
-          <form id="chat-input-form" class="flex-1 flex items-center bg-[#151E2E] border border-slate-700/80 rounded-2xl px-4 py-1.5 shadow-inner focus-within:border-emerald-500 focus-within:ring-1 focus-within:ring-emerald-500 transition-all">
+          <form id="chat-input-form" class="flex-1 flex items-center bg-slate-50 border border-slate-200 rounded-2xl px-4 py-1.5 shadow-inner focus-within:border-emerald-500 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:bg-white transition-all">
             <input type="text" id="user-text-input" placeholder="Type your agricultural question or click mic to speak..." 
-              class="w-full bg-transparent py-2.5 text-sm text-white placeholder-slate-400 outline-none"/>
-            <button type="submit" class="p-2 rounded-xl bg-white hover:bg-emerald-400 text-slate-950 transition-colors ml-2 shrink-0">
+              class="w-full bg-transparent py-2.5 text-sm text-slate-900 placeholder-slate-400 outline-none"/>
+            <button type="submit" class="p-2 rounded-xl bg-slate-900 hover:bg-emerald-600 text-white transition-colors ml-2 shrink-0 shadow-xs">
               <span class="material-symbols-outlined text-lg">arrow_upward</span>
             </button>
           </form>
 
         </div>
 
-        <div class="text-center text-[11px] text-slate-400 flex items-center justify-center gap-3">
+        <div class="text-center text-[11px] text-slate-500 flex items-center justify-center gap-3">
           <span id="txt-latency">⚡ Sub-1.8s Response Latency</span>
           <span>•</span>
           <span id="txt-disclaimer">Zero-Hallucination Government Rule Evaluator</span>
@@ -348,33 +540,32 @@
         newChat: "ಹೊಸ ಸಮಾಲೋಚನೆ",
         langBtnLabel: "ಇಂಗ್ಲಿಷ್‌ಗೆ ಬದಲಿಸಿ (English)",
         langCode: "KN",
-        presetsTitle: "ಪ್ರಾದೇಶಿಕ ಉಪಭಾಷೆಗಳ ಮಾದರಿ",
-        ps1Title: "ಕಲಬುರಗಿ ಬರಗಾಲ ಬೆಳೆ ವಿಮೆ",
+        presetsTitle: "ತ್ವರಿತ ಪ್ರಾಂತೀಯ ಪ್ರಶ್ನೆಗಳು",
+        ps1Title: "ಕಲಬುರಗಿ ಬೆಳೆ ವಿಮೆ ಪರಿಹಾರ",
         ps2Title: "ಮಂಡ್ಯ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ",
-        ps3Title: "ಪವರ್ ಟಿಲ್ಲರ್ ಯಂತ್ರೋಪಕರಣ",
-        auditLabel: "ಶಾಸನಬದ್ಧ ನಿಯಮ ಎಂಜಿನ್",
+        ps3Title: "ಬೆಳಗಾವಿ ಪವರ್ ಟಿಲ್ಲರ್ ಸಹಾಯಧನ",
+        auditLabel: "ಅಧಿಕೃತ ಸರ್ಕಾರಿ ನಿಯಮ ಪರಿಶೀಲಕ",
         helpline: "ಕಿಸಾನ್ ಸಹಾಯವಾಣಿ 1551",
         topBrand: "ಡಿಜಿಟಲ್ ಗ್ರಾಮ ಸೇವಕ (ಕೃಷಿ ಮಿತ್ರ)",
-        homeLinkText: "ಮುಖಪುಟ",
-        welcomeTitle: "ಕೃಷಿ ಮಿತ್ರ ಧ್ವನಿ ಎಐ ಸಹಾಯಕಕ್ಕೆ ಸ್ವಾಗತ! 🙏",
-        welcomeBody: "ನಾನು ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಗ್ರಾಮ ಸೇವಕ. ಕೆಳಗಿನ <strong>ದೊಡ್ಡ ಮೈಕ್ ಬಟನ್</strong> ಒತ್ತಿ ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್‌ನಲ್ಲಿ ಮಾತನಾಡಬಹುದು, ಅಥವಾ ಸಂದೇಶ ಟೈಪ್ ಮಾಡಬಹುದು.",
-        tipsTitle: "ನೀವು ಕೇಳಬಹುದಾದ ಪ್ರಶ್ನೆಗಳು:",
-        tip1: "\"ನಮ್ಮ ಕಲಬುರಗಿ ಹೊಲ 3 ಎಕರೆ ಐತ್ರಿ, ತೊಗರಿ ಒಣಗಿ ಹೋತು, ವಿಮೆ ಪರಿಹಾರ ಸಿಗ್ತೈತಾ?\"",
-        tip2: "\"ಮಂಡ್ಯದಲ್ಲಿ 2.5 ಎಕರೆ ಕಬ್ಬಿನ ತೋಟಕ್ಕೆ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಸಿಗ್ತದಾ?\"",
-        tip3: "\"ಬೆಳಗಾವಿಯಲ್ಲಿ 5 ಎಕರೆ ಇದೆ, ಪವರ್ ಟಿಲ್ಲರ್ ಖರೀದಿಗೆ ಸಹಾಯಧನ ಸಿಗ್ತದಾ?\"",
-        listening: "ಆಲಿಸಲಾಗುತ್ತಿದೆ... ಮಾತನಾಡಿ...",
-        listeningSub: "ನಿಮ್ಮ ಜಮೀನು, ಬೆಳೆ, ಜಿಲ್ಲೆ ಅಥವಾ ಪರಿಹಾರದ ಬಗ್ಗೆ ತಿಳಿಸಿ",
-        inputPlaceholder: "ನಿಮ್ಮ ಕೃಷಿ ಪ್ರಶ್ನೆ ಟೈಪ್ ಮಾಡಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿ ಮಾತನಾಡಿ...",
-        pillLabelActive: "ಸಕ್ರಿಯ ರೈತ ಪ್ರೊಫೈಲ್:",
-        pillVerified: "ಪರಿಶೀಲಿಸಲಾಗಿದೆ",
+        homeLinkText: "ಮುಖಪುಟಕ್ಕೆ ಹೋಗಿ",
+        welcomeTitle: "ಕೃಷಿ ಮಿತ್ರ ಧ್ವನಿ ಎಐ ಸಹಾಯಕಕ್ಕೆ ಸುಸ್ವಾಗತ! 🙏",
+        welcomeBody: "ನಾನು ನಿಮ್ಮ ಡಿಜಿಟಲ್ ಕೃಷಿ ಅಧಿಕಾರಿ. ಕೆಳಗಿರುವ <strong>ದೊಡ್ಡ ಮೈಕ್ರೋಫೋನ್ ಬಟನ್</strong> ಒತ್ತಿ ನಿಮ್ಮದೇ ಗ್ರಾಮ್ಯ ಕನ್ನಡದಲ್ಲಿ ಮಾತನಾಡಿ ಅಥವಾ ಪ್ರಶ್ನೆಯನ್ನು ಟೈಪ್ ಮಾಡಿ.",
+        tipsTitle: "ನೀವು ಕೇಳಬಹುದಾದ ಪ್ರಶ್ನೆಗಳ ಉದಾಹರಣೆ:",
+        tip1: "\"ನಮ್ಮದು ಕಲಬುರಗಿಯಲ್ಲಿ 3 ಎಕರೆ ತೊಗರಿ ಒಣಗಿ ಹೋಗಿದೆ, ಪರಿಹಾರ ಸಿಗುತ್ತಾ?\"",
+        tip2: "\"ಮಂಡ್ಯದಲ್ಲಿ ಎರಡುವರೆ ಎಕರೆ ಕಬ್ಬಿಗೆ 90% ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಬರುತ್ತಾ?\"",
+        tip3: "\"ಬೆಳಗಾವಿಯಲ್ಲಿ 5 ಎಕರೆ ಜಮೀನಿದೆ, ಪವರ್ ಟಿಲ್ಲರ್ ಖರೀದಿಗೆ ಸಬ್ಸಿಡಿ ಇದೆಯಾ?\"",
+        listening: "ಕೇಳಿಸಿಕೊಳ್ಳುತ್ತಿದ್ದೇವೆ... ದಯವಿಟ್ಟು ಮಾತನಾಡಿ...",
+        listeningSub: "ನಿಮ್ಮ ಜಮೀನು, ಬೆಳೆ, ಜಿಲ್ಲೆ ಅಥವಾ ಪರಿಹಾರದ ಸಮಸ್ಯೆಯನ್ನು ನೇರವಾಗಿ ಹೇಳಿ",
+        inputPlaceholder: "ಕೃಷಿ ಸಂಬಂಧಿತ ಪ್ರಶ್ನೆ ಕೇಳಿ ಅಥವಾ ಮೈಕ್ ಒತ್ತಿ ಮಾತನಾಡಿ...",
+        pillLabelActive: "ಪ್ರಸ್ತುತ ಪ್ರೊಫೈಲ್:",
+        pillVerified: "ದೃಢೀಕರಿಸಲಾಗಿದೆ",
         pillReset: "ಮರುಹೊಂದಿಸಿ",
-        latency: "⚡ 1.8 ಸೆಕೆಂಡ್‌ಗಿಂತ ಕಡಿಮೆ ಪ್ರತಿಕ್ರಿಯೆ",
-        disclaimer: "ಅಧಿಕೃತ ಸರ್ಕಾರಿ ನಿಯಮಾವಳಿಗಳ ನಿಖರ ಪರಿಶೀಲನೆ",
-        pageTitle: "ಕೃಷಿ ಮಿತ್ರ — ಧ್ವನಿ ಎಐ ಸಹಾಯಕ"
+        latency: "⚡ 1.8 ಸೆಕೆಂಡ್‌ಗಿಂತ ವೇಗದ ಧ್ವನಿ ಪ್ರತಿಕ್ರಿಯೆ",
+        disclaimer: "ಕರ್ನಾಟಕ ಕೃಷಿ ಇಲಾಖೆ ನಿಯಮಾನುಸಾರ ಅಧಿಕೃತ ಪರಿಶೀಲನೆ",
+        pageTitle: "ಕೃಷಿ ಮಿತ್ರ ಎಐ — ಧ್ವನಿ ಸಹಾಯಕ"
       }
     };
 
-    // Apply Language — updates ALL visible text on the chat page
     function updateChatLanguage(lang) {
       currentLanguage = lang;
       localStorage.setItem('krishi_lang', lang);
@@ -421,14 +612,17 @@
       document.getElementById('txt-latency').textContent = t.latency;
       document.getElementById('txt-disclaimer').textContent = t.disclaimer;
 
-      // Profile pill bar
-      document.getElementById('pill-label-active').textContent = t.pillLabelActive;
-      document.getElementById('pill-status').textContent = t.pillVerified;
-      document.getElementById('pill-btn-reset').textContent = t.pillReset;
-
-      // Land pill unit
-      const land = farmerProfile.land_acres;
-      document.getElementById('pill-land').textContent = land + (lang === 'kn' ? ' ಎಕರೆ' : ' Acres');
+      // Profile pill bar (if present)
+      const pillLabel = document.getElementById('pill-label-active');
+      if (pillLabel) pillLabel.textContent = t.pillLabelActive;
+      const pillStatus = document.getElementById('pill-status');
+      if (pillStatus) pillStatus.textContent = t.pillVerified;
+      const pillReset = document.getElementById('pill-btn-reset');
+      if (pillReset) pillReset.textContent = t.pillReset;
+      const pillLand = document.getElementById('pill-land');
+      if (pillLand) {
+        pillLand.textContent = farmerProfile.land_acres + (lang === 'kn' ? ' ಎಕರೆ' : ' Acres');
+      }
     }
 
     document.getElementById('chat-lang-btn').addEventListener('click', () => {
@@ -446,10 +640,10 @@
 
       if (sender === 'user') {
         div.innerHTML = `
-          <div class="bg-emerald-600 text-white rounded-3xl rounded-tr-sm px-5 py-3.5 max-w-[85%] shadow-md text-xs sm:text-sm">
+          <div class="bg-emerald-600 text-white rounded-3xl rounded-tr-sm px-5 py-3.5 max-w-[85%] shadow-sm text-xs sm:text-sm">
             ${htmlContent}
           </div>
-          <div class="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-white shrink-0 mt-0.5">
+          <div class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
             <span class="material-symbols-outlined text-base">person</span>
           </div>
         `;
@@ -458,10 +652,10 @@
           <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
             <span class="material-symbols-outlined text-xl">smart_toy</span>
           </div>
-          <div class="space-y-3 bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm p-5 max-w-[90%] shadow-md text-slate-200">
+          <div class="space-y-3 bg-white border border-slate-200/90 rounded-3xl rounded-tl-sm p-5 max-w-[90%] shadow-sm text-slate-800">
             ${htmlContent}
             ${isAudioPlaying ? `
-              <div class="flex items-center gap-2 pt-2 border-t border-slate-800 text-emerald-300 font-bold text-xs">
+              <div class="flex items-center gap-2 pt-2 border-t border-slate-100 text-emerald-600 font-bold text-xs">
                 <span class="material-symbols-outlined text-base animate-pulse">volume_up</span>
                 <span>${currentLanguage === 'kn' ? 'ಕನ್ನಡ ಧ್ವನಿ ಪ್ರತಿಕ್ರಿಯೆ ಚಾಲನೆಯಲ್ಲಿದೆ...' : 'Spoken Voice Audio Synthesizing...'}</span>
               </div>
@@ -483,11 +677,17 @@
       indicator.className = 'flex items-start gap-4 text-sm';
       indicator.innerHTML = `
         <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 flex items-center justify-center text-white shrink-0 shadow-md">
-          <span class="material-symbols-outlined text-xl animate-spin">smart_toy</span>
+          <span class="material-symbols-outlined text-xl">smart_toy</span>
         </div>
-        <div class="bg-[#151E2E] border border-slate-800/80 rounded-3xl rounded-tl-sm px-5 py-3.5 shadow-md flex items-center gap-2.5 text-slate-300 text-xs">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-          <span>${currentLanguage === 'kn' ? 'ಕೃಷಿ ಮಿತ್ರ ಪರಿಶೀಲಿಸುತ್ತಿದೆ...' : 'Krishi Mitra AI is evaluating...'}</span>
+        <div class="bg-white border border-slate-200/90 rounded-3xl rounded-tl-sm px-5 py-3.5 shadow-sm flex items-center gap-3.5 text-slate-700 text-xs">
+          <!-- From Uiverse.io by Nawsome --> 
+          <svg class="pl shrink-0" width="240" height="240" viewBox="0 0 240 240">
+            <circle class="pl__ring pl__ring--a" cx="120" cy="120" r="105" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 660" stroke-dashoffset="-330" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--b" cx="120" cy="120" r="35" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 220" stroke-dashoffset="-110" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--c" cx="85" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+            <circle class="pl__ring pl__ring--d" cx="155" cy="120" r="70" fill="none" stroke="#000" stroke-width="20" stroke-dasharray="0 440" stroke-linecap="round"></circle>
+          </svg>
+          <span class="font-medium text-slate-700">${currentLanguage === 'kn' ? 'ಕೃಷಿ ಮಿತ್ರ ಪರಿಶೀಲಿಸುತ್ತಿದೆ...' : 'Krishi Mitra AI is evaluating...'}</span>
         </div>
       `;
       stream.appendChild(indicator);
@@ -537,65 +737,65 @@
           updateLiveProfileBar();
         }
 
-        let botHtml = `<p class="leading-relaxed font-medium text-sm sm:text-base">${data.reply}</p>`;
+        let botHtml = `<p class="leading-relaxed font-medium text-sm sm:text-base text-slate-800">${data.reply}</p>`;
 
         // If scheme evaluation results exist, render dynamic cards
         if (data.evaluation_results && data.evaluation_results.length > 0) {
-          botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-800">`;
+          botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-100">`;
           
           data.evaluation_results.forEach((r, idx) => {
             const isEligible = r.status === 'ELIGIBLE';
             const isCond = r.status === 'CONDITIONALLY_ELIGIBLE';
             
-            let borderClass = 'border-slate-800/80 bg-slate-900/40 opacity-70';
-            let tagClass = 'bg-slate-900 text-slate-400 border-slate-700';
+            let borderClass = 'border-slate-200 bg-slate-50/70 text-slate-600 opacity-80';
+            let tagClass = 'bg-slate-100 text-slate-600 border-slate-300';
             let statusLabel = isKn ? 'ಅನರ್ಹರು' : 'INELIGIBLE';
             
             if (isEligible) {
-              borderClass = 'border-emerald-500/60 bg-emerald-950/20 shadow-sm';
-              tagClass = 'bg-emerald-950 text-emerald-400 border-emerald-800';
+              borderClass = 'border-emerald-300 bg-emerald-50/60 shadow-xs';
+              tagClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
               statusLabel = isKn ? '✔ ಅರ್ಹರು (ELIGIBLE)' : '✔ ELIGIBLE';
             } else if (isCond) {
-              borderClass = 'border-amber-500/60 bg-amber-950/20';
-              tagClass = 'bg-amber-950 text-amber-400 border-amber-800';
+              borderClass = 'border-amber-300 bg-amber-50/60';
+              tagClass = 'bg-amber-100 text-amber-800 border-amber-300';
               statusLabel = isKn ? '⚠ ಷರತ್ತುಬದ್ಧ' : '⚠ CONDITIONALLY ELIGIBLE';
             }
 
             const schemeName = isKn ? r.scheme_name_kn : r.scheme_name_en;
             const benefit = isKn ? r.benefit_summary_kn : r.benefit_summary_en;
             const demoBadge = r.is_demo ? 
-              `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-950 text-purple-300 border border-purple-800 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
+              `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
 
             botHtml += `
-              <div class="p-3.5 border rounded-2xl ${borderClass} space-y-2.5 transition-all">
+              <div class="p-4 border rounded-2xl ${borderClass} space-y-2.5 transition-all">
                 <div class="flex justify-between items-start gap-2">
-                  <div class="font-bold text-white text-xs sm:text-sm flex items-center flex-wrap">
+                  <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center flex-wrap">
                     ${idx + 1}. ${schemeName} ${demoBadge}
                   </div>
-                  <span class="px-2.5 py-0.5 rounded border text-[10px] font-bold shrink-0 ${tagClass}">
+                  <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-bold shrink-0 ${tagClass}">
                     ${statusLabel}
                   </span>
                 </div>
-                <p class="text-xs ${isEligible ? 'text-emerald-300 font-semibold' : (isCond ? 'text-amber-300 font-semibold' : 'text-slate-400')}">
+                <p class="text-xs ${isEligible ? 'text-emerald-800 font-semibold' : (isCond ? 'text-amber-800 font-semibold' : 'text-slate-500')}">
                   ${benefit}
                 </p>
             `;
 
             // Audit Trail
             if (r.audit_trail && r.audit_trail.length > 0 && (isEligible || isCond)) {
-              botHtml += `<div class="text-[11px] text-slate-300 space-y-1 bg-slate-900/60 p-2 rounded-xl border border-slate-800/80">`;
-              botHtml += `<div class="text-[10px] uppercase font-bold text-slate-400">${isKn ? 'ಅರ್ಹತಾ ಕಾರಣಗಳು (Audit Points):' : 'Audit Verification:'}</div>`;
+              botHtml += `<div class="text-[11px] text-slate-700 space-y-1.5 bg-white p-3 rounded-xl border border-emerald-200/70 shadow-2xs">`;
+              botHtml += `<div class="text-[10px] uppercase font-bold text-emerald-800">${isKn ? 'ಅರ್ಹತಾ ಕಾರಣಗಳು (Audit Points):' : 'Audit Verification:'}</div>`;
               r.audit_trail.forEach(reason => {
-                botHtml += `<div class="flex items-start gap-1.5"><span class="text-emerald-400 font-bold shrink-0">✔</span> <span>${reason}</span></div>`;
+                botHtml += `<div class="flex items-start gap-1.5"><span class="text-emerald-600 font-bold shrink-0">✔</span> <span>${reason}</span></div>`;
               });
               botHtml += `</div>`;
             }
 
             // Disqualification Reasons
             if (r.disqualification_reasons && r.disqualification_reasons.length > 0 && !isEligible) {
-              botHtml += `<div class="text-[11px] text-slate-400 space-y-1 bg-slate-900/40 p-2 rounded-xl">`;
+              botHtml += `<div class="text-[11px] text-rose-800 space-y-1 bg-white p-3 rounded-xl border border-rose-200/70 shadow-2xs">`;
               r.disqualification_reasons.forEach(dq => {
-                botHtml += `<div class="flex items-start gap-1.5"><span class="text-rose-400 font-bold shrink-0">✕</span> <span>${dq}</span></div>`;
+                botHtml += `<div class="flex items-start gap-1.5"><span class="text-rose-500 font-bold shrink-0">✕</span> <span>${dq}</span></div>`;
               });
               botHtml += `</div>`;
             }
@@ -604,17 +804,17 @@
             if (r.required_documents && r.required_documents.length > 0 && (isEligible || isCond)) {
               const docTitle = isKn ? 'ಅಗತ್ಯ ದಾಖಲೆಗಳ ಪಟ್ಟಿ' : 'Required Document Checklist';
               botHtml += `
-                <div class="pt-2 border-t border-slate-800/80">
-                  <div class="text-[10px] uppercase font-bold text-slate-400 mb-1.5">${docTitle}:</div>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-300">
+                <div class="pt-2 border-t border-slate-200/70">
+                  <div class="text-[10px] uppercase font-bold text-slate-500 mb-1.5">${docTitle}:</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-700">
               `;
               r.required_documents.forEach(doc => {
                 const docName = isKn ? (doc.name_kn || doc.document_name_kn || doc.id) : (doc.name_en || doc.document_name_en || doc.id);
                 const isMand = doc.mandatory !== undefined ? doc.mandatory : true;
-                const badge = isMand ? `<span class="text-rose-400 font-bold text-[10px]">*ಕಡ್ಡಾಯ</span>` : `<span class="text-slate-500 text-[10px]">ಐಚ್ಛಿಕ</span>`;
+                const badge = isMand ? `<span class="text-rose-600 font-bold text-[10px]">*ಕಡ್ಡಾಯ</span>` : `<span class="text-slate-400 text-[10px]">ಐಚ್ಛಿಕ</span>`;
                 botHtml += `
-                  <label class="flex items-center gap-1.5 bg-slate-900/90 px-2.5 py-1.5 rounded-xl border border-slate-800 cursor-pointer hover:border-slate-700">
-                    <input type="checkbox" class="rounded text-emerald-600 bg-slate-800 border-slate-700 w-3.5 h-3.5 focus:ring-0" />
+                  <label class="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200/80 cursor-pointer hover:border-slate-300 shadow-2xs">
+                    <input type="checkbox" class="rounded text-emerald-600 bg-slate-50 border-slate-300 w-3.5 h-3.5 focus:ring-0" />
                     <span class="truncate">${docName}</span>
                     <span class="ml-auto shrink-0">${badge}</span>
                   </label>
@@ -655,10 +855,14 @@
     }
 
     function updateLiveProfileBar() {
-      document.getElementById('pill-district').textContent = farmerProfile.district;
-      document.getElementById('pill-land').textContent = farmerProfile.land_acres + (currentLanguage === 'kn' ? ' ಎಕರೆ' : ' Acres');
-      document.getElementById('pill-crop').textContent = farmerProfile.crop;
-      document.getElementById('pill-status').textContent = CHAT_I18N[currentLanguage].pillVerified;
+      const pDist = document.getElementById('pill-district');
+      if (pDist) pDist.textContent = farmerProfile.district;
+      const pLand = document.getElementById('pill-land');
+      if (pLand) pLand.textContent = farmerProfile.land_acres + (currentLanguage === 'kn' ? ' ಎಕರೆ' : ' Acres');
+      const pCrop = document.getElementById('pill-crop');
+      if (pCrop) pCrop.textContent = farmerProfile.crop;
+      const pStat = document.getElementById('pill-status');
+      if (pStat) pStat.textContent = CHAT_I18N[currentLanguage].pillVerified;
     }
 
     function clearActiveProfile() {
@@ -730,7 +934,7 @@
       isRecording = false;
       clearTimeout(recordingTimer);
       micModal.classList.add('hidden');
-      micBtn.className = "w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-lg active:scale-95 shrink-0";
+      micBtn.className = "w-14 h-14 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-500 hover:from-emerald-500 hover:to-teal-400 text-white flex items-center justify-center shadow-md active:scale-95 shrink-0";
       micIcon.textContent = "mic";
     }
 
