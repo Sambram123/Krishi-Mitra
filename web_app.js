@@ -213,17 +213,11 @@
     }
 
     function selectAlternativeMicrophone() {
-      const currentDevice = audioInputDevices.find(device =>
-        device.deviceId === preferredAudioInputId);
-      const currentLabel = (currentDevice?.label || '')
-        .replace(/^(default|communications)\s*-\s*/i, '')
-        .trim()
-        .toLowerCase();
-      const alternative = audioInputDevices.find(device =>
-        device.deviceId !== preferredAudioInputId
-        && /microphone array/i.test(device.label)
-        && device.label.replace(/^(default|communications)\s*-\s*/i, '')
-          .trim().toLowerCase() !== currentLabel);
+      const alternatives = audioInputDevices.filter(device =>
+        device.deviceId && device.deviceId !== preferredAudioInputId);
+      const alternative = alternatives.find(device => /microphone array/i.test(device.label))
+        || alternatives.find(device => /microphone/i.test(device.label))
+        || alternatives[0];
       if (!alternative) return false;
       preferredAudioInputId = alternative.deviceId;
       if (preferredAudioInputId) {
@@ -620,6 +614,10 @@
           : new MediaRecorder(mediaStream);
         const activeRecorder = recorder;
         const recordedChunks = [];
+        const selectedInputLabel = audioInputDevices.find(device =>
+          device.deviceId === preferredAudioInputId)?.label
+          || audioInputSelect?.selectedOptions?.[0]?.textContent
+          || 'default microphone';
         activeRecorder.ondataavailable = event => {
           if (event.data.size) {
             recordedChunks.push(event.data);
@@ -640,6 +638,7 @@
             recordingDurationMs,
             chunks: recordedChunks.length,
             peakInputLevel: Number(peakInputLevel.toFixed(4)),
+            input: selectedInputLabel,
           });
           resetVoice();
           if (!blob.size) {
@@ -649,23 +648,10 @@
             return;
           }
           if (audioAnalyser && peakInputLevel < 0.003) {
-            const previousInputLabel = audioInputSelect?.selectedOptions?.[0]?.textContent
-              || 'unknown';
-            const switched = selectAlternativeMicrophone();
-            const nextInputLabel = switched
-              ? audioInputDevices.find(device =>
-                device.deviceId === preferredAudioInputId)?.label || 'unknown'
-              : 'unchanged';
             console.warn('[voice] input meter detected no sound; sending recording for transcription', {
-              input: previousInputLabel,
-              nextInput: nextInputLabel,
+              input: selectedInputLabel,
               audioBytes: blob.size,
             });
-            if (switched) {
-              console.info('[voice] selected alternative input for next recording', {
-                input: nextInputLabel,
-              });
-            }
           }
           processVoiceClip(blob, recordingDurationMs);
         };
