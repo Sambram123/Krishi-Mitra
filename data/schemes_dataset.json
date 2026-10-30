@@ -1,0 +1,360 @@
+{
+  "version": "1.0.0",
+  "dataset_description": "Krishi Mitra Reference Benchmark Schemes Catalog (2 Real Government Schemes + 3 Synthetic/Fictional Decision Rule Cases)",
+  "schemes": [
+    {
+      "id": "pm_kisan",
+      "type": "real",
+      "is_demo": false,
+      "name_en": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+      "name_kn": "ಪಿಎಂ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ",
+      "department": "Ministry of Agriculture and Farmers Welfare, Govt of India",
+      "category": "Income Support",
+      "benefit": {
+        "type": "Direct_Benefit_Transfer",
+        "amount_annual_inr": 6000,
+        "installments_per_year": 3,
+        "amount_per_installment_inr": 2000,
+        "description_kn": "ವರ್ಷಕ್ಕೆ ₹6,000 ಮೂರು ಸಮಾನ ಕಂತುಗಳಲ್ಲಿ (ಪ್ರತಿ ಕಂತಿಗೆ ₹2,000) ನೇರವಾಗಿ ರೈತರ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ಜಮೆ.",
+        "description_en": "Rs. 6,000 per year paid in three equal 4-monthly installments of Rs. 2,000 via DBT."
+      },
+      "eligibility_rules": {
+        "requires_landholder": true,
+        "min_acres": 0.01,
+        "max_acres": null,
+        "eligible_ownership": ["Owner", "Joint Family Owner"]
+      },
+      "exclusions": [
+        {
+          "code": "EXCL_TAX",
+          "name_en": "Income Tax Payee",
+          "name_kn": "ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರು",
+          "rule": "farmer.is_income_tax_payee == True"
+        },
+        {
+          "code": "EXCL_INSTITUTIONAL",
+          "name_en": "Institutional Landholder",
+          "name_kn": "ಸಂಸ್ಥಾಗತ ಭೂಮಾಲೀಕರು",
+          "rule": "farmer.is_institutional_landholder == True"
+        },
+        {
+          "code": "EXCL_CONSTITUTIONAL",
+          "name_en": "Constitutional Post Holder",
+          "name_kn": "ಸಾಂವಿಧಾನಿಕ ಹುದ್ದೆ ಹೊಂದಿರುವವರು / ಮಾಜಿ-ಹಾಲಿ ಜನಪ್ರತಿನಿಧಿಗಳು",
+          "rule": "farmer.is_constitutional_post_holder == True"
+        },
+        {
+          "code": "EXCL_GOV_EMPLOYEE",
+          "name_en": "Serving or Retired Government Employee",
+          "name_kn": "ಸರ್ಕಾರಿ ನೌಕರರು ಅಥವಾ ₹10,000 ಕ್ಕಿಂತ ಹೆಚ್ಚು ಪಿಂಚಣಿ ಪಡೆಯುವವರು",
+          "rule": "farmer.is_government_employee == True"
+        }
+      ],
+      "required_documents": [
+        {
+          "id": "doc_rtc",
+          "name_kn": "ಪಹಣಿ / ಆರ್.ಟಿ.ಸಿ (RTC / Pahani)",
+          "name_en": "Record of Rights, Tenancy and Crops (RTC / Pahani)",
+          "mandatory": true,
+          "source_kn": "ಗ್ರಾಮ ಒನ್ ಅಥವಾ ಕಂದಾಯ ಇಲಾಖೆಯ ಭೂಮಿ ಪೋರ್ಟಲ್"
+        },
+        {
+          "id": "doc_aadhaar",
+          "name_kn": "ಆಧಾರ್ ಕಾರ್ಡ್ (Aadhaar Card)",
+          "name_en": "Aadhaar Card",
+          "mandatory": true,
+          "source_kn": "UIDAI"
+        },
+        {
+          "id": "doc_npci_bank",
+          "name_kn": "ಆಧಾರ್ ಲಿಂಕ್ ಆದ ಬ್ಯಾಂಕ್ ಖಾತೆ (NPCI Seeded Bank Account)",
+          "name_en": "Active Bank Account linked with Aadhaar (NPCI mapped)",
+          "mandatory": true,
+          "source_kn": "ನಿಮ್ಮ ಬ್ಯಾಂಕ್ ಶಾಖೆ ಅಥವಾ ಅಂಚೆ ಕಚೇರಿ"
+        }
+      ]
+    },
+    {
+      "id": "pmfby",
+      "type": "real",
+      "is_demo": false,
+      "name_en": "PMFBY (Pradhan Mantri Fasal Bima Yojana / Karnataka Samrakshane)",
+      "name_kn": "ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ - ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ",
+      "department": "Department of Agriculture, Govt of Karnataka & MoA&FW",
+      "category": "Crop Insurance",
+      "benefit": {
+        "type": "Insurance_Payout",
+        "description_kn": "ಬರ, ಅಕಾಲಿಕ ಮಳೆ, ನೆರೆ ಅಥವಾ ಕೀಟಬಾಧೆಯಿಂದ ಬೆಳೆ ನಷ್ಟವಾದರೆ ನೇರ ಪರಿಹಾರ ಧನ ವಿಮಾ ಪಾವತಿ.",
+        "description_en": "Financial support and compensation claim payout for notified crop loss due to non-preventable natural calamities."
+      },
+      "eligibility_rules": {
+        "notified_seasons": ["Kharif", "Rabi", "Summer"],
+        "notified_crops": [
+          "Ragi",
+          "Pigeon Pea (Togari)",
+          "Jowar",
+          "Paddy",
+          "Cotton",
+          "Groundnut",
+          "Sugarcane",
+          "Maize",
+          "Soybean"
+        ],
+        "qualifying_calamities": [
+          "Drought",
+          "Excess Rain",
+          "Flood",
+          "Pest Attack",
+          "Hailstorm",
+          "Dry Spell",
+          "Unseasonal Rain"
+        ]
+      },
+      "exclusions": [
+        {
+          "code": "EXCL_NON_NOTIFIED_CROP",
+          "name_en": "Crop Not Notified for Crop Insurance in District/Hobli",
+          "name_kn": "ವಿಮೆ ವ್ಯಾಪ್ತಿಗೆ ಒಳಪಡದ ಬೆಳೆ",
+          "rule": "crop not in notified_crops"
+        },
+        {
+          "code": "EXCL_WAR_NUCLEAR",
+          "name_en": "Preventable or Malicious Loss",
+          "name_kn": "ಮಾನವ ನಿರ್ಮಿತ ಅಥವಾ ತಡೆಗಟ್ಟಬಹುದಾದ ಹಾನಿ",
+          "rule": "risk_type not in qualifying_calamities"
+        }
+      ],
+      "required_documents": [
+        {
+          "id": "doc_rtc",
+          "name_kn": "ಪಹಣಿ / ಆರ್.ಟಿ.ಸಿ (RTC / Pahani)",
+          "name_en": "Land Record (Pahani / RTC)",
+          "mandatory": true,
+          "source_kn": "ಭೂಮಿ ಪೋರ್ಟಲ್"
+        },
+        {
+          "id": "doc_sowing_cert",
+          "name_kn": "ಬಿತ್ತನೆ ದೃಢೀಕರಣ ಪತ್ರ (Sowing Certificate)",
+          "name_en": "Sowing Certificate / Self-Declaration",
+          "mandatory": true,
+          "source_kn": "ಗ್ರಾಮ ಲೆಕ್ಕಾಧಿಕಾರಿ (VA) ಅಥವಾ ಕೃಷಿ ಇಲಾಖೆ"
+        },
+        {
+          "id": "doc_passbook",
+          "name_kn": "ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್ ಪ್ರತಿ",
+          "name_en": "Bank Passbook Copy",
+          "mandatory": true,
+          "source_kn": "ಬ್ಯಾಂಕ್"
+        }
+      ]
+    },
+    {
+      "id": "demo_micro_irrigation",
+      "type": "synthetic_demo",
+      "is_demo": true,
+      "name_en": "Demo Micro-Irrigation Support",
+      "name_kn": "ಡೆಮೊ ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ (ಹನಿ ಮತ್ತು ತುಂತುರು) ಸಹಾಯ ಯೋಜನೆ",
+      "department": "Department of Horticulture / Agriculture (Demonstration Rule Engine)",
+      "category": "Irrigation Infrastructure",
+      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಕೇವಲ ನಿಯಮ ಪರಿಶೀಲನೆಯ ಪ್ರಾಯೋಗಿಕ ಪರೀಕ್ಷಾ ಯೋಜನೆ (ಡೆಮೊ). ಯಾವುದೇ ನೈಜ ಸರ್ಕಾರದ ಹಕ್ಕನ್ನು ಸೂಚಿಸುವುದಿಲ್ಲ.",
+      "disclaimer_en": "Synthetic test case for drip irrigation decision rules; no real entitlement is implied.",
+      "benefit": {
+        "type": "Subsidy_Percentage",
+        "small_marginal_subsidy_pct": 90,
+        "general_farmer_subsidy_pct": 70,
+        "description_kn": "ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತರಿಗೆ (<= 5 ಎಕರೆ) ಶೇಕಡಾ 90 ರಷ್ಟು ಮತ್ತು ಇತರ ರೈತರಿಗೆ ಶೇಕಡಾ 70 ರಷ್ಟು ಹನಿ/ತುಂತುರು ನೀರಾವರಿ ಘಟಕ ಸಬ್ಸಿಡಿ.",
+        "description_en": "90% subsidy for small/marginal farmers (<= 5 acres) and 70% subsidy for other farmers for drip/sprinkler units."
+      },
+      "eligibility_rules": {
+        "min_acres": 0.5,
+        "max_acres": 12.5,
+        "requires_water_source": true,
+        "accepted_sources": ["Borewell", "Open Well", "Canal", "Farm Pond"]
+      },
+      "exclusions": [
+        {
+          "code": "EXCL_NO_WATER",
+          "name_en": "No Available Water Source",
+          "name_kn": "ಜಮೀನಿನಲ್ಲಿ ಯಾವುದೇ ನೀರಾವರಿ ನೀರಿನ ಮೂಲವಿಲ್ಲದಿರುವುದು",
+          "rule": "farmer.has_water_source == False"
+        },
+        {
+          "code": "EXCL_COOLDOWN",
+          "name_en": "Subsidy Availed in Previous 3 Years",
+          "name_kn": "ಕಳೆದ 3 ವರ್ಷಗಳಲ್ಲಿ ಈಗಾಗಲೇ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಪಡೆದಿರುವುದು",
+          "rule": "farmer.availed_drip_subsidy_last_3_years == True"
+        },
+        {
+          "code": "EXCL_AREA_LIMIT",
+          "name_en": "Land Size Outside Permissible Bounds (0.5 to 12.5 Acres)",
+          "name_kn": "ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ 0.5 ಎಕರೆಗಿಂತ ಕಡಿಮೆ ಅಥವಾ 12.5 ಎಕರೆಗಿಂತ ಹೆಚ್ಚಿರುವುದು",
+          "rule": "farmer.land_acres < 0.5 or farmer.land_acres > 12.5"
+        }
+      ],
+      "required_documents": [
+        {
+          "id": "doc_rtc",
+          "name_kn": "ಪಹಣಿ / ಆರ್.ಟಿ.ಸಿ (RTC)",
+          "name_en": "RTC / Pahani",
+          "mandatory": true,
+          "source_kn": "ಕಂದಾಯ ಇಲಾಖೆ"
+        },
+        {
+          "id": "doc_water_cert",
+          "name_kn": "ಬೋರ್ವೆಲ್ / ನೀರಿನ ಮೂಲ ದೃಢೀಕರಣ ಪತ್ರ",
+          "name_en": "Borewell / Water Source Certificate",
+          "mandatory": true,
+          "source_kn": "ಗ್ರಾಮ ಪಂಚಾಯತಿ / ESCOM ಅಥವಾ RSK"
+        },
+        {
+          "id": "doc_sf_cert",
+          "name_kn": "ಸಣ್ಣ/ಅತಿ ಸಣ್ಣ ರೈತರ ಪ್ರಮಾಣಪತ್ರ (90% ಸಬ್ಸಿಡಿಗೆ)",
+          "name_en": "Small/Marginal Farmer Certificate (for 90% tier)",
+          "mandatory": false,
+          "source_kn": "ತಹಶೀಲ್ದಾರ್ ಕಚೇರಿ / ಕಂದಾಯ ನಿರೀಕ್ಷಕರು"
+        }
+      ]
+    },
+    {
+      "id": "demo_agri_equipment",
+      "type": "synthetic_demo",
+      "is_demo": true,
+      "name_en": "Demo Agricultural Equipment Assistance",
+      "name_kn": "ಡೆಮೊ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ನೆರವು ಯೋಜನೆ",
+      "department": "Agricultural Mechanization Cell (Demonstration Rule Engine)",
+      "category": "Farm Mechanization",
+      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳ ಸಬ್ಸಿಡಿ ನಿಯಮಗಳ ಪರೀಕ್ಷಾರ್ಥ ಡೆಮೊ ಯೋಜನೆ.",
+      "disclaimer_en": "Synthetic test case for equipment subsidy decision rules.",
+      "benefit": {
+        "type": "Subsidy_With_Cap",
+        "subsidy_pct": 50,
+        "max_subsidy_inr": 100000,
+        "description_kn": "ಅಧಿಕೃತ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣಗಳ ಖರೀದಿಗೆ ಗರಿಷ್ಠ ₹1,00,000 ವರೆಗೆ ಶೇಕಡಾ 50 ರಷ್ಟು ಸಹಾಯಧನ.",
+        "description_en": "50% equipment purchase subsidy up to a maximum financial ceiling of Rs. 1,00,000."
+      },
+      "eligibility_rules": {
+        "min_acres": 1.0,
+        "max_acres": 25.0,
+        "qualifying_equipment": [
+          "Power Tiller",
+          "Rotavator",
+          "Power Sprayer",
+          "Weeder",
+          "Small Tractor",
+          "Multi-Crop Thresher"
+        ]
+      },
+      "exclusions": [
+        {
+          "code": "EXCL_BELOW_MIN_ACRE",
+          "name_en": "Land Area Below 1.0 Acre Minimum for Mechanization",
+          "name_kn": "ಕೃಷಿ ಜಮೀನು ಕನಿಷ್ಠ 1.0 ಎಕರೆಗಿಂತ ಕಡಿಮೆ ಇರುವುದು",
+          "rule": "farmer.land_acres < 1.0"
+        },
+        {
+          "code": "EXCL_UNAPPROVED_EQUIPMENT",
+          "name_en": "Requested Implement Not in Approved Gazette List",
+          "name_kn": "ಅನುಮೋದಿತ ಪಟ್ಟಿಯಲ್ಲಿಲ್ಲದ ಯಂತ್ರೋಪಕರಣ",
+          "rule": "requested_equipment not in qualifying_equipment"
+        }
+      ],
+      "required_documents": [
+        {
+          "id": "doc_rtc",
+          "name_kn": "ಪಹಣಿ / RTC",
+          "name_en": "Pahani / RTC",
+          "mandatory": true,
+          "source_kn": "ಭೂಮಿ ಕೇಂದ್ರ"
+        },
+        {
+          "id": "doc_aadhaar",
+          "name_kn": "ಆಧಾರ್ ಕಾರ್ಡ್",
+          "name_en": "Aadhaar Card",
+          "mandatory": true,
+          "source_kn": "UIDAI"
+        },
+        {
+          "id": "doc_quotation",
+          "name_kn": "ಅಧಿಕೃತ ಡೀಲರ್‌ರಿಂದ ಪಡೆದ ಕೊಟೇಶನ್ (Quotation)",
+          "name_en": "Equipment Quotation from Registered Dealer",
+          "mandatory": true,
+          "source_kn": "ನೋಂದಾಯಿತ ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ಡೀಲರ್"
+        }
+      ]
+    },
+    {
+      "id": "demo_soil_improvement",
+      "type": "synthetic_demo",
+      "is_demo": true,
+      "name_en": "Demo Soil Improvement Support",
+      "name_kn": "ಡೆಮೊ ಮಣ್ಣು ಸುಧಾರಣೆ ಮತ್ತು ಫಲವತ್ತತೆ ಪ್ರೋತ್ಸಾಹಧನ",
+      "department": "Soil Health & Organic Farming Cell (Demonstration Rule Engine)",
+      "category": "Soil Health",
+      "disclaimer_kn": "ಸೂಚನೆ: ಇದು ಮಣ್ಣು ಆರೋಗ್ಯ ಶಿಫಾರಸುಗಳ ಪರೀಕ್ಷಾರ್ಥ ಡೆಮೊ ಯೋಜನೆ.",
+      "disclaimer_en": "Synthetic test case for soil health recommendation decision rules.",
+      "benefit": {
+        "type": "Direct_Benefit_Transfer",
+        "incentive_per_hectare_inr": 5000,
+        "max_hectares": 2.0,
+        "max_incentive_inr": 10000,
+        "description_kn": "ಮಣ್ಣಿನ ಫಲವತ್ತತೆ ಸುಧಾರಣೆಗೆ ಹೆಕ್ಟೇರಿಗೆ ₹5,000 (ಗರಿಷ್ಠ 2 ಹೆಕ್ಟೇರ್ / ₹10,000 ವರೆಗೆ) ನೇರ ಪ್ರೋತ್ಸಾಹಧನ.",
+        "description_en": "Soil enrichment incentive of Rs. 5,000 per hectare (up to 2 hectares / Rs. 10,000 max)."
+      },
+      "eligibility_rules": {
+        "max_acres": 5.0,
+        "requires_soil_health_card": true,
+        "qualifying_deficiencies": [
+          "Low Organic Carbon",
+          "Saline",
+          "Alkaline",
+          "Acidic",
+          "Zinc Deficient",
+          "Boron Deficient"
+        ]
+      },
+      "exclusions": [
+        {
+          "code": "EXCL_NO_SHC",
+          "name_en": "No Verified Soil Health Card",
+          "name_kn": "ಮಣ್ಣು ಪರೀಕ್ಷಾ ವರದಿ / ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಇಲ್ಲದಿರುವುದು",
+          "rule": "farmer.has_soil_health_card == False"
+        },
+        {
+          "code": "EXCL_NORMAL_SOIL",
+          "name_en": "Soil Parameters Within Normal Range (No Documented Deficiency)",
+          "name_kn": "ಮಣ್ಣಿನಲ್ಲಿ ಯಾವುದೇ ಪೋಷಕಾಂಶ ಕೊರತೆ ಅಥವಾ ಆಮ್ಲೀಯತೆ/ಕ್ಷಾರೀಯತೆ ಇಲ್ಲದಿರುವುದು",
+          "rule": "no matching deficiencies"
+        },
+        {
+          "code": "EXCL_LARGE_FARMER",
+          "name_en": "Land Holding Exceeds 5.0 Acres Limit for Small Farmer Incentive",
+          "name_kn": "ಭೂ ಹಿಡುವಳಿ 5.0 ಎಕರೆಗಿಂತ ಹೆಚ್ಚಿರುವುದು",
+          "rule": "farmer.land_acres > 5.0"
+        }
+      ],
+      "required_documents": [
+        {
+          "id": "doc_shc",
+          "name_kn": "ಅಧಿಕೃತ ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ (Soil Health Card)",
+          "name_en": "Official Soil Health Card (SHC)",
+          "mandatory": true,
+          "source_kn": "ಕೃಷಿ ಇಲಾಖೆಯ ಮಣ್ಣು ಪರೀಕ್ಷಾ ಕೇಂದ್ರ"
+        },
+        {
+          "id": "doc_rtc",
+          "name_kn": "ಪಹಣಿ / RTC",
+          "name_en": "Pahani / RTC",
+          "mandatory": true,
+          "source_kn": "ಭೂಮಿ"
+        },
+        {
+          "id": "doc_bank",
+          "name_kn": "ಬ್ಯಾಂಕ್ ಖಾತೆ ವಿವರ",
+          "name_en": "Bank Account Details",
+          "mandatory": true,
+          "source_kn": "ಬ್ಯಾಂಕ್"
+        }
+      ]
+    }
+  ]
+}

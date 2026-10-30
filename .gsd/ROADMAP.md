@@ -19,7 +19,7 @@
 ## Phases
 
 ### Phase 1: Reference Dataset & Deterministic Rule Engine (Stage 1 Core)
-**Status**: ⬜ Not Started  
+**Status**: ✅ Complete  
 **Objective**: Model the 5 target schemes (2 real, 3 synthetic) into structured JSON and build the pure Python deterministic rule engine with unit test coverage.  
 **Deliverables**:
 - `data/schemes_dataset.json`: Structured representation of PM-KISAN, PMFBY, Demo Drip Irrigation, Demo Equipment, and Demo Soil Improvement.
