@@ -1,150 +1,112 @@
-# Knowledge Base & Scheme Rules Catalog — Krishi Mitra
+# Reference Dataset & Scheme Rules Catalog — Krishi Mitra
 
-This document outlines the curated Karnataka State and Government of India agricultural schemes, their eligibility formulas, localized aliases, and required documentation.
-
----
-
-## 1. Scheme Definitions & Deterministic Logic
-
-### Scheme 1: Raitha Siri Yojana (ರೈತ ಸಿರಿ ಯೋಜನೆ)
-* **Issuing Authority:** Department of Agriculture, Government of Karnataka.
-* **Objective:** Encourage minor millet cultivation (Ragi, Navane, Same, Haraka, Korale, Baragu) in rainfed tracts.
-* **Financial Assistance:** Direct Benefit Transfer (DBT) of **₹10,000 per hectare** (maximum up to 2 hectares / ~5 acres).
-* **Deterministic Rules:**
-  - `Crop IN ["Ragi", "Foxtail Millet (Navane)", "Little Millet (Same)", "Kodo Millet (Haraka)", "Barnyard Millet", "Proso Millet"]`
-  - `IrrigationType == "Rainfed" OR "Dryland"`
-  - `LandSizeAcres > 0.0 AND LandSizeAcres <= 10.0`
-  - `State == "Karnataka"`
-* **Required Documents:**
-  1. Pahani / RTC (Record of Rights, Tenancy and Crops) showing millet crop entry.
-  2. Aadhaar Card linked to Mobile Number.
-  3. Aadhaar-seeded Bank Account (NPCI mapping).
-  4. FRUITS ID (Farmer Registration and Unified Beneficiary Information System).
+This document outlines the official 5 reference schemes mandated by the problem statement, their structured parameters, and their exact evaluation logic.
 
 ---
 
-### Scheme 2: Krishi Bhagya Yojana (ಕೃಷಿ ಭಾಗ್ಯ ಯೋಜನೆ)
-* **Issuing Authority:** Government of Karnataka.
-* **Objective:** Sustainable rainfed agriculture through in-situ rainwater conservation and farm ponds (*Krishi Honda*).
-* **Financial Assistance:** 80% to 90% subsidy for constructing polyhouse/shade net, farm ponds, and diesel/solar pump sets (General: 80%, SC/ST: 90%).
-* **Deterministic Rules:**
-  - `Region IN ["Dryland", "Rainfed Taluks of Karnataka"]`
-  - `LandSizeAcres >= 1.0`
-  - `NeedCategory IN ["Farm Pond", "Water Storage", "Borewell Alternative", "Sprinkler", "Drip"]`
-* **Required Documents:**
-  1. RTC / Pahani.
-  2. Caste Certificate (for 90% subsidy if SC/ST).
-  3. Bank Passbook.
-  4. Soil and water test certificate (optional, verified by RSK).
+## 1. Scheme Definitions
+
+### 1. PM-KISAN (Real Official Scheme)
+* **Type:** Real
+* **Issuing Authority:** Central Government of India
+* **Purpose:** Income support for landholding farmer families.
+* **Benefit:** ₹6,000 per annum paid in three 4-monthly installments of ₹2,000 directly into bank accounts via DBT.
+* **Eligibility Rules:**
+  - `is_landholder == True` (Owns cultivable land in their name)
+  - `land_size_acres > 0.0`
+* **Exclusions (Mandatory Check):**
+  - Institutional landholders.
+  - Farmer or family member holding or held constitutional posts.
+  - Former/present Ministers, MPs, MLAs, Mayors, Chairpersons of District Panchayats.
+  - Serving or retired officers/employees of Central/State Gov departments.
+  - All persons who paid Income Tax in the last assessment year.
+  - Professionals (Doctors, Engineers, Lawyers, CA) registered with professional councils.
+* **Mandatory Documents:**
+  1. Pahani / RTC (Land Ownership Record)
+  2. Aadhaar Card
+  3. Aadhaar-seeded Bank Account (NPCI active)
 
 ---
 
-### Scheme 3: Pradhan Mantri Kisan Samman Nidhi (PM-KISAN) + Karnataka CM Kisan
-* **Issuing Authority:** Central Government + Govt of Karnataka top-up.
-* **Objective:** Income support to all landholding farmers' families.
-* **Financial Assistance:** **₹6,000/year** (Central) + **₹4,000/year** (Karnataka State DBT top-up) = Total **₹10,000/year** in quarterly tranches.
-* **Deterministic Rules:**
-  - `OwnershipStatus == "Owner"` (Cultivable land in applicant's name).
-  - `IsInstitutionalLandholder == False`
-  - `IsIncomeTaxPayee == False`
-  - `IsGovernmentEmployee == False`
-* **Required Documents:**
-  1. Aadhaar Card (mandatory e-KYC).
-  2. RTC / Land Registry Mutation extract.
-  3. Active Bank Account seeded with NPCI.
+### 2. PMFBY (Pradhan Mantri Fasal Bima Yojana — Real Official Scheme)
+* **Type:** Real
+* **Issuing Authority:** Ministry of Agriculture & Farmers Welfare / Karnataka Samrakshane
+* **Purpose:** Financial support and comprehensive crop risk insurance against non-preventable natural disasters.
+* **Benefit:** Claim payout based on calculated yield shortfall or localized damage.
+* **Eligibility Rules:**
+  - `crop IN ["Ragi", "Pigeon Pea (Togari)", "Jowar", "Paddy", "Cotton", "Groundnut", "Sugarcane", "Maize"]`
+  - `season IN ["Kharif", "Rabi", "Summer"]`
+  - `is_notified_area == True` (Karnataka notified taluks/hoblis)
+  - `risk_type IN ["Drought", "Excess Rainfall", "Pest Attack", "Flood", "Hailstorm"]`
+* **Mandatory Documents:**
+  1. Pahani / RTC
+  2. Sowing Certificate (issued by Village Accountant / self-declaration)
+  3. Bank Passbook
 
 ---
 
-### Scheme 4: Pradhan Mantri Fasal Bima Yojana (PMFBY) / Karnataka Samrakshane
-* **Issuing Authority:** Ministry of Agriculture & Farmers Welfare + Karnataka Agriculture Dept.
-* **Objective:** Comprehensive crop insurance against non-preventable natural risks (drought, flood, pest, unseasonal rain).
-* **Farmer Premium Share:**
-  - Kharif Crops: 2.0% of Sum Insured.
-  - Rabi Crops: 1.5% of Sum Insured.
-  - Annual Commercial / Horticultural Crops: 5.0%.
-* **Deterministic Rules:**
-  - `SownSeason IN ["Kharif", "Rabi", "Summer"]`
-  - `NotifiedCrop IN ["Paddy", "Sugarcane", "Red Gram (Togari)", "Groundnut", "Cotton", "Maize", "Ragi", "Soybean"]`
-  - `RiskCategory IN ["Drought", "Excess Rainfall", "Pest Attack", "Hailstorm"]`
-* **Required Documents:**
-  1. Land Possession Certificate / RTC.
-  2. Sowing Certificate issued by Village Accountant / Self-declaration.
-  3. Bank Passbook.
+### 3. Demo Micro-Irrigation Support (Fictional / Synthetic Test Case)
+* **Type:** Synthetic Demo
+* **Purpose:** Synthetic test case for drip & sprinkler irrigation subsidy decision rules.
+* **Benefit:**
+  - Small/Marginal Farmers ($\le$ 5.0 acres): **90% subsidy**
+  - Other Farmers (> 5.0 acres and $\le$ 12.5 acres): **70% subsidy**
+* **Eligibility Rules:**
+  - `land_size_acres >= 0.5 AND land_size_acres <= 12.5`
+  - `has_water_source == True` (Borewell, Open Well, or Canal connection available)
+  - `availed_drip_subsidy_last_3_years == False`
+* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
+* **Mandatory Documents:**
+  1. Pahani / RTC
+  2. Borewell / Water Source certificate
+  3. Small/Marginal Farmer Certificate (if claiming 90%)
 
 ---
 
-### Scheme 5: Surya Raitha / PM-KUSUM Component B
-* **Issuing Authority:** KREDL (Karnataka Renewable Energy Development Ltd) & MNRE.
-* **Objective:** Installation of stand-alone Solar Powered Agriculture Pumps.
-* **Subsidy:** Up to 60% capital subsidy (30% Central + 30% State).
-* **Deterministic Rules:**
-  - `NeedCategory IN ["Solar Pump", "Electricity Issue", "Borewell Pump", "Irrigation Power"]`
-  - `HasElectricGridConnection == False OR SeekingReplacement`
-  - `WaterSourceAvailable == True` (Open well or Borewell).
-* **Required Documents:**
-  1. RTC / Pahani.
-  2. Borewell yield certificate / Water source certificate.
-  3. Aadhaar and Bank Details.
+### 4. Demo Agricultural Equipment Assistance (Fictional / Synthetic Test Case)
+* **Type:** Synthetic Demo
+* **Purpose:** Synthetic test case for farm mechanization equipment subsidy decision rules.
+* **Benefit:** **50% subsidy** up to a maximum cap of **₹1,00,000** for approved agricultural implements.
+* **Eligibility Rules:**
+  - `land_size_acres >= 1.0`
+  - `requested_equipment IN ["Power Tiller", "Rotavator", "Sprayer", "Weeder", "Small Tractor"]`
+  - `dealer_is_authorized == True`
+* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
+* **Mandatory Documents:**
+  1. Pahani / RTC
+  2. Aadhaar Card
+  3. Quotation from authorized equipment dealer
 
 ---
 
-### Scheme 6: Kisan Credit Card (KCC) & Interest Subvention Scheme
-* **Issuing Authority:** NABARD & Scheduled Commercial / Grameena Banks.
-* **Objective:** Short-term credit for crop cultivation at 4% effective interest (3% prompt repayment incentive).
-* **Deterministic Rules:**
-  - `NeedCategory IN ["Crop Loan", "Short Term Loan", "Seed/Fertilizer Purchase"]`
-  - `ApplicantAge >= 18 AND ApplicantAge <= 75`
-* **Required Documents:**
-  1. Land Title Records (RTC / Mutation).
-  2. Aadhaar & PAN / Voter ID.
-  3. No Due Certificate (NDC) from local cooperative.
+### 5. Demo Soil Improvement Support (Fictional / Synthetic Test Case)
+* **Type:** Synthetic Demo
+* **Purpose:** Synthetic test case for soil health and organic enrichment incentives.
+* **Benefit:** Incentive of **₹5,000 per hectare** (max 2 hectares / 5 acres) for applying green manure, gypsum, and bio-fertilizers.
+* **Eligibility Rules:**
+  - `has_soil_health_card == True`
+  - `soil_deficiency IN ["Low Organic Carbon", "Saline", "Alkaline", "Acidic", "Micronutrient Deficient"]`
+  - `land_size_acres <= 5.0`
+* **Disclaimer:** *Demonstration test scheme for hackathon rule validation.*
+* **Mandatory Documents:**
+  1. Official Soil Health Card (SHC)
+  2. Pahani / RTC
+  3. Bank Account details
 
 ---
 
-## 2. Agricultural Colloquial Lexicon & Mapping Dictionary
+## 2. Dialectal & Colloquial Extraction Mapping
 
-For natural voice understanding, the system maps localized terms into formal ontology:
-
-| Spoken Rural Kannada (Kannada / Transliteration) | English Equivalent | Canonical Ontology Key |
+| Spoken Rural Phrase | Canonical Standard Key | Mapped Value |
 | :--- | :--- | :--- |
-| **ತೊಗರಿ (Togari)** / *Thogari* | Red Gram / Pigeon Pea / Arhar | `crops: ["Pigeon Pea"]` |
-| **ಕಬ್ಬು (Kabbu)** | Sugarcane | `crops: ["Sugarcane"]` |
-| **ರಾಗಿ (Ragi)** | Finger Millet | `crops: ["Ragi"]` |
-| **ಜೋಳ (Jola / Bili Jola)** | Sorghum / Jowar | `crops: ["Jowar"]` |
-| **ಹತ್ತಿ (Hatti)** | Cotton | `crops: ["Cotton"]` |
-| **ಶೇಂಗಾ (Shenga) / ಕಡಲೆಕಾಯಿ** | Groundnut / Peanut | `crops: ["Groundnut"]` |
-| **ಕುಷ್ಕಿ (Kushki) / ಒಣಭೂಮಿ** | Rainfed / Dryland | `irrigation: "Rainfed"` |
-| **ತರಿ (Tari) / ನೀರಾವರಿ** | Wetland / Irrigated land | `irrigation: "Canal/Borewell"` |
-| **ಗುಂಟೆ (Gunta)** | 1/40th of an Acre | `land_unit: 0.025 acre` |
-| **ಪಹಣಿ / ಆರ್.ಟಿ.ಸಿ (Pahani / RTC)** | Land ownership document | `doc_req: "RTC"` |
-| **ಬೆಳೆ ಹಾನಿ (Bele Haani)** | Crop Loss / Damage | `intent: "crop_insurance"` |
-| **ಕರೆಂಟು ಬರ್ತಿಲ್ಲ (Current bartilla)** | No power for pump set | `intent: "solar_pump"` |
-| **ಸಾಲ ಮನ್ನಾ / ಸಾಲ ಬೇಕು** | Loan waiver / Farm loan | `intent: "kcc_credit"` |
-| **ಸಣ್ಣ ರೈತ (Sanna Raita)** | Small / Marginal Farmer (< 5 acres) | `category: "Small/Marginal"` |
-
----
-
-## 3. Sample Auditable Decision Tree Example
-
-```python
-# Evaluator Logic Snippet for Raitha Siri
-def evaluate_raitha_siri(farmer):
-    audit = []
-    is_millet = any(c in MILLET_LIST for c in farmer.crops)
-    is_dryland = farmer.irrigation == "Rainfed"
-    has_valid_size = 0 < farmer.land_acres <= 10.0
-
-    if not is_millet:
-        return Ineligible(reason="Raitha Siri is exclusively for minor millets (Ragi, Navane, Same).")
-    
-    if not is_dryland:
-        audit.append("Warning: Land must be categorized as rainfed/dryland in RTC.")
-    
-    if has_valid_size:
-        benefit_amount = min(farmer.land_acres * 4000, 10000) # In rupees
-        return Eligible(
-            scheme="Raitha Siri Yojana",
-            benefit=f"₹{benefit_amount:,.0f} Direct Benefit Transfer",
-            audit=f"Matches millet crop ({farmer.crops[0]}) on {farmer.land_acres} acres rainfed land."
-        )
-```
+| **ತೊಗರಿ (Togari)** | `crop` | Pigeon Pea (Red Gram) |
+| **ಕಬ್ಬು (Kabbu)** | `crop` | Sugarcane |
+| **ರಾಗಿ (Ragi)** | `crop` | Ragi (Finger Millet) |
+| **ಜೋಳ (Jola)** | `crop` | Sorghum (Jowar) |
+| **ಕುಷ್ಕಿ (Kushki) / ಒಣಭೂಮಿ** | `irrigation_type` | Rainfed / Dryland |
+| **ತರಿ (Tari) / ನೀರಾವರಿ** | `irrigation_type` | Irrigated |
+| **ಗುಂಟೆ (Gunta)** | `land_size` | Converts to `0.025 * guntas` acres |
+| **ಹನಿ ನೀರಾವರಿ / ಡ್ರಿಪ್ (Drip)** | `assistance_intent` | Micro-Irrigation |
+| **ಟಿಲ್ಲರ್ / ರೋಟವೇಟರ್** | `assistance_intent` | Agricultural Equipment |
+| **ಮಣ್ಣು ಪರೀಕ್ಷೆ (Mannu Pareekshe)** | `assistance_intent` | Soil Improvement |
+| **ಬೆಳೆ ಹಾನಿ / ಒಣಗಿ ಹೋತು** | `assistance_intent` | Crop Insurance (PMFBY) |

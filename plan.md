@@ -1,110 +1,75 @@
-# Step-by-Step Implementation & Hackathon Execution Plan — Krishi Mitra
+# Step-by-Step Implementation Plan — Krishi Mitra
 
-This roadmap is tailored for a fast-paced 24-36 hour national hackathon. It guides the team from zero to a winning, polished live demo.
+This plan implements your evolutionary strategy:
+**Stage 1: Text-to-Text Prototype** $\rightarrow$ **Stage 2: Voice Output Prototype** $\rightarrow$ **Stage 3: Full Voice AI Application**.
 
 ---
 
-## 1. Hackathon Phases & Milestones
+## 1. 3-Stage Development Workflow
 
 ```mermaid
-gantt
-    title Hackathon 24-Hour Execution Timeline
-    dateFormat HH:mm
-    axisFormat %H:%M
+flowchart LR
+    subgraph S1 ["Stage 1: Text-to-Text Prototype"]
+        D1["Model Reference Dataset (5 Schemes)"] --> R1["Python Deterministic Rule Engine"]
+        R1 --> N1["Kannada NLU & Slot Filling (Gemini Flash Free)"]
+        N1 --> CLI["Interactive Terminal Text CLI"]
+    end
 
-    section Phase 1: Setup & Foundations
-    Repo Setup, API Keys & Tech Validation :00:00, 02:00
-    Rule Engine & Scheme Catalog JSON :01:00, 03:00
+    subgraph S2 ["Stage 2: Voice Output Prototype"]
+        CLI --> T1["Kannada TTS Service (Edge-TTS / Sarvam Free)"]
+        T1 --> T2["Brevity Audio Prompt Synthesizer (<25 words)"]
+        T2 --> SCRIPT_AUDIO["Audio Playback Test Harness"]
+    end
 
-    section Phase 2: Core Pipelines
-    Kannada Voice Pipeline (ASR + TTS Integration) :03:00, 07:00
-    LLM Slot-Filling & State Manager :05:00, 09:00
-    Rule Engine & Auditable Logic Integration :08:00, 11:00
-
-    section Phase 3: Frontend & Bimodal UI
-    Voice UI (Waveforms, High-Contrast Mic, Kannada Display) :09:00, 14:00
-    Scheme Cards, Audit Reasons & Document Checklists :12:00, 16:00
-
-    section Phase 4: Integration & Optimization
-    Full End-to-End Latency Tuning (<2s loop) :16:00, 19:00
-    Dialect Testing (North Karnataka & Mysore Belts) :18:00, 21:00
-
-    section Phase 5: Pitch Polish & Demo Prep
-    Rehearsal with Simulated Farm Scenarios :21:00, 23:00
-    Pitch Deck, Video Demo Backup & Architecture Slides :22:00, 24:00
+    subgraph S3 ["Stage 3: Full AI Application"]
+        SCRIPT_AUDIO --> A1["Kannada Speech ASR (Groq Whisper / Sarvam)"]
+        A1 --> UI["Bimodal Web Interface (React + Waveform + Cards)"]
+        UI --> LIVE_DEMO["Sub-2-Second End-to-End Voice AI"]
+    end
 ```
 
 ---
 
-## 2. Phase-by-Phase Detailed Tasks
+## 2. Detailed Task Breakdown
 
-### Phase 1: Environment & Knowledge Engineering (Hours 0 - 3)
-- [ ] Initialize Git repository with frontend (`/frontend`) and backend (`/backend`).
-- [ ] Acquire API credentials:
-  - **Sarvam AI API Key** (for Indic Kannada ASR & Bulbul TTS).
-  - **Google Gemini API Key / OpenAI API Key** (for fast JSON slot extraction).
-  - Optional fallback: **Groq API Key** (Whisper-large-v3).
-- [ ] Build `schemes_db.json` containing the 6 major Karnataka schemes (Raitha Siri, Krishi Bhagya, PM-KISAN, PMFBY, Surya Raitha, KCC).
-- [ ] Build pure Python `eligibility_engine.py` with deterministic evaluation rules and unit tests.
-
-### Phase 2: Core Backend Engine & Voice Pipeline (Hours 3 - 9)
-- [ ] Create FastAPI backend with endpoints:
-  - `POST /api/voice/process`: Ingests audio $\rightarrow$ transcribes via ASR $\rightarrow$ extracts slots $\rightarrow$ runs rule engine $\rightarrow$ synthesizes Kannada TTS $\rightarrow$ returns JSON + Audio URL.
-  - `POST /api/profile/update`: Handles direct slot edits if the farmer clicks to correct a value.
-- [ ] Implement Conversational Memory: Maintains the ongoing conversation context across 3-4 turns to resolve references like *"ಹೌದು, ಎರಡು ಎಕರೆ"* ("Yes, two acres").
-- [ ] Formulate few-shot prompt for regional dialect normalization (handling North Karnataka *-aitri*, Mysore *-kanri*, units like *gunta*).
-
-### Phase 3: Bimodal UI & Audio Streaming Frontend (Hours 9 - 15)
-- [ ] Create single-page responsive Web App (Vite + React / HTML5).
-- [ ] **Voice Interaction Hub:**
-  - Giant glowing microphone button with state indications: `Idle` (Green), `Listening` (Orange pulsating waveform), `Thinking` (Blue spinner), `Speaking` (Sound waves).
-  - Web Audio API / MediaRecorder recording compressed audio directly.
-- [ ] **Real-time Visual Feedback:**
-  - Kannada transcript banner showing what the system heard.
-  - Interactive "Farmer Profile Pill Badges" (e.g., `Mandya`, `2.5 Acres`, `Ragi`, `Rainfed`) which dynamically light up as the farmer speaks.
-- [ ] **Scheme Cards & Audit Visuals:**
-  - Large color-coded scheme eligibility cards.
-  - "Auditable Reasons" collapsible drawer showing exact policy criteria satisfied.
-  - Document checklist with visual badges (RTC/Pahani, Aadhaar, Bank Passbook).
-
-### Phase 4: Hardening & Dialect Testing (Hours 15 - 20)
-- [ ] Test the pipeline against 5 realistic rural voice test cases:
-  1. *North Karnataka dryland farmer asking for crop loss compensation.*
-  2. *Mandya sugarcane/ragi farmer asking about borewell power issues.*
-  3. *Small woman farmer asking about PM-Kisan installment delays.*
-  4. *Farmer who speaks in fragments over 3 conversational turns.*
-  5. *Code-mixed speech ("Borewell fail aagide, drip irrigation ge subsidy ideya?").*
-- [ ] Tune audio chunking and latency to maintain < 1.8 seconds roundtrip.
-
-### Phase 5: Pitch Deck, Demo Backup & Presentation (Hours 20 - 24)
-- [ ] Record a 60-second seamless offline backup video of the live Kannada conversation (safeguard against venue Wi-Fi / mic issues).
-- [ ] Prepare slide deck highlighting:
-  1. The Real Problem (why traditional portals fail Indian farmers).
-  2. Voice-First vs. Generic Chatbot innovation.
-  3. Zero-Hallucination Architecture (Deterministic Rule Engine).
-  4. Regional dialect accommodation.
-  5. Future Scope (WhatsApp voice note integration, Grama One kiosk deployment).
+### Stage 1: Text-to-Text Conversational Prototype
+- [ ] **Step 1.1: Dataset Structure (`data/schemes_dataset.json`)**
+  - Model official PM-KISAN rules and exclusions.
+  - Model PMFBY crop, season, and notified area rules.
+  - Model Demo Micro-Irrigation Support rules (70-90% subsidy, water source check).
+  - Model Demo Agricultural Equipment Assistance rules (farm equipment subsidy caps).
+  - Model Demo Soil Improvement Support rules (Soil Health Card deficiencies).
+- [ ] **Step 1.2: Deterministic Rule Engine (`backend/rules_engine.py`)**
+  - Implement rule evaluator that takes farmer profile JSON and returns eligibility, audit explanations, and document checklist.
+  - Write test harness `backend/test_rules.py` covering positive, negative, and exclusion cases.
+- [ ] **Step 1.3: Kannada Slot Extractor (`backend/nlu_extractor.py`)**
+  - Build prompt template with few-shot examples for North Karnataka and Mysore dialects.
+  - Integrate free-tier Gemini 2.5 Flash / local LLM to output structured JSON profile.
+- [ ] **Step 1.4: Text CLI Prototype (`cli_chat.py`)**
+  - Build interactive terminal chat loop allowing manual testing of multi-turn Kannada dialogue and follow-up slot filling.
 
 ---
 
-## 3. Team Member Division of Labor (Recommended for 3-4 Person Team)
-
-| Team Member | Primary Responsibility | Key Deliverables |
-| :--- | :--- | :--- |
-| **Member 1 (Voice & AI Engineer)** | ASR & TTS Pipeline, Dialect Prompts | Sarvam AI integration, latency optimization, conversational slot-filling prompt. |
-| **Member 2 (Backend & Logic)** | FastAPI Backend & Rule Engine | `eligibility_engine.py`, scheme catalog, audit trail generator, session state. |
-| **Member 3 (Frontend & UX)** | Web Application UI & Audio Visualizer | High-contrast mobile-friendly UI, mic recorder, animated waveforms, scheme cards. |
-| **Member 4 (Domain & Pitch)** | Scheme Knowledge Base, Scripts, Demo Prep | Rural dialogue test cases, slide deck, Kannada voice acting for live demo, backup video. |
+### Stage 2: Voice Output Prototype (Spoken Kannada Audio Out)
+- [ ] **Step 2.1: Free Kannada Neural TTS (`backend/tts_service.py`)**
+  - Integrate **Edge-TTS** (`kn-IN-GaganNeural` / `kn-IN-SapnaNeural`) — zero cost, zero API keys required.
+  - Add optional Sarvam AI Bulbul integration for expressive rural inflection.
+- [ ] **Step 2.2: Audio Dialogue Formatter**
+  - Enforce audio brevity: spoken responses strictly under 25 words summarizing top matching benefit.
+- [ ] **Step 2.3: Voice Output Verification Script (`test_voice_output.py`)**
+  - Feed text queries, verify rule engine, and play back generated Kannada audio file through local speakers.
 
 ---
 
-## 4. How to Win the Judges Over (Evaluation Criteria Playbook)
-
-1. **Highlight the "NOTE" in the Problem Statement:**
-   - In your first 30 seconds of presentation, point out: *"The problem statement warned against merely putting a microphone on a text chatbot. Here is how our architecture is voice-native from the ground up..."*
-2. **Demonstrate Dialect Understanding Live:**
-   - Have a team member speak natural North Karnataka or Mysore dialect with agricultural jargon (*Gunta*, *Pahani*, *Kushki*). Watching the system extract "Rainfed land" from "ಕುಷ್ಕಿ ಜಮೀನು" will stun the judges.
-3. **Showcase the Auditable Proof:**
-   - Show that the assistant does not guess. Click the "Audit Rule" dropdown on the scheme card to reveal the exact government criteria verified.
-4. **Demonstrate Multi-Turn Follow-Up:**
-   - Show the assistant remembering the farmer's crop and land size when answering follow-up questions like *"ಇದಕ್ಕೆ ಯಾವ ದಾಖಲೆಗಳು ಬೇಕು?"* (*What documents are needed for this?*).
+### Stage 3: Full Voice AI Application
+- [ ] **Step 3.1: Kannada ASR Streaming Pipeline (`backend/asr_service.py`)**
+  - Integrate Sarvam Saaras ASR / Groq Whisper Large v3 (free tier) with Kannada agricultural prompt conditioning.
+- [ ] **Step 3.2: FastAPI Unified Backend Server (`backend/server.py`)**
+  - WebSocket / REST endpoints serving transcription, slot filling, rule evaluation, and audio streams.
+- [ ] **Step 3.3: Bimodal Frontend Application (`frontend/`)**
+  - Pulsing microphone with Web Audio visualizer.
+  - Live Kannada transcription banner.
+  - High-contrast visual scheme cards with `[Real]` vs `[Demo]` badges, green eligibility checkmarks, and document checklists.
+- [ ] **Step 3.4: Latency & Dialect Polish**
+  - Benchmark and guarantee sub-2-second voice-to-voice turn latency.
+  - Prepare rehearsal scenarios and fallback offline recording.

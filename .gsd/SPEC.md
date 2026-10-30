@@ -1,49 +1,52 @@
 # SPEC.md — Project Specification: Krishi Mitra (ಕೃಷಿ ಮಿತ್ರ)
 
 > **Status**: `FINALIZED`
-> **Version**: v1.0
-> **Target Event**: National Level Hackathon
+> **Version**: v1.1
+> **Prototyping Strategy**: Phased 3-Stage Delivery (Text-to-Text $\rightarrow$ Voice-Out $\rightarrow$ Full Voice AI)
 
 ---
 
 ## Vision
-To bridge the digital and linguistic divide for Indian farmers by creating **Krishi Mitra**, a hyper-localized, voice-first AI assistant in **Kannada**. Rather than acting as a standard text chatbot with a microphone overlay, Krishi Mitra functions as an empathetic, proactive digital Grama Sevak. It conducts natural two-way spoken dialogues, understands regional dialects (North Karnataka & Mysore belts) and agricultural colloquialisms, extracts farm profiles organically through conversation, and executes transparent, auditable eligibility evaluations against Karnataka State and Central Government agricultural schemes with zero hallucination.
+To bridge the digital and linguistic divide for Indian farmers by creating **Krishi Mitra**, a hyper-localized, voice-first AI assistant in **Kannada**. Rather than jumping straight into an uncalibrated complex voice app, Krishi Mitra follows an evolutionary 3-stage architecture:
+1. **Stage 1 (Text-to-Text Prototype):** Validates dialect NLU, entity slot filling, and deterministic rule evaluation across the hackathon reference dataset.
+2. **Stage 2 (Voice-Output Prototype):** Adds high-cadence spoken Kannada synthesis (TTS) to test natural acoustic rhythm and brevity.
+3. **Stage 3 (Full Voice AI Application):** Integrates live Kannada speech recognition (ASR) and a high-contrast bimodal web interface for the final hackathon demo.
+
+---
+
+## Reference Dataset Scope
+The system explicitly models and evaluates the 5 benchmark schemes mandated by the problem statement:
+1. **PM-KISAN (Real):** Direct income assistance for landholding farmer families; strict official exclusions (taxpayers, constitutional posts) and enrollment criteria.
+2. **PMFBY (Real):** Crop insurance covering notified crops (Ragi, Togari, Jola, Paddy) across seasons (Kharif/Rabi) against weather calamities.
+3. **Demo Micro-Irrigation Support (Fictional Synthetic):** Drip & sprinkler subsidy decision logic (70-90% subsidy for small/marginal farmers with water sources).
+4. **Demo Agricultural Equipment Assistance (Fictional Synthetic):** Equipment mechanization subsidy (power tiller, rotavator, tractor).
+5. **Demo Soil Improvement Support (Fictional Synthetic):** Soil fertility enhancement based on Soil Health Card deficiencies.
+
+*Note on Synthetic Schemes: The prototype explicitly marks fictional schemes with a clear demonstration badge to maintain algorithmic transparency.*
 
 ---
 
 ## Goals
-1. **True Voice-Native Kannada Interaction:** Deliver a low-latency (<2.0s roundtrip) conversational voice loop featuring interruptible playback, natural rural phrasing, and turn-taking without awkward dead air.
-2. **Dialect & Agricultural Jargon Normalization:** Accurately parse rural dialects (e.g., North Karnataka *-aitri*, Mysore *-kanri*), local crop terms (*Togari, Kabbu, Ragi, Jola*), and traditional land units (*Guntas* into Acres).
-3. **Deterministic & Auditable Eligibility Engine:** Decouple conversational AI from decision logic to ensure 100% zero-hallucination scheme matching (Raitha Siri, Krishi Bhagya, PM-KISAN, PMFBY, Surya Raitha, KCC) with verifiable gazette criteria and document checklists.
-4. **Bimodal High-Contrast Accessibility UI:** Pair the spoken voice conversation with dynamic visual scheme cards, audio waveforms, live Kannada transcripts, and document checklists designed for rural accessibility.
+1. **100% Deterministic & Auditable Scheme Evaluation:** Zero-hallucination rule engine for the 5 reference schemes.
+2. **Rural Kannada Dialect & Agri Jargon Handling:** Accurately parse North Karnataka (*-aitri*) and Mysore (*-kanri*) dialects, crop colloquia (*Togari, Kabbu, Jola*), and land units (*Gunta* to Acre).
+3. **Progressive Prototyping:**
+   - Text CLI / Playground for rapid logic verification.
+   - Spoken Kannada audio generation (<25 words per turn).
+   - Low-latency (<2.0s) full voice-in, voice-out web application.
+4. **Free & Open-Source Tooling:** Leverage free tier and open tools (Gemini 2.5 Flash free tier, Edge-TTS, Groq Whisper) ensuring zero cost and infinite repeatability.
 
 ---
 
-## Non-Goals (Out of Scope for v1.0)
-- Building direct API submission into official government databases (e.g., Seva Sindhu / Samrakshane automated filing) due to lack of public transactional APIs; will provide direct guidance and kiosk checklists instead.
-- Multi-state language expansion (e.g., Marathi, Telugu) beyond Kannada and code-mixed Kannada-English for the initial hackathon delivery.
-- Complex satellite remote sensing / computer vision pest diagnostics; focus remains strictly on conversational scheme eligibility and farmer guidance.
-
----
-
-## Users
-1. **Marginal/Small Landholding Farmers in Karnataka:** Individuals with 1–5 acres of dryland or wetland who speak regional Kannada, have limited digital literacy, and are intimidated by complex formal portals.
-2. **Village Kiosk Operators & Grama One Facilitators:** Intermediaries seeking a rapid voice discovery tool to consult and advise visiting farmers on qualifying benefits.
-3. **Hackathon Evaluation Jury:** Technical and domain judges assessing voice latency, conversational naturalness, dialect handling, and deterministic verification.
-
----
-
-## Constraints
-- **Latency Budget:** Total voice-to-voice turn latency must remain under 2.0 seconds to preserve conversational flow.
-- **Audio Reliability:** Must function on varying network bandwidths using compressed audio transmission (WebM / Opus).
-- **Zero Hallucination Tolerance:** Financial scheme benefits, eligibility conditions, and required documents must be 100% auditable and rule-backed.
-- **Hackathon Timeline:** Working prototype must be complete, testable, and demonstrable within 24 to 36 hours.
+## Non-Goals (Out of Scope for Hackathon)
+- Direct transactional write-backs to live government databases.
+- Multi-state language expansion beyond Kannada / code-mixed Kannada-English.
+- Computer vision pest diagnostics.
 
 ---
 
 ## Success Criteria
-- [ ] End-to-end voice loop (Farmer Kannada Speech -> ASR -> Extraction -> Rule Match -> Spoken Response) executes within 2.0 seconds.
-- [ ] Correctly parses and normalizes at least 3 distinct dialectal phrases and crop colloquialisms (e.g., *"ತೊಗರಿ"*, *"ಕುಷ್ಕಿ"*, *"ಗುಂಟೆ"*).
-- [ ] Correctly identifies eligibility and lists required documents for all 6 target schemes without generative hallucinations.
-- [ ] Live demo seamlessly conducts a multi-turn conversation resolving missing information (e.g., asking for land size if omitted).
-- [ ] High-contrast, responsive visual interface renders scheme eligibility cards and audit trails synchronously with speech playback.
+- [ ] Automated test suite verifies 100% accuracy on all 5 reference schemes, including negative exclusion cases.
+- [ ] Text-to-Text prototype correctly fills missing slots over multi-turn conversation.
+- [ ] Spoken Kannada audio is synthesized with natural rural cadence using free neural TTS.
+- [ ] Final voice-to-voice end-to-end loop executes within 2.0 seconds.
+- [ ] High-contrast visual interface renders scheme cards, audit reasons, and document checklists.

@@ -1,61 +1,58 @@
 # ROADMAP.md — Krishi Mitra
 
-> **Current Phase**: Phase 1 (Not Started)
-> **Milestone**: v1.0 (Hackathon Working Demo)
+> **Milestone Strategy**: 3-Stage Evolutionary Prototyping  
+> **Stage 1**: Text-to-Text Prototype (NLU + Rule Engine)  
+> **Stage 2**: Voice Output Prototype (Text In $\rightarrow$ Kannada Audio Out)  
+> **Stage 3**: Full Voice AI Application (Kannada Voice In $\rightarrow$ Dialect NLU $\rightarrow$ Rule Engine $\rightarrow$ Kannada Voice + Visual Cards Out)
 
 ---
 
-## Must-Haves (from SPEC.md)
-- [ ] Sub-2-second voice-to-voice turn taking in Kannada.
-- [ ] Regional dialect and colloquial crop/unit mapping.
-- [ ] Multi-turn slot filling for incomplete profile inputs.
-- [ ] Auditable, zero-hallucination deterministic rule engine for 6 key schemes.
-- [ ] High-contrast, responsive voice UI with live visual scheme cards and document checklists.
+## Must-Haves
+- [ ] Strict schema modeling of official reference dataset (PM-KISAN, PMFBY, Demo Micro-Irrigation, Demo Agri Equipment, Demo Soil Improvement).
+- [ ] 100% deterministic rule verification without generative hallucination.
+- [ ] Natural conversational slot extraction in rural Kannada dialects.
+- [ ] Free/open-source tools integration (Gemini Flash free tier, Edge-TTS/Sarvam, Groq Whisper).
+- [ ] End-to-end low latency voice interaction loop (< 2.0s).
 
 ---
 
 ## Phases
 
-### Phase 1: Knowledge Catalog & Deterministic Rule Engine
+### Phase 1: Reference Dataset & Deterministic Rule Engine (Stage 1 Core)
 **Status**: ⬜ Not Started  
-**Objective**: Build and unit-test the Python deterministic scheme evaluator and agricultural ontology knowledge base without any LLM dependencies.  
-**Requirements**: REQ-04, REQ-07  
+**Objective**: Model the 5 target schemes (2 real, 3 synthetic) into structured JSON and build the pure Python deterministic rule engine with unit test coverage.  
 **Deliverables**:
-- `backend/schemes_db.json`: Curated definitions for 6 state/central schemes with exact eligibility equations.
-- `backend/rules_engine.py`: Pure Python rule matcher returning eligibility status, audit reasons, and required documents.
-- `backend/test_rules.py`: Automated tests covering dryland, wetland, tenant, and varied acreage scenarios.
+- `data/schemes_dataset.json`: Structured representation of PM-KISAN, PMFBY, Demo Drip Irrigation, Demo Equipment, and Demo Soil Improvement.
+- `backend/rules_engine.py`: Pure Python rule evaluator checking eligibility, exclusions, benefit calculation, and required documents.
+- `backend/test_rules.py`: Automated test cases validating all 5 schemes including exclusion edge cases.
 
 ---
 
-### Phase 2: Kannada Voice Pipeline & LLM Slot Extraction
+### Phase 2: Text-to-Text Conversational Prototype (Stage 1 Completion)
 **Status**: ⬜ Not Started  
-**Objective**: Establish low-latency Kannada ASR, dialect-aware NLU slot extraction, multi-turn state management, and natural TTS generation.  
-**Requirements**: REQ-01, REQ-02, REQ-03, REQ-05  
+**Objective**: Build the text-to-text dialogue loop in Kannada. Parse farmer inputs into structured agricultural profiles, ask follow-up questions for missing slots, and output audited scheme results in text.  
 **Deliverables**:
-- Fast Kannada ASR integration (Sarvam AI / Groq Whisper fallback).
-- Gemini 2.5 Flash / GPT-4o-mini entity extractor with few-shot dialect normalization.
-- Session-based conversation memory tracking farmer profile across multiple turns.
-- Kannada TTS synthesizer producing concise spoken summaries.
+- `backend/nlu_extractor.py`: Gemini Flash / local LLM entity extraction handling Kannada crop names and dialect terms (*Togari*, *Kushki*, *Gunta*).
+- `backend/conversation_state.py`: Session context memory to handle multi-turn conversations.
+- `cli_chat_prototype.py`: Interactive CLI to test multi-turn text conversations without audio overhead.
 
 ---
 
-### Phase 3: Bimodal Accessible Frontend & Voice Visualizer
+### Phase 3: Voice Output Prototype (Stage 2)
 **Status**: ⬜ Not Started  
-**Objective**: Build a high-contrast, mobile-friendly web interface with real-time audio interaction, animated visualizer, live transcript, and scheme cards.  
-**Requirements**: REQ-06, REQ-07  
+**Objective**: Enable spoken Kannada voice output for the text assistant using free, high-cadence neural TTS.  
 **Deliverables**:
-- Responsive Web UI with prominent, thumb-friendly microphone and dynamic waveform states.
-- Live Kannada transcription banner with transliteration.
-- Interactive Scheme Eligibility Cards with color-coded badges, audit dropdowns, and document checklists.
-- Audio playback coordinator supporting interruptible audio playback.
+- `backend/tts_service.py`: Free Kannada TTS engine using Edge-TTS (`kn-IN-GaganNeural`/`kn-IN-SapnaNeural`) or Sarvam AI Bulbul.
+- Audio response synthesizer formatting concise rural Kannada spoken responses (<25 words) alongside full text output.
+- `test_voice_output.py`: Automated testing script generating playable audio files.
 
 ---
 
-### Phase 4: Integration, Latency Hardening & Demo Scenarios
+### Phase 4: Full Voice AI Application & Bimodal UI (Stage 3)
 **Status**: ⬜ Not Started  
-**Objective**: Wire frontend and backend together, benchmark and optimize end-to-end latency (<2.0s), and rehearse live rural persona test cases.  
-**Requirements**: REQ-01 through REQ-07  
+**Objective**: Integrate Kannada Speech Recognition (ASR), build the bimodal web interface with audio visualizer, live transcript, and interactive scheme cards.  
 **Deliverables**:
-- Complete end-to-end tested flow.
-- Offline backup demo video & scripted evaluation scenarios (North Karnataka drought, Mandya solar pump).
-- Hackathon pitch slide deck highlighting voice-first innovations and zero-hallucination architecture.
+- `backend/asr_service.py`: Sarvam AI / Groq Whisper Large-v3 Kannada streaming ASR.
+- `frontend/`: React + Vite web application with animated microphone visualizer, live Kannada transcription, and color-coded scheme eligibility cards.
+- Complete voice-in, voice-out loop benchmarked under 2 seconds.
+- Final hackathon rehearsal with realistic persona scripts.
