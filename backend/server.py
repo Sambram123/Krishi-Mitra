@@ -145,6 +145,7 @@ def handle_chat(req: ChatRequest):
 
 # Serve root static pages
 @app.get("/")
+@app.get("/index.html")
 def serve_index():
     index_path = os.path.join(BASE_DIR, "index.html")
     if os.path.exists(index_path):
@@ -153,6 +154,7 @@ def serve_index():
 
 
 @app.get("/chat")
+@app.get("/chat.html")
 def serve_chat():
     chat_path = os.path.join(BASE_DIR, "chat.html")
     if os.path.exists(chat_path):
@@ -161,6 +163,8 @@ def serve_chat():
 
 
 @app.get("/stitch")
+@app.get("/stitch.html")
+@app.get("/stitch_design.html")
 def serve_stitch():
     stitch_path = os.path.join(BASE_DIR, "stitch_design.html")
     if os.path.exists(stitch_path):
