@@ -1,0 +1,849 @@
+<!DOCTYPE html>
+
+<html class="light" lang="kn"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Krishi Mitra | ಕೃಷಿ ಮಿತ್ರ - Scheme Eligibility Engine</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Noto+Sans+Kannada:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "on-secondary-container": "#fffbff",
+            "on-tertiary-fixed-variant": "#6e3900",
+            "on-secondary": "#ffffff",
+            "error-container": "#ffdad6",
+            "primary-fixed": "#97f5cc",
+            "on-primary-fixed-variant": "#00513a",
+            "outline": "#6e7a73",
+            "primary-fixed-dim": "#7bd8b1",
+            "surface-variant": "#dae2fd",
+            "surface-container-highest": "#dae2fd",
+            "tertiary": "#7d4200",
+            "on-error": "#ffffff",
+            "secondary-fixed-dim": "#b7c4ff",
+            "surface-dim": "#d2d9f4",
+            "on-primary": "#ffffff",
+            "on-tertiary-container": "#ffe5d3",
+            "error": "#ba1a1a",
+            "on-tertiary": "#ffffff",
+            "inverse-on-surface": "#eef0ff",
+            "secondary": "#1d4ed8",
+            "on-primary-fixed": "#002115",
+            "on-secondary-fixed": "#001551",
+            "on-surface": "#131b2e",
+            "on-background": "#131b2e",
+            "surface": "#faf8ff",
+            "outline-variant": "#bdc9c1",
+            "surface-container-low": "#f2f3ff",
+            "secondary-container": "#4069f2",
+            "on-secondary-fixed-variant": "#0039b5",
+            "surface-container-high": "#e2e7ff",
+            "inverse-surface": "#283044",
+            "primary": "#005d42",
+            "primary-container": "#047857",
+            "on-tertiary-fixed": "#2f1500",
+            "on-error-container": "#93000a",
+            "surface-tint": "#006c4e",
+            "tertiary-fixed": "#ffdcc3",
+            "surface-container": "#eaedff",
+            "surface-bright": "#faf8ff",
+            "inverse-primary": "#7bd8b1",
+            "secondary-fixed": "#dce1ff",
+            "tertiary-container": "#a05600",
+            "tertiary-fixed-dim": "#ffb77d",
+            "on-primary-container": "#9ffdd3",
+            "on-surface-variant": "#3e4943",
+            "background": "#faf8ff",
+            "surface-container-lowest": "#ffffff"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          "spacing": {
+            "gutter": "1.25rem",
+            "margin-mobile": "1rem",
+            "space-xs": "0.375rem",
+            "space-md": "1.25rem",
+            "margin": "2rem",
+            "space-xl": "2.5rem",
+            "space-sm": "0.75rem",
+            "gutter-mobile": "0.75rem",
+            "space-lg": "1.75rem"
+          },
+          "fontFamily": {
+            "label-md": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "label-lg": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-lg": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "body-md": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-xl-mobile": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-md": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "label-sm": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-sm": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "body-lg": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-lg-mobile": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "headline-xl": ["Plus Jakarta Sans", "Noto Sans Kannada"],
+            "body-sm": ["Plus Jakarta Sans", "Noto Sans Kannada"]
+          },
+          "fontSize": {
+            "label-md": ["14px", { "lineHeight": "18px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+            "label-lg": ["16px", { "lineHeight": "22px", "letterSpacing": "0.01em", "fontWeight": "700" }],
+            "headline-lg": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+            "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+            "headline-xl-mobile": ["30px", { "lineHeight": "38px", "letterSpacing": "-0.01em", "fontWeight": "800" }],
+            "headline-md": ["22px", { "lineHeight": "30px", "fontWeight": "700" }],
+            "label-sm": ["12px", { "lineHeight": "16px", "letterSpacing": "0.04em", "fontWeight": "700" }],
+            "headline-sm": ["18px", { "lineHeight": "26px", "fontWeight": "700" }],
+            "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "500" }],
+            "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+            "headline-xl": ["40px", { "lineHeight": "52px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+            "body-sm": ["14px", { "lineHeight": "20px", "fontWeight": "500" }]
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    .custom-range::-webkit-slider-thumb {
+      appearance: none;
+      height: 24px;
+      width: 24px;
+      border-radius: 9999px;
+      background: #047857;
+      border: 3px solid #ffffff;
+      box-shadow: 0 2px 6px rgba(0, 93, 66, 0.4);
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body class="bg-[#F8FAFC] text-on-surface antialiased selection:bg-primary-fixed selection:text-on-primary-fixed min-h-screen flex flex-col font-body-md text-body-md">
+<!-- Top Announcement Bar (Civic Authority) -->
+<aside aria-label="Official Government Notification" class="bg-surface-container-high border-b border-outline-variant text-on-surface px-4 py-1.5">
+<div class="max-w-[1440px] mx-auto flex flex-wrap justify-between items-center text-xs">
+<div class="flex items-center gap-2">
+<span class="inline-flex items-center px-1.5 py-0.5 rounded bg-primary-container text-on-primary font-bold text-[10px]">ಕರ್ನಾಟಕ ಸರ್ಕಾರ</span>
+<span class="font-medium text-on-surface-variant">Government of Karnataka • Department of Agriculture &amp; Farmers Welfare</span>
+</div>
+<div class="flex items-center gap-4 text-on-surface-variant">
+<span class="flex items-center gap-1 font-semibold text-primary">
+<span class="material-symbols-outlined text-[15px]" data-icon="support_agent">support_agent</span>
+          Kisan Helpline: <span class="text-on-surface font-bold">1551</span> (Toll-Free)
+        </span>
+<span class="hidden md:inline">|</span>
+<span class="flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-secondary" data-icon="verified_user">verified_user</span>
+          Official Seva Sindhu &amp; FRUITS Integrated Portal
+        </span>
+</div>
+</div>
+</aside>
+<!-- TopNavBar (Shared Component Anchor) -->
+<header class="w-full border-b border-outline-variant dark:border-outline sticky top-0 z-50 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm">
+<div class="max-w-[1440px] mx-auto px-4 lg:px-8 h-20 flex items-center justify-between gap-4">
+<!-- Brand & Emblem -->
+<div class="flex items-center gap-3.5">
+<div class="w-12 h-12 rounded-xl bg-primary-fixed flex items-center justify-center border border-primary-container/20 shadow-sm text-primary">
+<span class="material-symbols-outlined text-3xl" data-icon="eco" data-weight="fill" style="font-variation-settings: 'FILL' 1;">eco</span>
+</div>
+<div>
+<div class="flex items-center gap-2">
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary tracking-tight">Krishi Mitra | ಕೃಷಿ ಮಿತ್ರ</span>
+<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-primary-fixed text-on-primary-fixed border border-primary-fixed-dim">
+              v2.4 Live Engine
+            </span>
+</div>
+<p class="text-xs text-on-surface-variant line-clamp-1 font-medium">Karnataka Farmer Scheme Eligibility &amp; Assistance Portal | ಕರ್ನಾಟಕ ಕೃಷಿ ಯೋಜನೆಗಳ ಅರ್ಹತಾ ಪೋರ್ಟಲ್</p>
+</div>
+</div>
+<!-- Navigation Links Desktop -->
+<nav class="hidden lg:flex items-center gap-6">
+<a class="text-primary dark:text-inverse-primary font-bold border-b-2 border-primary dark:border-inverse-primary pb-1 font-label-md text-label-md flex items-center gap-1.5" href="#schemes">
+<span class="material-symbols-outlined text-lg" data-icon="policy">policy</span>
+          Scheme Finder / ಯೋಜನೆಗಳು
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" href="#fruits">
+<span class="material-symbols-outlined text-lg" data-icon="fingerprint">fingerprint</span>
+          FRUITS ID Link
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" href="#sevasindhu">
+<span class="material-symbols-outlined text-lg" data-icon="hub">hub</span>
+          Seva Sindhu
+        </a>
+<a class="text-on-surface-variant dark:text-surface-variant font-medium hover:text-on-surface font-label-md text-label-md flex items-center gap-1.5 transition-colors" href="#helpline">
+<span class="material-symbols-outlined text-lg" data-icon="call">call</span>
+          Helpline 1551
+        </a>
+</nav>
+<!-- Trailing Action Cluster -->
+<div class="flex items-center gap-3">
+<!-- Language Switcher -->
+<button class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border-2 border-primary text-primary font-bold text-label-md hover:bg-primary-fixed/20 transition-colors" title="Switch language / ಭಾಷೆ ಬದಲಾಯಿಸಿ" type="button">
+<span class="material-symbols-outlined text-base" data-icon="translate">translate</span>
+<span>ಕನ್ನಡ / ENG</span>
+</button>
+<!-- Notification & Help Icons -->
+<button aria-label="Notifications" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors relative" type="button">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+<span class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-error"></span>
+</button>
+<button aria-label="Help" class="p-2 rounded-lg text-on-surface-variant hover:bg-surface-container transition-colors" type="button">
+<span class="material-symbols-outlined" data-icon="help">help</span>
+</button>
+<!-- Primary Civic Action -->
+<a class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md shadow hover:bg-blue-800 transition-colors focus:ring-2 focus:ring-offset-2 focus:ring-secondary" href="#signin">
+<span class="material-symbols-outlined text-base" data-icon="lock">lock</span>
+<span>Sign In / ಲಾಗಿನ್</span>
+</a>
+</div>
+</div>
+</header>
+<!-- Top Hero Context Header -->
+<section class="bg-gradient-to-r from-[#ECFDF5] via-surface-container-low to-[#EFF6FF] border-b border-outline-variant py-6">
+<div class="max-w-[1440px] mx-auto px-4 lg:px-8">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+<div>
+<div class="flex items-center gap-2.5 mb-1.5">
+<span class="px-2.5 py-0.5 rounded-full bg-primary text-on-primary text-xs font-bold tracking-wide">
+              KARNATAKA RAITHA MITRA PORTAL
+            </span>
+<span class="text-xs text-on-surface-variant font-medium">Bilingual Eligibility Screening Tool</span>
+</div>
+<h1 class="text-headline-lg font-headline-lg text-on-surface tracking-tight">
+            ಕೃಷಿ ಯೋಜನೆಗಳ ಸ್ವಯಂಚಾಲಿತ ಅರ್ಹತಾ ಎಂಜಿನ್
+            <span class="block text-headline-md font-headline-md text-primary mt-0.5 font-semibold">Agricultural Scheme Eligibility Assessment 2024-25</span>
+</h1>
+<p class="text-on-surface-variant font-body-sm text-body-sm mt-1 max-w-2xl">
+            Enter your land, crop, and irrigation credentials below. The portal verifies conditions directly against Karnataka Department of Agriculture norms and gives instant sanction guidance.
+          </p>
+</div>
+<!-- Trust Badges Cluster -->
+<div class="flex items-center gap-3 self-start md:self-auto bg-surface-container-lowest p-3 rounded-xl border border-outline-variant shadow-sm">
+<div class="w-10 h-10 rounded-lg bg-[#EFF6FF] text-[#1E40AF] flex items-center justify-center">
+<span class="material-symbols-outlined text-2xl" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<div class="text-xs">
+<div class="font-bold text-on-surface">Direct DBT Integration</div>
+<div class="text-on-surface-variant">Aadhaar &amp; NPCI Mandated Bank Linking</div>
+<div class="text-primary font-semibold">FRUITS Protocol v3.2 Compliant</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Main Dynamic Workspace (Two-Column Layout) -->
+<main class="max-w-[1440px] mx-auto px-4 lg:px-8 py-8 flex-1 w-full">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- LEFT COLUMN: Farmer Assessment Form (~48% -> 6 cols of 12 or 5.8 ratio) -->
+<section class="lg:col-span-6 space-y-6">
+<!-- Form Container Box -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm p-6 space-y-7">
+<div class="flex items-center justify-between pb-4 border-b border-outline-variant">
+<div class="flex items-center gap-2.5">
+<span class="w-8 h-8 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-sm">
+<span class="material-symbols-outlined text-base" data-icon="tune">tune</span>
+</span>
+<div>
+<h2 class="text-headline-sm font-headline-sm text-on-surface leading-tight">ರೈತರ ಪ್ರೊಫೈಲ್ ಪರಿಶೀಲನೆ</h2>
+<span class="text-xs text-on-surface-variant font-medium">Farmer Profile &amp; Farmland Parameters</span>
+</div>
+</div>
+<span class="text-xs font-semibold px-2.5 py-1 rounded bg-surface-container text-on-surface-variant border border-outline-variant">
+              Field Inputs: 6 Steps
+            </span>
+</div>
+<!-- Step 1: Farmer Identity & Location -->
+<div class="space-y-4">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">1</span>
+<span>ರೈತರ ಗುರುತು ಮತ್ತು ಸ್ಥಳ / Identity &amp; Location</span>
+</div>
+<!-- Farmer Name -->
+<div>
+<label class="block text-xs font-bold text-on-surface mb-1.5" for="farmer-name">
+                ರೈತರ ಪೂರ್ಣ ಹೆಸರು / Farmer Full Name (Aadhaar/FRUITS Match)
+              </label>
+<div class="relative">
+<input class="w-full h-14 bg-surface-container-lowest border-2 border-outline-variant rounded-lg px-4 text-body-lg font-body-lg text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-fixed outline-none transition-all pl-11" id="farmer-name" type="text" value="ಬಸವರಾಜ ಗೌಡ (Basavaraj Gowda)"/>
+<span class="material-symbols-outlined absolute left-3.5 top-4 text-on-surface-variant" data-icon="person">person</span>
+</div>
+</div>
+<!-- District & Taluk Dual Column -->
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+<div>
+<label class="block text-xs font-bold text-on-surface mb-1.5" for="district-select">
+                  ಜಿಲ್ಲೆ / District
+                </label>
+<div class="relative">
+<select class="w-full h-14 bg-surface-container-lowest border-2 border-outline-variant rounded-lg px-4 text-body-md font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-fixed outline-none appearance-none pr-10" id="district-select">
+<option selected="">ಮಂಡ್ಯ - Mandya</option>
+<option>ಹಾಸನ - Hassan</option>
+<option>ಮೈಸೂರು - Mysuru</option>
+<option>ತುಮಕೂರು - Tumakuru</option>
+<option>ಬೆಳಗಾವಿ - Belagavi</option>
+</select>
+<span class="material-symbols-outlined absolute right-3.5 top-4 text-on-surface-variant pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+<div>
+<label class="block text-xs font-bold text-on-surface mb-1.5" for="taluk-select">
+                  ತಾಲೂಕು / Taluk
+                </label>
+<div class="relative">
+<select class="w-full h-14 bg-surface-container-lowest border-2 border-outline-variant rounded-lg px-4 text-body-md font-body-md text-on-surface focus:border-primary focus:ring-2 focus:ring-primary-fixed outline-none appearance-none pr-10" id="taluk-select">
+<option selected="">ಪಾಂಡವಪುರ - Pandavapura</option>
+<option>ಮಂಡ್ಯ - Mandya Rural</option>
+<option>ಶ್ರೀರಂಗಪಟ್ಟಣ - Srirangapatna</option>
+<option>ಮದ್ದೂರು - Maddur</option>
+<option>ಕೆ.ಆರ್.ಪೇಟೆ - K.R. Pete</option>
+</select>
+<span class="material-symbols-outlined absolute right-3.5 top-4 text-on-surface-variant pointer-events-none" data-icon="arrow_drop_down">arrow_drop_down</span>
+</div>
+</div>
+</div>
+<!-- Dynamic Agro-Climatic Zone Pill Badge -->
+<div class="flex items-center gap-2 p-3 bg-[#ECFDF5] border border-[#A7F3D0] rounded-lg text-primary text-xs font-semibold">
+<span class="material-symbols-outlined text-lg text-primary-container" data-icon="nature" data-weight="fill" style="font-variation-settings: 'FILL' 1;">nature</span>
+<div>
+<span class="font-bold">Agro-Climatic Zone Identified:</span>
+<span class="text-on-surface">🌱 Southern Dry Zone (Cauvery Basin) | ದಕ್ಷಿಣ ಒಣ ವಲಯ (ಕಾವೇರಿ ಜಲಾನಯನ)</span>
+</div>
+</div>
+</div>
+<!-- Step 2: Land Holding Area -->
+<div class="space-y-3 pt-4 border-t border-outline-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">2</span>
+<span>ಜಮೀನಿನ ವಿಸ್ತೀರ್ಣ / Land Holding Area</span>
+</div>
+<div class="px-3 py-1 rounded-lg bg-primary-container text-on-primary font-bold text-sm shadow-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-sm" data-icon="square_foot">square_foot</span>
+<span id="acreage-label">3.5 Acres (ಎಕರೆ)</span>
+</div>
+</div>
+<!-- Acreage Slider -->
+<div class="px-1 py-2">
+<input class="w-full h-2 bg-surface-container rounded-lg appearance-none cursor-pointer custom-range" id="land-slider" max="15" min="0.5" step="0.5" type="range" value="3.5"/>
+<div class="flex justify-between text-[11px] text-on-surface-variant font-medium mt-1">
+<span>0.5 Ac (Margin)</span>
+<span>2.5 Ac</span>
+<span>5.0 Ac</span>
+<span>10.0 Ac</span>
+<span>15+ Ac (Large)</span>
+</div>
+</div>
+<!-- Fast Preset Buttons -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+<button class="py-2 px-2 text-xs font-semibold rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface transition-colors" type="button">
+                1 Acre (ಸಣ್ಣ ರೈತ)
+              </button>
+<button class="py-2 px-2 text-xs font-semibold rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface transition-colors" type="button">
+                2.5 Acres
+              </button>
+<button class="py-2 px-2 text-xs font-bold rounded-lg border-2 border-primary bg-primary-fixed/30 text-primary shadow-sm" type="button">
+                3.5 Acres (Selected)
+              </button>
+<button class="py-2 px-2 text-xs font-semibold rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container text-on-surface transition-colors" type="button">
+                10+ Acres (ದೊಡ್ಡ)
+              </button>
+</div>
+<!-- Farmer Category Notification Banner -->
+<div class="p-2.5 rounded-lg bg-[#EFF6FF] border border-[#BFDBFE] text-secondary text-xs flex items-center gap-2">
+<span class="material-symbols-outlined text-base shrink-0" data-icon="info">info</span>
+<span><strong>Small Farmer category:</strong> ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರು (Eligible for enhanced 90% subsidies on micro-irrigation and inputs).</span>
+</div>
+</div>
+<!-- Step 3: Land Ownership Type -->
+<div class="space-y-3 pt-4 border-t border-outline-variant">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">3</span>
+<span>ಭೂ ಮಾಲೀಕತ್ವದ ವಿಧ / Land Ownership Type</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+<!-- Card 1: Selected -->
+<div class="border-2 border-primary bg-[#ECFDF5] rounded-xl p-3 cursor-pointer shadow-sm relative transition-all">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="domain_verification">domain_verification</span>
+<span class="w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center text-[10px] font-bold">✓</span>
+</div>
+<div class="font-bold text-xs text-on-surface mt-2">Own Land (ಸ್ವಂತ ಭೂಮಿ)</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5 leading-tight">RTC/Pahani in self/family name</div>
+</div>
+<!-- Card 2 -->
+<div class="border border-outline-variant bg-surface-container-lowest rounded-xl p-3 cursor-pointer hover:border-outline transition-all">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-on-surface-variant text-xl" data-icon="handshake">handshake</span>
+<div class="w-4 h-4 rounded-full border border-outline-variant"></div>
+</div>
+<div class="font-bold text-xs text-on-surface mt-2">Tenant / Lease (ಗೇಣಿ)</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5 leading-tight">Tenancy agreement recorded</div>
+</div>
+<!-- Card 3 -->
+<div class="border border-outline-variant bg-surface-container-lowest rounded-xl p-3 cursor-pointer hover:border-outline transition-all">
+<div class="flex items-start justify-between">
+<span class="material-symbols-outlined text-on-surface-variant text-xl" data-icon="diversity_3">diversity_3</span>
+<div class="w-4 h-4 rounded-full border border-outline-variant"></div>
+</div>
+<div class="font-bold text-xs text-on-surface mt-2">Joint Family (ಅವಿಭಕ್ತ)</div>
+<div class="text-[11px] text-on-surface-variant mt-0.5 leading-tight">Joint ownership Khata</div>
+</div>
+</div>
+</div>
+<!-- Step 4: Primary Crops Cultivated -->
+<div class="space-y-3 pt-4 border-t border-outline-variant">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">4</span>
+<span>ಮುಖ್ಯ ಬೆಳೆಗಳು / Crops Cultivated (Mandya Tailored)</span>
+</div>
+<span class="text-[11px] text-primary font-bold">2 Crops Active</span>
+</div>
+<div class="flex flex-wrap gap-2">
+<!-- Sugarcane (Selected) -->
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold shadow-sm border border-primary" type="button">
+<span>🌾 Sugarcane (ಕಬ್ಬು)</span>
+<span class="px-1.5 py-0.2 bg-primary-fixed text-on-primary-fixed text-[10px] rounded">Mandya Recommended</span>
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Paddy (Selected) -->
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-on-primary text-xs font-bold shadow-sm border border-primary" type="button">
+<span>🌾 Paddy / Rice (ಭತ್ತ)</span>
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</button>
+<!-- Ragi -->
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-medium hover:bg-surface-container transition-colors" type="button">
+<span>🌱 Ragi (ರಾಗಿ - Millets)</span>
+<span class="material-symbols-outlined text-xs text-outline" data-icon="add">add</span>
+</button>
+<!-- Togari -->
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-medium hover:bg-surface-container transition-colors" type="button">
+<span>🌿 Togari / Red Gram (ತೊಗರಿ)</span>
+<span class="material-symbols-outlined text-xs text-outline" data-icon="add">add</span>
+</button>
+<!-- Cotton -->
+<button class="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface text-xs font-medium hover:bg-surface-container transition-colors" type="button">
+<span>☁️ Cotton (ಹತ್ತಿ)</span>
+<span class="material-symbols-outlined text-xs text-outline" data-icon="add">add</span>
+</button>
+</div>
+</div>
+<!-- Step 5: Sowing Season & Irrigation Facility -->
+<div class="space-y-4 pt-4 border-t border-outline-variant">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">5</span>
+<span>ಬಿತ್ತನೆ ಹಂಗಾಮು &amp; ನೀರಾವರಿ ಸೌಲಭ್ಯ / Season &amp; Irrigation</span>
+</div>
+<!-- Season Selector -->
+<div>
+<span class="block text-xs font-bold text-on-surface mb-1.5">Season / ಹಂಗಾಮು:</span>
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2 rounded-lg bg-[#EFF6FF] border-2 border-secondary text-secondary font-bold text-xs flex items-center justify-center gap-1 shadow-sm" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="cloud">cloud</span>
+                  Kharif / ಮುಂಗಾರು
+                </button>
+<button class="py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium text-xs hover:bg-surface-container" type="button">
+                  Rabi / ಹಿಂಗಾರು
+                </button>
+<button class="py-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium text-xs hover:bg-surface-container" type="button">
+                  Summer / ಬೇಸಿಗೆ
+                </button>
+</div>
+</div>
+<!-- Irrigation Source -->
+<div>
+<span class="block text-xs font-bold text-on-surface mb-1.5">Source of Irrigation / ನೀರಾವರಿ ಮೂಲ:</span>
+<div class="grid grid-cols-3 gap-2">
+<button class="py-2.5 px-2 rounded-lg bg-[#ECFDF5] border-2 border-primary text-primary font-bold text-xs flex items-center justify-center gap-1.5 shadow-sm" type="button">
+<span class="material-symbols-outlined text-base" data-icon="water">water</span>
+<span>Canal (ಕಾಲುವೆ)</span>
+</button>
+<button class="py-2.5 px-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium text-xs hover:bg-surface-container flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-base text-outline" data-icon="groundwater">pixel_4_4xl_4a_5_5a_5g</span>
+<span>Borewell (ಬೋರ್‌ವೆಲ್)</span>
+</button>
+<button class="py-2.5 px-2 rounded-lg bg-surface-container-lowest border border-outline-variant text-on-surface font-medium text-xs hover:bg-surface-container flex items-center justify-center gap-1" type="button">
+<span class="material-symbols-outlined text-base text-outline" data-icon="rainy">rainy</span>
+<span>Rainfed (ಮಳೆಯಾಶ್ರಿತ)</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Step 6: Targeted Assistance Needed -->
+<div class="space-y-3 pt-4 border-t border-outline-variant">
+<div class="flex items-center gap-2 text-primary font-bold text-sm">
+<span class="w-6 h-6 rounded-full bg-primary-fixed text-on-primary-fixed flex items-center justify-center text-xs">6</span>
+<span>ಅಗತ್ಯವಿರುವ ನೆರವು / Targeted Assistance Needed</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+<!-- Item 1 (Selected) -->
+<label class="flex items-start gap-2.5 p-2.5 rounded-lg border-2 border-primary bg-[#ECFDF5] cursor-pointer">
+<input checked="" class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<div class="text-xs font-bold text-on-surface">Micro-Irrigation Drip</div>
+<div class="text-[11px] text-primary font-semibold">70-90% Subsidy available</div>
+</div>
+</label>
+<!-- Item 2 -->
+<label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container cursor-pointer">
+<input class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<div class="text-xs font-bold text-on-surface">Farm Machinery &amp; Tiller</div>
+<div class="text-[11px] text-on-surface-variant">Custom hiring subsidy</div>
+</div>
+</label>
+<!-- Item 3 (Selected) -->
+<label class="flex items-start gap-2.5 p-2.5 rounded-lg border-2 border-primary bg-[#ECFDF5] cursor-pointer">
+<input checked="" class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<div class="text-xs font-bold text-on-surface">PM-KISAN Direct Support</div>
+<div class="text-[11px] text-primary font-semibold">Annual income assistance</div>
+</div>
+</label>
+<!-- Item 4 -->
+<label class="flex items-start gap-2.5 p-2.5 rounded-lg border border-outline-variant bg-surface-container-lowest hover:bg-surface-container cursor-pointer">
+<input class="mt-0.5 w-4 h-4 rounded text-primary focus:ring-primary" type="checkbox"/>
+<div>
+<div class="text-xs font-bold text-on-surface">Soil Health &amp; Nutrient Grant</div>
+<div class="text-[11px] text-on-surface-variant">Bio-fertilizer kit</div>
+</div>
+</label>
+</div>
+</div>
+<!-- Action CTA Container -->
+<div class="pt-4 border-t border-outline-variant space-y-3">
+<button class="w-full h-14 rounded-lg bg-primary-container text-on-primary font-label-lg text-label-lg flex items-center justify-center gap-3 shadow-md hover:bg-primary transition-all duration-150 transform active:scale-[0.99] focus:ring-4 focus:ring-primary-fixed" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="manage_search">manage_search</span>
+<span>ಯೋಜನೆಗಳ ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಿ (Check Scheme Eligibility)</span>
+<span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<div class="flex items-center justify-center gap-2 text-xs text-on-surface-variant">
+<span class="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+<span>Real-time calculation synced with FRUITS Karnataka database (Mandya District)</span>
+</div>
+</div>
+</div>
+</section>
+<!-- RIGHT COLUMN: Live Dynamic Scheme Eligibility Results (~52% -> 6 cols of 12) -->
+<section class="lg:col-span-6 space-y-6" id="schemes">
+<!-- Top Summary Banner -->
+<div class="bg-surface-container-lowest border-2 border-primary/40 rounded-xl p-5 shadow-sm space-y-4">
+<div class="flex flex-wrap items-center justify-between gap-3">
+<div>
+<span class="text-xs font-bold uppercase tracking-wider text-primary">Live Match Calculation</span>
+<h2 class="text-headline-sm font-headline-sm text-on-surface font-bold">ಅರ್ಹತೆಯ ಫಲಿತಾಂಶ ಸಾರಾಂಶ</h2>
+</div>
+<!-- Match Score Gauge -->
+<div class="flex items-center gap-2 bg-[#ECFDF5] border border-[#A7F3D0] px-3.5 py-1.5 rounded-full">
+<span class="material-symbols-outlined text-primary text-xl" data-icon="verified" data-weight="fill" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="text-sm font-extrabold text-primary">94% Eligibility Match</span>
+</div>
+</div>
+<!-- Stat Counters -->
+<div class="grid grid-cols-3 gap-2.5 pt-2 border-t border-outline-variant text-center">
+<div class="bg-[#ECFDF5] border border-[#A7F3D0] rounded-lg p-2.5">
+<div class="text-2xl font-extrabold text-[#065F46]">03</div>
+<div class="text-[11px] font-bold text-[#065F46] leading-tight">Qualified<br/>(ಅರ್ಹ ಯೋಜನೆಗಳು)</div>
+</div>
+<div class="bg-[#FFFBEB] border border-[#FDE68A] rounded-lg p-2.5">
+<div class="text-2xl font-extrabold text-[#92400E]">01</div>
+<div class="text-[11px] font-bold text-[#92400E] leading-tight">Doc Required<br/>(ದಾಖಲೆ ಅಪೂರ್ಣ)</div>
+</div>
+<div class="bg-[#FEF2F2] border border-[#FECACA] rounded-lg p-2.5">
+<div class="text-2xl font-extrabold text-[#991B1B]">01</div>
+<div class="text-[11px] font-bold text-[#991B1B] leading-tight">Ineligible<br/>(ಅನರ್ಹ)</div>
+</div>
+</div>
+</div>
+<!-- Qualified Scheme Cards Cluster -->
+<div class="space-y-4">
+<!-- Scheme Card 1: PM-KISAN -->
+<article class="bg-surface-container-lowest border-2 border-emerald-500 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="bg-gradient-to-r from-[#ECFDF5] to-surface-container-lowest px-5 py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-lg bg-primary text-on-primary flex items-center justify-center font-bold text-xs">
+                  01
+                </span>
+<div>
+<h3 class="font-headline-sm text-sm font-bold text-on-surface">PM-KISAN Samman Nidhi</h3>
+<div class="text-[11px] text-on-surface-variant font-medium">ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ (Direct Bank Transfer)</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#ECFDF5] text-[#065F46] border border-[#A7F3D0]">
+<span class="material-symbols-outlined text-sm" data-icon="check_circle" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                QUALIFIED • ಅರ್ಹರು
+              </span>
+</div>
+<div class="p-5 space-y-4">
+<!-- Benefit Highlight -->
+<div class="flex items-baseline justify-between bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<span class="text-xs font-medium text-on-surface-variant">Annual Benefit / ವಾರ್ಷಿಕ ಅನುದಾನ:</span>
+<span class="text-headline-md font-headline-md font-extrabold text-primary">₹6,000 / Year DBT</span>
+</div>
+<div class="text-xs text-on-surface-variant">ವಾರ್ಷಿಕ ₹6,000 ನೇರ ನಗದು ವರ್ಗಾವಣೆ (3 ಕಂತುಗಳಲ್ಲಿ ತಲಾ ₹2,000 ಜಮಾ)</div>
+<!-- Criteria Match Indicators -->
+<div class="space-y-1.5 text-xs">
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Small farmer (&lt; 5 Acres) category matched (3.5 Acres recorded)</span>
+</div>
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Land record linked to FRUITS ID: KA-MND-PDV-9812</span>
+</div>
+</div>
+<!-- Required Documents -->
+<div>
+<div class="text-[11px] font-bold text-on-surface-variant mb-1.5">ಅಗತ್ಯವಿರುವ ದಾಖಲೆಗಳು / Required Verification:</div>
+<div class="flex flex-wrap gap-1.5">
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[11px] font-medium border border-outline-variant">Aadhaar Card (ಆಧಾರ್)</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[11px] font-medium border border-outline-variant">Pahani / RTC Patta</span>
+<span class="px-2 py-0.5 rounded bg-surface-container text-on-surface text-[11px] font-medium border border-outline-variant">Bank Passbook with NPCI Seed</span>
+</div>
+</div>
+<!-- Card Action Button -->
+<div class="pt-2 border-t border-outline-variant flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Portal: Seva Sindhu / DBT Karnataka</span>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-primary text-on-primary font-label-md text-label-md hover:bg-primary-container transition-colors shadow" type="button">
+<span>Apply via Seva Sindhu (ಅರ್ಜಿ ಸಲ್ಲಿಸಿ)</span>
+<span class="material-symbols-outlined text-sm" data-icon="arrow_forward">arrow_forward</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Scheme Card 2: PMFBY Crop Insurance -->
+<article class="bg-surface-container-lowest border-2 border-secondary rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="bg-gradient-to-r from-[#EFF6FF] to-surface-container-lowest px-5 py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-lg bg-secondary text-on-secondary flex items-center justify-center font-bold text-xs">
+                  02
+                </span>
+<div>
+<h3 class="font-headline-sm text-sm font-bold text-on-surface">PMFBY Crop Insurance</h3>
+<div class="text-[11px] text-on-surface-variant font-medium">ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (Mandya Cauvery Basin)</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#EFF6FF] text-[#1E40AF] border border-[#BFDBFE]">
+<span class="material-symbols-outlined text-sm" data-icon="shield" data-weight="fill" style="font-variation-settings: 'FILL' 1;">shield</span>
+                ELIGIBLE • ವಿಮಾ ರಕ್ಷಣೆ
+              </span>
+</div>
+<div class="p-5 space-y-4">
+<!-- Benefit Highlight -->
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<div class="flex justify-between items-baseline">
+<span class="text-xs font-medium text-on-surface-variant">Sum Insured Protection:</span>
+<span class="text-headline-sm font-headline-sm font-bold text-secondary">Up to ₹42,000 / Acre</span>
+</div>
+<div class="text-xs text-on-surface mt-1">Comprehensive yield loss cover for Sugarcane &amp; Paddy crops in Pandavapura.</div>
+</div>
+<!-- Subsidy breakdown -->
+<div class="p-2.5 rounded-lg bg-surface-container border border-outline-variant text-xs text-on-surface">
+<span class="font-bold text-secondary">Premium subsidy:</span> Farmer pays only <strong>1.5%</strong> premium (Govt covers 98.5% premium subsidy).
+              </div>
+<!-- Checks passed -->
+<div class="space-y-1.5 text-xs text-on-surface">
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Notified crop in Mandya district for current Kharif 2024</span>
+</div>
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Canal area drought &amp; inundation protection check passed</span>
+</div>
+</div>
+<!-- Action Strip -->
+<div class="pt-2 border-t border-outline-variant flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Application window closes in: <strong>14 Days</strong></span>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-secondary text-on-secondary font-label-md text-label-md hover:bg-blue-800 transition-colors shadow" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="calculate">calculate</span>
+<span>Calculate Premium (ಪ್ರೀಮಿಯಂ ಲೆಕ್ಕಾಚಾರ)</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Scheme Card 3: Krishi Bhagya & Micro-Irrigation Drip -->
+<article class="bg-surface-container-lowest border-2 border-[#F59E0B] rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+<div class="bg-gradient-to-r from-[#FFFBEB] to-surface-container-lowest px-5 py-3 border-b border-outline-variant flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="w-7 h-7 rounded-lg bg-tertiary-container text-on-primary flex items-center justify-center font-bold text-xs">
+                  03
+                </span>
+<div>
+<h3 class="font-headline-sm text-sm font-bold text-on-surface">Krishi Bhagya &amp; Micro-Irrigation Drip</h3>
+<div class="text-[11px] text-on-surface-variant font-medium">ಕೃಷಿ ಭಾಗ್ಯ ಹನಿ ನೀರಾವರಿ ಯೋಜನೆ (Pradhan Mantri Krishi Sinchayee)</div>
+</div>
+</div>
+<span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-extrabold bg-[#FFFBEB] text-[#92400E] border border-[#FDE68A]">
+<span class="material-symbols-outlined text-sm" data-icon="water_drop" data-weight="fill" style="font-variation-settings: 'FILL' 1;">water_drop</span>
+                90% SUBSIDY APPROVED
+              </span>
+</div>
+<div class="p-5 space-y-4">
+<!-- Benefit Highlight -->
+<div class="bg-surface-container-low p-3 rounded-lg border border-outline-variant">
+<div class="flex justify-between items-baseline">
+<span class="text-xs font-medium text-on-surface-variant">Estimated Drip Unit Value:</span>
+<span class="text-headline-sm font-headline-sm font-bold text-tertiary-container">₹48,500 Unit Value</span>
+</div>
+<div class="text-xs text-on-surface mt-1">
+<strong>₹43,650 Govt Subsidy (90%)</strong> for 3.5 Acres. Farmer contribution only <strong>₹4,850</strong>.
+                </div>
+</div>
+<!-- Passed checks -->
+<div class="space-y-1.5 text-xs text-on-surface">
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Canal source water available in Pandavapura Taluk</span>
+</div>
+<div class="flex items-center gap-1.5 text-primary font-semibold">
+<span class="material-symbols-outlined text-base" data-icon="check" data-weight="fill" style="font-variation-settings: 'FILL' 1;">check</span>
+<span>Small farm threshold verified (&lt; 2 Hectares equivalent)</span>
+</div>
+</div>
+<div class="text-[11px] text-on-surface-variant">
+                Approved Vendors: Jain Irrigation, Netafim Karnataka certified suppliers.
+              </div>
+<!-- Action Strip -->
+<div class="pt-2 border-t border-outline-variant flex items-center justify-between">
+<span class="text-xs text-on-surface-variant">Department of Horticulture &amp; Agriculture</span>
+<button class="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-[#D97706] text-white font-label-md text-label-md hover:bg-amber-700 transition-colors shadow" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="assignment">assignment</span>
+<span>Apply Subsidy / ಅರ್ಜಿ ಸಲ್ಲಿಸಿ</span>
+</button>
+</div>
+</div>
+</article>
+<!-- Ineligible / Attention Schemes Accordion -->
+<article class="bg-surface-container-lowest border border-outline-variant rounded-xl overflow-hidden shadow-sm">
+<details class="group">
+<summary class="px-5 py-3.5 flex items-center justify-between cursor-pointer list-none bg-surface-container-low hover:bg-surface-container transition-colors">
+<div class="flex items-center gap-2.5">
+<span class="material-symbols-outlined text-error text-lg" data-icon="cancel">cancel</span>
+<div>
+<h4 class="text-xs font-bold text-on-surface">Ksheera Dhare Dairy Subsidy (ಕ್ಷೀರ ಧಾರೆ)</h4>
+<span class="text-[11px] text-error font-semibold">Currently Ineligible (ಅನರ್ಹ) - Missing Livestock Criteria</span>
+</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant transition-transform group-open:rotate-180" data-icon="expand_more">expand_more</span>
+</summary>
+<div class="p-4 space-y-3 bg-surface-container-lowest border-t border-outline-variant text-xs">
+<div class="p-3 rounded-lg bg-[#FEF2F2] border border-[#FECACA] text-[#991B1B]">
+<strong>Reason for ineligibility:</strong> Requires active milk union pouring book (KMF / Nandini Dairy membership ID). No dairy cattle were specified in your initial farmer profile.
+                </div>
+<div class="flex items-center justify-between">
+<span class="text-on-surface-variant">Have indigenous cows or buffaloes?</span>
+<button class="text-secondary font-bold hover:underline flex items-center gap-1" type="button">
+<span class="material-symbols-outlined text-sm" data-icon="add_circle">add_circle</span>
+<span>Add dairy livestock details to re-check</span>
+</button>
+</div>
+</div>
+</details>
+</article>
+</div>
+<!-- Action Footer Card (Downloads & Kisan Center) -->
+<div class="bg-surface-container-lowest border border-outline-variant rounded-xl p-5 shadow-sm space-y-4">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+<!-- Download Checklist PDF -->
+<button class="p-3.5 rounded-lg border-2 border-outline-variant hover:border-primary bg-surface-container-lowest hover:bg-[#ECFDF5] transition-all flex items-center gap-3 text-left" type="button">
+<div class="w-10 h-10 rounded-lg bg-primary-fixed text-on-primary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="download_for_offline">download_for_offline</span>
+</div>
+<div>
+<div class="text-xs font-bold text-on-surface">Download Checklist (PDF)</div>
+<div class="text-[11px] text-on-surface-variant">ಪರಿಶೀಲನಾ ಪಟ್ಟಿ ಡೌನ್‌ಲೋಡ್</div>
+</div>
+</button>
+<!-- Local Center Finder -->
+<button class="p-3.5 rounded-lg border-2 border-outline-variant hover:border-secondary bg-surface-container-lowest hover:bg-[#EFF6FF] transition-all flex items-center gap-3 text-left" type="button">
+<div class="w-10 h-10 rounded-lg bg-secondary-fixed text-on-secondary-fixed flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-2xl" data-icon="pin_drop">pin_drop</span>
+</div>
+<div>
+<div class="text-xs font-bold text-on-surface">Pandavapura RSK Center</div>
+<div class="text-[11px] text-on-surface-variant">ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರ ಸಂಪರ್ಕಿಸಿ</div>
+</div>
+</button>
+</div>
+<!-- Direct Support Banner -->
+<div class="p-3.5 rounded-lg bg-gradient-to-r from-primary-container to-primary text-on-primary flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-3xl" data-icon="support_agent">support_agent</span>
+<div>
+<div class="text-xs font-bold">Kisan Call Center: 1551 (ಉಚಿತ ಸಹಾಯವಾಣಿ)</div>
+<div class="text-[11px] text-on-primary-container">24x7 toll-free guidance in Kannada for all government schemes</div>
+</div>
+</div>
+<a class="px-3 py-1.5 rounded-lg bg-surface-container-lowest text-primary font-bold text-xs hover:bg-surface-container transition-colors shrink-0" href="tel:1551">
+              Call Now / ಕರೆ ಮಾಡಿ
+            </a>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer (Shared Component Anchor) -->
+<footer class="w-full py-8 border-t border-outline-variant dark:border-outline bg-surface-container-low dark:bg-surface-dim mt-12">
+<div class="max-w-[1440px] mx-auto px-4 lg:px-8 space-y-6">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-outline-variant pb-6">
+<div>
+<span class="text-headline-sm font-headline-sm font-bold text-primary dark:text-inverse-primary">Krishi Mitra | ಕೃಷಿ ಮಿತ್ರ</span>
+<p class="text-xs text-on-surface-variant mt-1">
+            Department of Agriculture, Government of Karnataka • MS Building, Dr. Ambedkar Veedhi, Bengaluru - 560001
+          </p>
+</div>
+<div class="flex items-center gap-3">
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant text-xs text-on-surface font-semibold">
+<span class="material-symbols-outlined text-sm text-primary" data-icon="security">security</span>
+            SSL 256-Bit Encrypted
+          </span>
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-surface-container-lowest border border-outline-variant text-xs text-on-surface font-semibold">
+<span class="material-symbols-outlined text-sm text-secondary" data-icon="accessibility_new">accessibility_new</span>
+            WCAG 2.1 AAA Compliant
+          </span>
+</div>
+</div>
+<div class="flex flex-wrap items-center justify-between gap-4 text-xs">
+<p class="text-body-sm font-body-sm text-on-surface-variant">
+          © 2025 Department of Agriculture, Government of Karnataka. Official Civic Scheme Eligibility Portal. Integrated with FRUITS &amp; Seva Sindhu.
+        </p>
+<ul class="flex flex-wrap items-center gap-5 text-label-sm font-label-sm">
+<li><a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:underline transition-all duration-150" href="#privacy">Privacy Policy / ಗೌಪ್ಯತಾ ನೀತಿ</a></li>
+<li><a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:underline transition-all duration-150" href="#terms">Terms of Use / ಬಳಕೆಯ ನಿಯಮಗಳು</a></li>
+<li><a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:underline transition-all duration-150" href="#kcc">Kisan Call Center: 1551 (Toll-Free)</a></li>
+<li><a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:underline transition-all duration-150" href="#rti">RTI / ಮಾಹಿತಿ ಹಕ್ಕು</a></li>
+<li><a class="text-on-surface-variant dark:text-surface-variant hover:text-primary dark:hover:text-inverse-primary hover:underline transition-all duration-150" href="#accessibility">Accessibility Statement</a></li>
+</ul>
+</div>
+</div>
+</footer>
+<!-- Interactive Slider Script -->
+<script>
+    const slider = document.getElementById('land-slider');
+    const acreageLabel = document.getElementById('acreage-label');
+    if (slider && acreageLabel) {
+      slider.addEventListener('input', function(e) {
+        acreageLabel.textContent = `${e.target.value} Acres (ಎಕರೆ)`;
+      });
+    }
+  </script>
+</body></html>
