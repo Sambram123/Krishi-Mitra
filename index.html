@@ -297,14 +297,73 @@
                 <label id="lbl-need" class="font-bold text-slate-200 block mb-1">Assistance Need:</label>
                 <select id="form-need" class="w-full h-11 bg-slate-800 border border-slate-700 rounded-xl px-3 text-white font-semibold">
                   <option value="General">Income Support (PM-KISAN)</option>
-                  <option value="Drip">Drip Subsidy (70-90%)</option>
-                  <option value="Equipment">Power Tiller / Tractor</option>
-                  <option value="Soil">Soil Health Card Grant</option>
+                  <option value="Drip">Micro-irrigation support (PMKSY - PDMC)</option>
+                  <option value="Equipment">Farm machinery assistance (SMAM)</option>
+                  <option value="Soil">Soil testing and advice (Soil Health Card)</option>
                 </select>
               </div>
             </div>
 
-            <button id="form-btn-eval" onclick="triggerManualFormEval()" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg transition-colors flex items-center justify-center gap-2">
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label for="form-ownership" class="font-bold text-slate-200 block mb-1">Land ownership / ಮಾಲೀಕತ್ವ</label>
+                <select id="form-ownership" class="w-full h-11 bg-slate-800 border border-slate-700 rounded-xl px-3 text-white font-semibold">
+                  <option value="">Unknown / ತಿಳಿದಿಲ್ಲ</option>
+                  <option value="Owner">Recorded owner / ಮಾಲೀಕ</option>
+                  <option value="Joint Family Owner">Joint family owner / ಜಂಟಿ ಕುಟುಂಬ</option>
+                  <option value="Tenant">Tenant / ಗೇಣಿದಾರ</option>
+                </select>
+              </div>
+              <div>
+                <label for="form-season" class="font-bold text-slate-200 block mb-1">Sowing season / ಋತು</label>
+                <select id="form-season" class="w-full h-11 bg-slate-800 border border-slate-700 rounded-xl px-3 text-white font-semibold">
+                  <option value="">Unknown / ತಿಳಿದಿಲ್ಲ</option>
+                  <option value="Kharif">Kharif</option>
+                  <option value="Rabi">Rabi</option>
+                  <option value="Summer">Summer</option>
+                </select>
+              </div>
+            </div>
+
+            <fieldset class="space-y-2 rounded-xl border border-slate-700 p-3">
+              <legend class="px-1 text-[11px] font-bold text-slate-300">PM-KISAN exclusions / ಅನರ್ಹತಾ ಪರಿಶೀಲನೆ (Yes / No / Unknown)</legend>
+              <div class="grid grid-cols-2 gap-3">
+                <label class="text-[11px] text-slate-300">Income-tax payer
+                  <select id="form-taxpayer" class="mt-1 w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white">
+                    <option value="">Unknown</option><option value="false">No</option><option value="true">Yes</option>
+                  </select>
+                </label>
+                <label class="text-[11px] text-slate-300">Government employee / pensioner
+                  <select id="form-government-employee" class="mt-1 w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white">
+                    <option value="">Unknown</option><option value="false">No</option><option value="true">Yes</option>
+                  </select>
+                </label>
+                <label class="text-[11px] text-slate-300">Institutional landholder
+                  <select id="form-institutional" class="mt-1 w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white">
+                    <option value="">Unknown</option><option value="false">No</option><option value="true">Yes</option>
+                  </select>
+                </label>
+                <label class="text-[11px] text-slate-300">Constitutional post / public representative
+                  <select id="form-constitutional" class="mt-1 w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white">
+                    <option value="">Unknown</option><option value="false">No</option><option value="true">Yes</option>
+                  </select>
+                </label>
+              </div>
+            </fieldset>
+
+            <div class="grid grid-cols-1 gap-3">
+              <label class="text-[11px] text-slate-300">Soil issue shown on a test report, if known / ಮಣ್ಣು ಪರೀಕ್ಷಾ ವರದಿಯಲ್ಲಿರುವ ಸಮಸ್ಯೆ
+                <select id="form-soil-deficiency" class="mt-1 w-full h-9 bg-slate-800 border border-slate-700 rounded-lg px-2 text-white">
+                  <option value="">Unknown / none stated</option>
+                  <option value="Acidic">Acidic</option>
+                  <option value="Low Organic Carbon">Low organic carbon</option>
+                  <option value="Nitrogen Deficient">Nitrogen deficient</option>
+                  <option value="Phosphorus Deficient">Phosphorus deficient</option>
+                </select>
+              </label>
+            </div>
+
+            <button id="form-btn-eval" type="button" class="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-bold text-sm shadow-lg transition-colors flex items-center justify-center gap-2">
               <span class="material-symbols-outlined text-lg">check_circle</span>
               <span>Re-Evaluate All Schemes</span>
             </button>
@@ -484,9 +543,9 @@
 
     const NEED_OPTIONS = [
       { key: "General", en: "Income Support (PM-KISAN)", kn: "ನೇರ ಆದಾಯ ಬೆಂಬಲ (ಪಿಎಂ-ಕಿಸಾನ್)" },
-      { key: "Drip", en: "Drip Subsidy (70-90%)", kn: "ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ (೭೦-೯೦%)" },
-      { key: "Equipment", en: "Power Tiller / Tractor", kn: "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ (ಪವರ್ ಟಿಲ್ಲರ್/ಟ್ರ್ಯಾಕ್ಟರ್)" },
-      { key: "Soil", en: "Soil Health Card Grant", kn: "ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್ ಅನುದಾನ" }
+      { key: "Drip", en: "Micro-irrigation support (PMKSY - PDMC)", kn: "ಸೂಕ್ಷ್ಮ ನೀರಾವರಿ ನೆರವು (PMKSY - PDMC)" },
+      { key: "Equipment", en: "Farm machinery assistance (SMAM)", kn: "ಕೃಷಿ ಯಂತ್ರೋಪಕರಣ ನೆರವು (SMAM)" },
+      { key: "Soil", en: "Soil testing and advice (Soil Health Card)", kn: "ಮಣ್ಣು ಪರೀಕ್ಷೆ ಮತ್ತು ಸಲಹೆ (ಮಣ್ಣು ಆರೋಗ್ಯ ಕಾರ್ಡ್)" }
     ];
 
     let currentLang = localStorage.getItem('krishi_lang') || 'en';
@@ -671,45 +730,10 @@
 
     formDist.addEventListener('change', (e) => syncManualForm(e.target.value));
 
-    function triggerManualFormEval() {
-      const resultsDiv = document.getElementById('form-results-container');
-      const dist = formDist.value;
-      const acres = parseFloat(formLandSlider.value);
-      const isKn = currentLang === 'kn';
-
-      resultsDiv.innerHTML = `
-        <div class="p-4 bg-slate-900 border-2 border-emerald-500 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sm text-white">${isKn ? '೧. ಪಿಎಂ-ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ' : '1. PM-KISAN Samman Nidhi'}</span>
-            <span class="px-2 py-0.5 rounded bg-emerald-950 text-emerald-400 border border-emerald-800 text-[10px] font-bold">${isKn ? 'ಅರ್ಹರು' : 'ELIGIBLE'}</span>
-          </div>
-          <p class="text-xs text-emerald-300 font-semibold">${isKn ? 'ವಾರ್ಷಿಕ ₹6,000 ನೇರ ಬ್ಯಾಂಕ್ ಜಮಾ (3 ಕಂತುಗಳಲ್ಲಿ ತಲಾ ₹2,000)' : '₹6,000 / Year DBT in 3 installments of ₹2,000'}</p>
-          <div class="text-[11px] text-slate-400">${isKn ? 'ಪಹಣಿ ಹಾಗೂ ಆಧಾರ್ ಪರಿಶೀಲಿಸಲಾಗಿದೆ. ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರಲ್ಲದ ಷರತ್ತು ಪಾಸಾಗಿದೆ.' : 'Pahani & Aadhaar verified. Non-taxpayer criteria passed.'}</div>
-        </div>
-
-        <div class="p-4 bg-slate-900 border-2 border-blue-500 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sm text-white">${isKn ? '೨. ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (PMFBY)' : '2. PMFBY Crop Insurance'}</span>
-            <span class="px-2 py-0.5 rounded bg-blue-950 text-blue-400 border border-blue-800 text-[10px] font-bold">${isKn ? 'ಅರ್ಹರು' : 'ELIGIBLE'}</span>
-          </div>
-          <p class="text-xs text-blue-300 font-semibold">${isKn ? `${dist} ಜಿಲ್ಲೆಯಲ್ಲಿ ಬೆಳೆ ನಷ್ಟ ಪರಿಹಾರಕ್ಕೆ ವಿಮಾ ರಕ್ಷಣೆ ಲಭ್ಯವಿದೆ.` : `Crop loss yield protection covered in ${dist} district.`}</p>
-          <div class="text-[11px] text-slate-400">${isKn ? 'ರೈತರು ಕೇವಲ 1.5% ನಿಂದ 2.0% ಪ್ರೀಮಿಯಂ ಪಾವತಿಸಬೇಕಾಗುತ್ತದೆ.' : 'Farmer pays nominal 1.5% to 2.0% premium share.'}</div>
-        </div>
-
-        <div class="p-4 bg-slate-900 border-2 border-amber-500 rounded-2xl space-y-2">
-          <div class="flex justify-between items-center">
-            <span class="font-bold text-sm text-white">${isKn ? '೩. ಡೆಮೊ ಹನಿ ನೀರಾವರಿ ಸಹಾಯ ಯೋಜನೆ [ಡೆಮೊ]' : '3. Demo Micro-Irrigation Support [DEMO]'}</span>
-            <span class="px-2 py-0.5 rounded bg-amber-950 text-amber-400 border border-amber-800 text-[10px] font-bold">${isKn ? 'ಡೆಮೊ ಪಾಸ್' : 'DEMO PASS'}</span>
-          </div>
-          <p class="text-xs text-amber-300 font-semibold">${acres <= 5.0 ? (isKn ? 'ಸಣ್ಣ ರೈತರಿಗೆ ಶೇಕಡಾ 90 ರಷ್ಟು ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ' : '90% Drip Subsidy for Small Farmers') : (isKn ? 'ಶೇಕಡಾ 70 ರಷ್ಟು ಸಾಮಾನ್ಯ ಸಬ್ಸಿಡಿ' : '70% Standard Subsidy')}</p>
-          <div class="text-[11px] text-slate-400">${isKn ? 'ಅನುಮೋದಿತ ಸಂಸ್ಥೆಗಳು: ಜೈನ್ ಇರಿಗೇಷನ್, ನೆಟಾಫಿಮ್ ಕರ್ನಾಟಕ.' : 'Approved vendors: Jain Irrigation, Netafim Karnataka certified.'}</div>
-        </div>
-      `;
-    }
-
     // Initialize on load
     setLanguage(currentLang);
   </script>
+  <script src="web_app.js"></script>
 
 </body>
 </html>

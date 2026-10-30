@@ -27,19 +27,19 @@ To ensure bulletproof reliability and zero wasted effort during the hackathon, d
 
 ---
 
-## 2. Benchmark Reference Dataset Specification
+## 2. Stored Government Scheme Catalogue
 
-The problem statement requires testing against a hybrid benchmark dataset of **2 Real Schemes** and **3 Synthetic/Fictional Schemes**:
+The application uses a locally stored catalogue researched against official portals, not a live web-search response or synthetic scheme branches:
 
 | Scheme | Type | Purpose & Scope |
 | :--- | :--- | :--- |
-| **PM-KISAN** | Real Official Scheme | Income support of ₹6,000/yr for landholding farmer families. Requires strict verification of official exclusions (institutional landholders, income tax payees, constitutional posts) and mandatory document criteria (RTC/Pahani, Aadhaar-NPCI seeded bank account). |
-| **PMFBY** | Real Official Scheme | Comprehensive crop insurance for notified crops (Ragi, Togari, Jola, Paddy, Cotton) across seasons (Kharif/Rabi) against weather calamities. |
-| **Demo Micro-Irrigation Support** | Fictional Synthetic | Test case for drip & sprinkler irrigation subsidy (70% general, 90% small/marginal). Tests water source availability and historical subsidy cooldown constraints. |
-| **Demo Agricultural Equipment Assistance** | Fictional Synthetic | Test case for farm mechanization subsidy (power tillers, rotavators, small tractors) capped at ₹1,00,000 / 50%. |
-| **Demo Soil Improvement Support** | Fictional Synthetic | Test case for soil health incentive (₹5,000/ha) based on Soil Health Card deficiency indicators. |
+| **PM-KISAN** | Central Government scheme | Income support programme for eligible farmer families. Final beneficiary status and exclusions require official verification. |
+| **PMFBY / Karnataka Samrakshane** | Central scheme / Karnataka implementation | Crop insurance; current notified crop, area, enrollment, and claim must be confirmed for the relevant season. |
+| **PMKSY — Per Drop More Crop** | Central scheme / state implementation | Supports farm-level water-use efficiency through drip and sprinkler irrigation. Current Karnataka criteria/rates are not hardcoded. |
+| **Sub-Mission on Agricultural Mechanization (SMAM)** | Central scheme / state implementation | Machinery assistance may be available; current equipment list, rates, applicant category, and allocation require official confirmation. |
+| **Soil Health Card Programme** | Government soil testing/advisory service | Provides soil test and nutrient recommendations. It is not represented as a cash grant. |
 
-*Transparency Guardrail: The application will display a distinct `[DEMO / TEST CASE]` badge alongside synthetic schemes to prevent real-world misinformation.*
+Catalogue entries include official source links and a research date. Time-sensitive local conditions are referred to current government portals instead of being inferred or invented.
 
 ---
 
@@ -66,6 +66,6 @@ The problem statement requires testing against a hybrid benchmark dataset of **2
 
 ## 4. Success Criteria Across Prototypes
 
-1. **Stage 1 Success:** Text input like *"ನಮ್ಮ ಹೊಲ ಮೂರ್ ಎಕರೆ, ಬೋರ್ವೆಲ್ ಐತಿ, ಹನಿ ನೀರಾವರಿಗೆ ಸಹಾಯ ಸಿಗ್ತೈತಾ?"* correctly outputs eligibility for `Demo Micro-Irrigation Support` and `PM-KISAN` with audit trail and document list.
+1. **Stage 1 Success:** Text input like *"ನಮ್ಮ ಹೊಲ ಮೂರ್ ಎಕರೆ, ಬೋರ್ವೆಲ್ ಐತಿ, ಹನಿ ನೀರಾವರಿಗೆ ಸಹಾಯ ಸಿಗ್ತೈತಾ?"* returns source-linked PMKSY information without claiming a fixed subsidy or approval.
 2. **Stage 2 Success:** The recommendation is converted into natural, warm, spoken Kannada audio in under 500ms, strictly limited to 2-3 clear sentences.
 3. **Stage 3 Success:** A user speaks into the browser microphone; the system transcribes live, computes eligibility, plays spoken audio, and updates interactive scheme cards in < 2.0 seconds.
