@@ -29,6 +29,7 @@ def ensure_utc(dt: Optional[datetime]) -> Optional[datetime]:
 
 from backend.auth.config import (
     IS_PRODUCTION,
+    OTP_PROVIDER,
     REFRESH_TOKEN_DAYS,
     OTP_EXPIRY_MINUTES,
     OTP_MAX_ATTEMPTS,
@@ -111,11 +112,15 @@ def request_otp(req: RequestOtpRequest, request: Request, db: Session = Depends(
     sms_provider = get_sms_provider()
     sms_provider.send_otp(phone, otp_code)
 
-    return {
+    res = {
         "status": "success",
         "message": "OTP sent successfully",
         "phone": mask_phone_number(phone),
     }
+    if not IS_PRODUCTION and OTP_PROVIDER == "console":
+        res["dev_otp"] = otp_code
+
+    return res
 
 
 @router.post("/verify-otp")

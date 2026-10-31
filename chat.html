@@ -465,6 +465,7 @@
       }
     }
   </style>
+  <script src="/web_app.js"></script>
 </head>
 
 <body class="bg-[#F8FAFC] text-slate-800 antialiased font-sans h-screen flex overflow-hidden">
@@ -954,6 +955,16 @@
 
     // Process Query (NLU & Rule Evaluation via FastAPI Backend)
     async function processFarmerQuery(queryText, responseData = null) {
+      if (!queryText && !responseData) return;
+
+      // Ensure farmer is authenticated before querying the AI agent
+      if (!responseData && window.KrishiAuth && !window.KrishiAuth.getToken()) {
+        window.KrishiAuth.showLoginModal(async () => {
+          await processFarmerQuery(queryText);
+        });
+        return;
+      }
+
       appendChatMsg('user', queryText);
       showTypingIndicator();
 
@@ -974,6 +985,13 @@
           });
 
           if (!response.ok) {
+            if (response.status === 401 && window.KrishiAuth) {
+              removeTypingIndicator();
+              window.KrishiAuth.showLoginModal(async () => {
+                await processFarmerQuery(queryText);
+              });
+              return;
+            }
             throw new Error('API server returned status ' + response.status);
           }
           data = await response.json();
@@ -1355,8 +1373,6 @@
     updateChatLanguage(currentLanguage);
     updateLiveProfileBar();
   </script>
-
-  <script src="/web_app.js"></script>
 </body>
 
 </html>
