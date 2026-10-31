@@ -334,3 +334,73 @@ When calling `/api/voice-turn` without active consent for the current policy ver
     }
   }
   ```
+
+
+---
+
+## 5. Offline Degradation, App Shell & Idempotency Endpoints
+
+### 5.1 Idempotency Key Specification
+To prevent duplicate processing or repeated billing/LLM inference when client requests are dropped mid-flight on flaky rural networks, endpoints accept an optional client UUID via the `Idempotency-Key` header.
+
+* **Applicable Endpoints**:
+  - `POST /api/chat`
+  - `POST /api/voice-turn`
+* **Request Header**:
+  ```http
+  Idempotency-Key: 123e4567-e89b-12d3-a456-426614174000
+  ```
+* **Response Headers**:
+  - `Idempotency-Key`: Matches the request key.
+  - `X-Idempotency-Status`:
+    - `STORED`: First time processing; response computed and stored in cache.
+    - `HIT`: Cached response returned immediately without re-invoking ASR/LLM/TTS.
+
+---
+
+### 5.2 Offline App Shell & Static Knowledge Endpoints
+
+#### `GET /sw.js`
+Serves the Krishi Mitra Service Worker script (`krishi-shell-v1`).
+* **Headers**: `Content-Type: application/javascript`, `Cache-Control: no-cache`
+* **Behavior**:
+  - Caches app shell: `/index.html`, `/chat.html`, `/web_app.js`, `/offline_faq.json`, Tailwind CSS, Google Fonts, Material Icons.
+  - Excludes authenticated API paths (`/api/*`) from service worker caching.
+  - Provides offline fallback for HTML navigations.
+
+#### `GET /offline_faq.json`
+Provides a verified, offline-accessible reference catalog derived from `schemes_knowledge_base.md`.
+* **Headers**: `Content-Type: application/json`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "version": "1.0",
+    "last_researched": "2026-10-31",
+    "disclaimer_kn": "ಗಮನಿಸಿ: ಇದು ಆಫ್‌ಲೈನ್ ಮಾಹಿತಿ. ಅಧಿಕೃತ ಪರಿಶೀಲನೆಗೆ ಇಂಟರ್ನೆಟ್ ಅಗತ್ಯವಿದೆ.",
+    "disclaimer_en": "Notice: Offline guidance catalog. Final eligibility determination requires an active internet connection.",
+    "schemes": [
+      {
+        "code": "PM_KISAN",
+        "name_kn": "ಪಿಎಂ-ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ",
+        "name_en": "PM-KISAN Samman Nidhi",
+        "benefit_kn": "ವರ್ಷಕ್ಕೆ ₹6,000 (ತಲಾ ₹2,000 ರಂತೆ 3 ಕಂತುಗಳಲ್ಲಿ)",
+        "benefit_en": "Rs. 6,000 per year in 3 equal installments",
+        "eligibility_kn": "ಕೃಷಿ ಭೂಮಿ ಹೊಂದಿರುವ ಎಲ್ಲಾ ರೈತ ಕುಟುಂಬಗಳು (ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರು).",
+        "eligibility_en": "All landholding farmer families with cultivable land.",
+        "exclusions_kn": "ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರು, ಸರ್ಕಾರಿ ನೌಕರರು, ಸಾಂವಿಧಾನಿಕ ಹುದ್ದೆ ಹೊಂದಿರುವವರು.",
+        "exclusions_en": "Income tax payees, government employees, institutional landholders.",
+        "documents": ["Aadhaar", "Land Record (RTC/Pahani)", "Active Bank Account linked to NPCI"],
+        "how_to_apply": "Grama One, Bapuji Seva Kendra, or pmkisan.gov.in"
+      }
+    ]
+  }
+  ```
+
+#### `GET /api/health`
+Lightweight heartbeat health endpoint for client connectivity tri-state detection (`online`, `unstable`, `offline`).
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "healthy"
+  }
+  ```

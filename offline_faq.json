@@ -1,0 +1,168 @@
+{
+  "version": "1.0",
+  "last_researched": "2026-10-30",
+  "disclaimer_kn": "ಇದು ಆಫ್‌ಲೈನ್ ಮಾಹಿತಿ ಮಾರ್ಗದರ್ಶಿ. ಪ್ರಸ್ತುತ ಸಾಲಿನ ನಿಖರ ಅರ್ಹತೆ, ದಾಖಲೆಗಳು ಮತ್ತು ಅರ್ಜಿ ಸಲ್ಲಿಕೆ ದಿನಾಂಕವನ್ನು ಖಚಿತಪಡಿಸಿಕೊಳ್ಳಲು ನಿಮ್ಮ ಸಮೀಪದ ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರ ಅಥವಾ ಅಧಿಕೃತ ಪೋರ್ಟಲ್‌ಗೆ ಭೇಟಿ ನೀಡಿ.",
+  "disclaimer_en": "This is an offline reference guide. To verify current eligibility, active application windows, and guidelines, visit your nearest Raitha Samparka Kendra or official government portal.",
+  "schemes": [
+    {
+      "id": "REF#GOI-KISAN-01",
+      "code": "PM_KISAN",
+      "title_kn": "ಪಿಎಂ-ಕಿಸಾನ್ (ಪ್ರಧಾನ ಮಂತ್ರಿ ಕಿಸಾನ್ ಸಮ್ಮಾನ್ ನಿಧಿ)",
+      "title_en": "PM-KISAN (Pradhan Mantri Kisan Samman Nidhi)",
+      "category": "income_support",
+      "benefit_kn": "ವರ್ಷಕ್ಕೆ ₹6,000 ನೇರ ಆದಾಯ ನೆರವು (ತಲಾ ₹2,000 ರ 3 ಕಂತುಗಳಲ್ಲಿ ಆಧಾರ್ ಲಿಂಕ್ಡ್ ಬ್ಯಾಂಕ್ ಖಾತೆಗೆ ನೇರ ಜಮೆ).",
+      "benefit_en": "₹6,000 per year direct income support paid in 3 four-monthly installments of ₹2,000 directly via DBT.",
+      "eligibility_kn": [
+        "ತಮ್ಮ ಹೆಸರಿನಲ್ಲಿ ಸಾಗುವಳಿ ಜಮೀನು ಹೊಂದಿರುವ ಎಲ್ಲಾ ಭೂಹಿಡುವಳಿದಾರ ರೈತ ಕುಟುಂಬಗಳು.",
+        "ಸಾಂಸ್ಥಿಕ ಭೂಹಿಡುವಳಿದಾರರು, ಸಾಂವಿಧಾನಿಕ ಹುದ್ದೆ ಹೊಂದಿರುವವರು ಹಾಗೂ ಆದಾಯ ತೆರಿಗೆ ಪಾವತಿದಾರರಿಗೆ ಅನ್ವಯಿಸುವುದಿಲ್ಲ.",
+        "ಬಯೋಮೆಟ್ರಿಕ್ ಅಥವಾ ಆಧಾರ್ ಒಟಿಪಿ ಮೂಲಕ ಇ-ಕೆವೈಸಿ ಮಾಡಿಸುವುದು ಕಡ್ಡಾಯ."
+      ],
+      "eligibility_en": [
+        "All landholder farmer families with cultivable landholding in their name.",
+        "Excludes institutional landholders, constitutional post holders & income tax payers.",
+        "Mandatory e-KYC authentication via biometric or Aadhaar OTP."
+      ],
+      "required_documents_kn": [
+        "ಪಹಣಿ / ಆರ್‌ಟಿಸಿ (RTC/Pahani)",
+        "ಆಧಾರ್ ಕಾರ್ಡ್ (Aadhaar Card)",
+        "ಆಧಾರ್ ಲಿಂಕ್ಡ್ ಸಕ್ರಿಯ ಬ್ಯಾಂಕ್ ಖಾತೆ (NPCI Active Bank Account)"
+      ],
+      "required_documents_en": [
+        "Pahani / RTC land record",
+        "Aadhaar Card",
+        "NPCI-linked active bank account"
+      ],
+      "application_channel_kn": "ಗ್ರಾಮ ಒನ್ (Grama One), ಕರ್ನಾಟಕ ಒನ್, ಅಥವಾ pmkisan.gov.in ಅಧಿಕೃತ ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನೋಂದಣಿ ಮಾಡಬಹುದು.",
+      "application_channel_en": "Register via Grama One, Karnataka One centers, or pmkisan.gov.in official portal.",
+      "portal_url": "https://pmkisan.gov.in"
+    },
+    {
+      "id": "REF#KA-PMFBY-02",
+      "code": "PMFBY",
+      "title_kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಫಸಲ್ ಬಿಮಾ ಯೋಜನೆ (ಕರ್ನಾಟಕ ಸಂರಕ್ಷಣೆ)",
+      "title_en": "PMFBY / Karnataka Samrakshane (Crop Insurance)",
+      "category": "crop_insurance",
+      "benefit_kn": "ಬರ, ಪ್ರವಾಹ, ಕೀಟಬಾಧೆ ಹಾಗೂ ನೈಸರ್ಗಿಕ ವಿಕೋಪಗಳಿಂದ ಉಂಟಾಗುವ ಬೆಳೆ ನಷ್ಟಕ್ಕೆ ಆರ್ಥಿಕ ಪರಿಹಾರ ಮತ್ತು ವಿಮಾ ರಕ್ಷಣೆ.",
+      "benefit_en": "Comprehensive insurance coverage against crop failure due to non-preventable natural risks (drought, flood, pests).",
+      "eligibility_kn": [
+        "ಅಧಿಸೂಚಿತ ಬೆಳೆ ಬೆಳೆಯುವ ಎಲ್ಲಾ ರೈತರು (ಸ್ವಂತ ಭೂಮಿ ಹೊಂದಿದವರು ಅಥವಾ ಗೇಣಿದಾರರು).",
+        "ಕರ್ನಾಟಕ ಸರ್ಕಾರದ ಸಂರಕ್ಷಣೆ ಪೋರ್ಟಲ್‌ನಲ್ಲಿ ನಿಗದಿತ ಕಟ್-ಆಫ್ ದಿನಾಂಕದೊಳಗೆ ನೋಂದಣಿ ಕಡ್ಡಾಯ.",
+        "ಬೆಳೆ ನಷ್ಟವಾದ 72 ಗಂಟೆಗಳ ಒಳಗೆ ಸಮೀಪದ ಕೃಷಿ ಇಲಾಖೆ ಅಥವಾ ವಿಮಾ ಕಂಪನಿಗೆ ಮಾಹಿತಿ ನೀಡುವುದು ಅಗತ್ಯ."
+      ],
+      "eligibility_en": [
+        "All farmers growing notified crops in notified areas (sharecroppers and tenant farmers eligible with proof).",
+        "Enrollment before seasonal cutoff date on Karnataka Samrakshane portal is mandatory.",
+        "Individual crop loss must be reported within 72 hours of localized calamity."
+      ],
+      "required_documents_kn": [
+        "ಪ್ರಸ್ತುತ ಸಾಲಿನ ಪಹಣಿ (Current Year Pahani)",
+        "ಬೆಳೆ ದೃಢೀಕರಣ ಪತ್ರ / ಫ್ರೂಟ್ಸ್ ಐಡಿ (FRUITS ID / Crop Certificate)",
+        "ಆಧಾರ್ ಕಾರ್ಡ್ ಮತ್ತು ಬ್ಯಾಂಕ್ ಪಾಸ್‌ಬುಕ್"
+      ],
+      "required_documents_en": [
+        "Current season RTC / Pahani",
+        "FRUITS ID / Sowing declaration",
+        "Aadhaar Card and bank passbook"
+      ],
+      "application_channel_kn": "ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರ (RSK), ಗ್ರಾಮ ಒನ್ ಕೇಂದ್ರಗಳು ಅಥವಾ ಸಂರಕ್ಷಣೆ ವೆಬ್‌ಸೈಟ್ ಮೂಲಕ.",
+      "application_channel_en": "Raitha Samparka Kendra (RSK), Grama One, or samrakshane.karnataka.gov.in.",
+      "portal_url": "https://samrakshane.karnataka.gov.in"
+    },
+    {
+      "id": "REF#GOI-PMKSY-03",
+      "code": "PMKSY_DRIP",
+      "title_kn": "ಪ್ರಧಾನ ಮಂತ್ರಿ ಕೃಷಿ ಸಿಂಚಾಯಿ ಯೋಜನೆ — ಹನಿ ನೀರಾವರಿ (PMKSY)",
+      "title_en": "PMKSY — Per Drop More Crop (Micro Irrigation / Drip)",
+      "category": "irrigation",
+      "benefit_kn": "ಹನಿ ಮತ್ತು ತುಂತುರು ನೀರಾವರಿ ಅಳವಡಿಕೆಗೆ ಶೇಕಡಾ 90 ರವರೆಗೆ (ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರಿಗೆ) ಸರ್ಕಾರಿ ಸಹಾಯಧನ.",
+      "benefit_en": "Up to 90% subsidy for small/marginal farmers for installing drip or sprinkler irrigation systems.",
+      "eligibility_kn": [
+        "ಸಾಗುವಳಿ ಜಮೀನು ಹಾಗೂ ಶಾಶ್ವತ ನೀರಿನ ಮೂಲ (ಬೋರ್ವೆಲ್, ಬಾವಿ, ಕಾಲುವೆ ಅಥವಾ ನದಿ) ಹೊಂದಿರಬೇಕು.",
+        "ಕಳೆದ 3 ವರ್ಷಗಳಲ್ಲಿ ಅದೇ ಜಮೀನಿಗೆ ಹನಿ ನೀರಾವರಿ ಸಬ್ಸಿಡಿ ಪಡೆದಿರಬಾರದು.",
+        "ರಾಜ್ಯ ತೋಟಗಾರಿಕೆ ಅಥವಾ ಕೃಷಿ ಇಲಾಖೆಯ ಮುಖಾಂತರ ಅನುಮೋದಿತ ಕಂಪನಿಗಳ ಉಪಕರಣ ಅಳವಡಿಕೆ."
+      ],
+      "eligibility_en": [
+        "Farmer must possess cultivable land and an assured permanent water source (borewell/open well/canal).",
+        "Cooldown period: Must not have availed micro-irrigation subsidy for the same parcel in last 3 years.",
+        "Equipment must be installed via empanelled horticulture/agriculture department vendors."
+      ],
+      "required_documents_kn": [
+        "ಪಹಣಿ / ಆರ್‌ಟಿಸಿ (RTC)",
+        "ನೀರಿನ ಮೂಲ ದೃಢೀಕರಣ ಪತ್ರ (ಬೋರ್ವೆಲ್ / ಪಂಪ್‌ಸೆಟ್ ಬಿಲ್)",
+        "ಫ್ರೂಟ್ಸ್ ಐಡಿ (FRUITS ID) ಮತ್ತು ಬ್ಯಾಂಕ್ ವಿವರ"
+      ],
+      "required_documents_en": [
+        "Land Record / RTC",
+        "Water source certificate / electricity connection bill",
+        "FRUITS ID and bank details"
+      ],
+      "application_channel_kn": "ತಾಲ್ಲೂಕು ತೋಟಗಾರಿಕೆ ಇಲಾಖೆ ಕಚೇರಿ ಅಥವಾ ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರ.",
+      "application_channel_en": "Taluk Horticulture Office or local Raitha Samparka Kendra.",
+      "portal_url": "https://pmksy.gov.in"
+    },
+    {
+      "id": "REF#GOI-SMAM-04",
+      "code": "SMAM_MACHINERY",
+      "title_kn": "ಕೃಷಿ ಯಾಂತ್ರೀಕರಣ ಯೋಜನೆ (SMAM — Agricultural Mechanization)",
+      "title_en": "Sub-Mission on Agricultural Mechanization (SMAM / Machinery)",
+      "category": "mechanization",
+      "benefit_kn": "ಪವರ್ ಟಿಲ್ಲರ್, ಟ್ರ್ಯಾಕ್ಟರ್ ಉಪಕರಣಗಳು ಹಾಗೂ ಕಟಾವು ಯಂತ್ರಗಳ ಖರೀದಿಗೆ ಶೇಕಡಾ 40 ರಿಂದ 50 ರವರೆಗೆ ಸಹಾಯಧನ.",
+      "benefit_en": "40% to 50% financial assistance for purchasing farm equipment (Power Tiller, rotavator, cultivators).",
+      "eligibility_kn": [
+        "ತಮ್ಮ ಹೆಸರಿನಲ್ಲಿ ಸಾಗುವಳಿ ಭೂಮಿ ಹೊಂದಿರುವ ರೈತರು.",
+        "ಪವರ್ ಟಿಲ್ಲರ್‌ಗೆ ಕನಿಷ್ಠ 2 ರಿಂದ 5 ಎಕರೆ ಜಮೀನು ಶಿಫಾರಸು.",
+        "ಪರಿಶಿಷ್ಟ ಜಾತಿ / ಪರಿಶಿಷ್ಟ ಪಂಗಡ ಹಾಗೂ ಮಹಿಳಾ ರೈತರಿಗೆ ಆದ್ಯತೆ ಮತ್ತು ಹೆಚ್ಚುವರಿ ಸಹಾಯಧನ."
+      ],
+      "eligibility_en": [
+        "Landholding farmers with active cultivation in Karnataka.",
+        "SC/ST, small/marginal and women farmers receive higher subsidy allocation.",
+        "Allotment is subject to annual district target allocations."
+      ],
+      "required_documents_kn": [
+        "ಚಾಲ್ತಿ ಸಾಲಿನ ಆರ್‌ಟಿಸಿ (RTC)",
+        "ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ (ಅನ್ವಯಿಸಿದರೆ)",
+        "ಆಧಾರ್ ಕಾರ್ಡ್, ಚಾಲನಾ ಪರವಾನಗಿ ಅಥವಾ ಅಫಿಡವಿಟ್"
+      ],
+      "required_documents_en": [
+        "Current RTC",
+        "Caste & Income Certificate (if seeking affirmative category benefit)",
+        "Aadhaar Card and bank details"
+      ],
+      "application_channel_kn": "ರೈತ ಸಂಪರ್ಕ ಕೇಂದ್ರ ಅಥವಾ agrimachinery.nic.in ಪೋರ್ಟಲ್.",
+      "application_channel_en": "Raitha Samparka Kendra or agrimachinery.nic.in DBT portal.",
+      "portal_url": "https://agrimachinery.nic.in"
+    },
+    {
+      "id": "REF#KA-GANGA-05",
+      "code": "GANGA_KALYANA",
+      "title_kn": "ಗಂಗಾ ಕಲ್ಯಾಣ ಯೋಜನೆ (Ganga Kalyana Scheme)",
+      "title_en": "Ganga Kalyana Scheme (Free Irrigation Borewell)",
+      "category": "irrigation",
+      "benefit_kn": "ಸಣ್ಣ ಮತ್ತು ಅತಿ ಸಣ್ಣ ರೈತರಿಗೆ 100% ಉಚಿತ ಕೊಳವೆಬಾವಿ, ಪಂಪ್‌ಸೆಟ್ ಹಾಗೂ ವಿದ್ಯುದ್ದೀಕರಣ (₹3.75 ಲಕ್ಷದವರೆಗೆ ಸಂಪೂರ್ಣ ಅನುದಾನ).",
+      "benefit_en": "100% free borewell drilling, pump set energization and installation grant up to ₹3.75 Lakhs.",
+      "eligibility_kn": [
+        "ಪರಿಶಿಷ್ಟ ಜಾತಿ, ಪರಿಶಿಷ್ಟ ಪಂಗಡ, ಹಿಂದುಳಿದ ವರ್ಗಗಳು (ಹಿಂ.ವ) ಅಥವಾ ಅಲ್ಪಸಂಖ್ಯಾತ ಸಮುದಾಯಕ್ಕೆ ಸೇರಿದ ರೈತರು.",
+        "ಗ್ರಾಮೀಣ ಪ್ರದೇಶದಲ್ಲಿ ವಾರ್ಷಿಕ ಕುಟುಂಬ ಆದಾಯ ₹1,50,000 ಕ್ಕಿಂತ ಕಡಿಮೆ ಇರಬೇಕು.",
+        "ಒಣಭೂಮಿಯಲ್ಲಿ ಕನಿಷ್ಠ 1.5 ಎಕರೆಯಿಂದ 5.0 ಎಕರೆಯವರೆಗೆ ಜಮೀನು ಹೊಂದಿರಬೇಕು."
+      ],
+      "eligibility_en": [
+        "Small & marginal farmers belonging to SC, ST, OBC & Minorities.",
+        "Annual family income limit ≤ ₹1,50,000 (Rural).",
+        "Dryland holding between 1.5 to 5.0 acres."
+      ],
+      "required_documents_kn": [
+        "ಆರ್‌ಟಿಸಿ / ಪಹಣಿ ಪತ್ರ (Pahani / RTC)",
+        "ಜಾತಿ ಮತ್ತು ಆದಾಯ ಪ್ರಮಾಣಪತ್ರ (RD ಸಂಖ್ಯೆ ಹೊಂದಿರಬೇಕು)",
+        "ಸಣ್ಣ ಹಿಡುವಳಿದಾರರ ದೃಢೀಕರಣ ಪತ್ರ ಮತ್ತು ಆಧಾರ್ ಕಾರ್ಡ್"
+      ],
+      "required_documents_en": [
+        "RTC / Pahani",
+        "Caste & Income Certificate with valid RD number",
+        "Small/Marginal Farmer Certificate and Aadhaar"
+      ],
+      "application_channel_kn": "ಸೇವಾ ಸಿಂಧು (Seva Sindhu) ಪೋರ್ಟಲ್ ಅಥವಾ ಸಂಬಂಧಿತ ಅಭಿವೃದ್ಧಿ ನಿಗಮದ ಕಚೇರಿ (D. Devaraj Urs / Ambedkar / Minorities Nigam).",
+      "application_channel_en": "Seva Sindhu portal or respective community Development Corporation office.",
+      "portal_url": "https://sevasindhuservices.karnataka.gov.in"
+    }
+  ]
+}

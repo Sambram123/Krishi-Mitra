@@ -13,13 +13,14 @@ Provides:
 import os
 import sys
 import uuid
+import time
 from typing import Dict, Any, List, Optional
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException, Depends, status
+from fastapi import FastAPI, HTTPException, Depends, status, Header, Response
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from pydantic import BaseModel, Field
 from dotenv import load_dotenv
 
@@ -33,6 +34,7 @@ load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 from backend.web_server import APIError, handle_chat as run_groq_chat, handle_voice_turn
 from backend.db.database import init_db
 from backend.db.models import User
+from backend.idempotency import get_idempotency_store
 from backend.auth import (
     auth_router,
     admin_router,
@@ -180,47 +182,135 @@ def _record_turn(session: Dict[str, Any], message: str, reply: str) -> None:
     session["history"] = session["history"][-8:]
 
 
-@app.post("/api/chat", response_model=ChatResponse)
-def handle_chat(req: ChatRequest, current_user: User = Depends(get_current_user)):
-    user_id = str(current_user.id)
-    session_id = req.session_id or str(uuid.uuid4())[:8]
-    session = _session_context(session_id, req.profile, req.history, user_id)
-    payload = {
-        "message": req.message,
-        "language": req.language,
-        "profile": dict(session["profile"]),
-        "history": [dict(turn) for turn in session["history"]],
-    }
-    try:
-        result = run_groq_chat(payload, request_id=uuid.uuid4().hex[:12])
-    except APIError as error:
-        raise HTTPException(status_code=error.status, detail=str(error)) from error
+def _handle_idempotency_lookup(
+    key: Optional[str],
+    store,
+) -> Optional[JSONResponse]:
+    """
+    Checks if a request with this idempotency key was already completed or in-flight.
+    Returns cached JSONResponse if found, otherwise None.
+    """
+    if not key:
+        return None
 
-    session["profile"] = result["profile"]
-    # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
-    if getattr(current_user, "save_history", False):
-        _record_turn(session, req.message.strip(), result["reply"])
-    return _format_response(session_id, result)
+    # Direct hit check
+    cached = store.get(key)
+    if cached:
+        status_code, response_data = cached
+        return JSONResponse(
+            status_code=status_code,
+            content=response_data,
+            headers={"Idempotency-Key": key, "X-Idempotency-Status": "HIT"},
+        )
+
+    # Wait briefly if another request with same key is currently in flight
+    for _ in range(12):
+        if not store.is_in_flight(key):
+            break
+        time.sleep(0.2)
+        cached = store.get(key)
+        if cached:
+            status_code, response_data = cached
+            return JSONResponse(
+                status_code=status_code,
+                content=response_data,
+                headers={"Idempotency-Key": key, "X-Idempotency-Status": "HIT"},
+            )
+
+    return None
+
+
+@app.post("/api/chat", response_model=ChatResponse)
+def handle_chat(
+    req: ChatRequest,
+    response: Response,
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
+    current_user: User = Depends(get_current_user),
+):
+    store = get_idempotency_store()
+    cached_resp = _handle_idempotency_lookup(idempotency_key, store)
+    if cached_resp:
+        return cached_resp
+
+    if idempotency_key:
+        store.start_in_flight(idempotency_key)
+
+    try:
+        user_id = str(current_user.id)
+        session_id = req.session_id or str(uuid.uuid4())[:8]
+        session = _session_context(session_id, req.profile, req.history, user_id)
+        payload = {
+            "message": req.message,
+            "language": req.language,
+            "profile": dict(session["profile"]),
+            "history": [dict(turn) for turn in session["history"]],
+        }
+        try:
+            result = run_groq_chat(payload, request_id=uuid.uuid4().hex[:12])
+        except APIError as error:
+            raise HTTPException(status_code=error.status, detail=str(error)) from error
+
+        session["profile"] = result["profile"]
+        # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
+        if getattr(current_user, "save_history", False):
+            _record_turn(session, req.message.strip(), result["reply"])
+
+        formatted = _format_response(session_id, result)
+
+        if idempotency_key:
+            store.set(idempotency_key, 200, formatted.model_dump())
+            response.headers["Idempotency-Key"] = idempotency_key
+            response.headers["X-Idempotency-Status"] = "STORED"
+
+        return formatted
+    finally:
+        if idempotency_key:
+            store.finish_in_flight(idempotency_key)
 
 
 @app.post("/api/voice-turn", response_model=ChatResponse)
-def voice_turn(req: VoiceTurnRequest, current_user: User = Depends(require_voice_consent)):
-    user_id = str(current_user.id)
-    session_id = req.session_id or str(uuid.uuid4())[:8]
-    session = _session_context(session_id, req.profile, req.history, user_id)
-    payload = req.model_dump(exclude={"session_id"})
-    payload["profile"] = dict(session["profile"])
-    payload["history"] = [dict(turn) for turn in session["history"]]
-    try:
-        result = handle_voice_turn(payload, request_id=uuid.uuid4().hex[:12])
-    except APIError as error:
-        raise HTTPException(status_code=error.status, detail=str(error)) from error
+def voice_turn(
+    req: VoiceTurnRequest,
+    response: Response,
+    idempotency_key: Optional[str] = Header(None, alias="Idempotency-Key"),
+    current_user: User = Depends(require_voice_consent),
+):
+    store = get_idempotency_store()
+    cached_resp = _handle_idempotency_lookup(idempotency_key, store)
+    if cached_resp:
+        return cached_resp
 
-    session["profile"] = result["profile"]
-    # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
-    if getattr(current_user, "save_history", False):
-        _record_turn(session, result["transcript"], result["reply"])
-    return _format_response(session_id, result)
+    if idempotency_key:
+        store.start_in_flight(idempotency_key)
+
+    try:
+        user_id = str(current_user.id)
+        session_id = req.session_id or str(uuid.uuid4())[:8]
+        session = _session_context(session_id, req.profile, req.history, user_id)
+        payload = req.model_dump(exclude={"session_id"})
+        payload["profile"] = dict(session["profile"])
+        payload["history"] = [dict(turn) for turn in session["history"]]
+        try:
+            result = handle_voice_turn(payload, request_id=uuid.uuid4().hex[:12])
+        except APIError as error:
+            raise HTTPException(status_code=error.status, detail=str(error)) from error
+
+        session["profile"] = result["profile"]
+        # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
+        if getattr(current_user, "save_history", False):
+            _record_turn(session, result["transcript"], result["reply"])
+
+        formatted = _format_response(session_id, result)
+
+        if idempotency_key:
+            store.set(idempotency_key, 200, formatted.model_dump())
+            response.headers["Idempotency-Key"] = idempotency_key
+            response.headers["X-Idempotency-Status"] = "STORED"
+
+        return formatted
+    finally:
+        if idempotency_key:
+            store.finish_in_flight(idempotency_key)
 
 
 # Serve root static pages
@@ -258,6 +348,26 @@ def serve_web_app():
     if os.path.exists(js_path):
         return FileResponse(js_path, media_type="application/javascript")
     raise HTTPException(status_code=404, detail="web_app.js not found")
+
+
+@app.get("/sw.js")
+def serve_sw():
+    sw_path = os.path.join(BASE_DIR, "sw.js")
+    if os.path.exists(sw_path):
+        return FileResponse(
+            sw_path,
+            media_type="application/javascript",
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"},
+        )
+    raise HTTPException(status_code=404, detail="sw.js not found")
+
+
+@app.get("/offline_faq.json")
+def serve_offline_faq():
+    faq_path = os.path.join(BASE_DIR, "offline_faq.json")
+    if os.path.exists(faq_path):
+        return FileResponse(faq_path, media_type="application/json")
+    raise HTTPException(status_code=404, detail="offline_faq.json not found")
 
 
 # Mount assets folder for videos, images, and audio

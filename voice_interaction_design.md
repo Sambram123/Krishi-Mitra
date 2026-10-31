@@ -101,3 +101,60 @@ stateDiagram-v2
    - Sarvam/ElevenLabs TTS first audio chunk: **450ms**
    - Browser audio playback initiation: **150ms**
    - **Total:** ~1.8 seconds (feels like a natural human pause).
+
+
+---
+
+## 5. Resilient Offline Voice Architecture & Outbox Degradation
+
+Rural telecommunications across Karnataka frequently experience intermittent packet loss, fluctuating bandwidth (2G/3G/EDGE), or sudden complete drops. Krishi Mitra treats network instability as a first-class UX state rather than an unhandled error.
+
+### 5.1 Honest Offline Guarantees
+* **No Fake AI Generation:** Neither speech-to-text (Sarvam ASR), conversational LLM reasoning (Groq Llama 3), nor speech synthesis (Sarvam TTS) run locally on lightweight rural mobile browsers. Krishi Mitra is explicitly honest in the UI: it never attempts to synthesize inaccurate or hallucinatory eligibility answers offline.
+* **Zero Lost Speech:** If a farmer speaks while the internet disconnects, the browser's hardware-bound `MediaRecorder` captures the audio buffer in full locally. The finished clip is immediately committed to IndexedDB with status `pending`.
+* **Read-Only Scheme Guidance:** The app shell, previous conversation turns, and scheme cards remain visible offline, complemented by a bundled offline FAQ catalog with official eligibility criteria and application centers (Grama One / Bapuji Seva Kendra).
+
+### 5.2 Resilient Voice Turn State Machine
+
+```mermaid
+stateDiagram-v2
+    [*] --> User_Speaking: Farmer taps mic
+    User_Speaking --> Network_Drops: Internet cuts out mid-recording
+    Network_Drops --> Local_Recording: MediaRecorder continues locally
+    Local_Recording --> IndexedDB_Outbox: Stop mic -> Enqueue clip (status: pending)
+    IndexedDB_Outbox --> Show_Outbox_Card: Render "Waiting to send" card in chat
+    
+    Show_Outbox_Card --> Heartbeat_Online: Heartbeat ping (/api/health) recovers
+    Heartbeat_Online --> Preflight_Checks: Validate JWT refresh + Voice Consent
+    Preflight_Checks --> Auto_Send_FIFO: Send with Idempotency-Key header
+    
+    Auto_Send_FIFO --> Drop_During_Upload: Network fails mid-POST
+    Drop_During_Upload --> Backoff_Retry: Exponential backoff + jitter (attempts < 5)
+    Backoff_Retry --> Auto_Send_FIFO
+    
+    Auto_Send_FIFO --> Drop_Before_Reply: Server finishes but client loses response
+    Drop_Before_Reply --> Reconnect_Same_Key: Re-send with identical Idempotency-Key
+    Reconnect_Same_Key --> Server_HIT: Server returns cached STORED response (no re-inference)
+    
+    Server_HIT --> Deliver_Turn: Remove from Outbox -> Render text & play TTS
+    Auto_Send_FIFO --> Deliver_Turn
+    Deliver_Turn --> [*]
+```
+
+### 5.3 Network Health Detection & Heartbeat Ping
+Relying solely on `navigator.onLine` fails on rural cellular networks that maintain a carrier signal without valid IP routing. Krishi Mitra runs a hybrid detector:
+1. `navigator.onLine` window event listeners for instantaneous physical disconnect triggers.
+2. Periodic background heartbeat ping every ~5 seconds to `/api/health` with a 3500ms abort controller timeout.
+3. **Tri-State Status:**
+   - **`online`**: Health check passes within 2500ms; banner hidden; outbox queue processed automatically.
+   - **`unstable`**: Health check latency exceeds 2500ms or 1 transient failure; amber warning banner displayed informing farmer that voice turns may experience slight delays.
+   - **`offline`**: Physical disconnect or 2 consecutive heartbeat failures; rose banner displayed reassuring the farmer that recordings remain safely saved on device.
+
+### 5.4 Queue Guardrails & Quota Limits
+* **Maximum Recording Duration:** Capped at 60 seconds (`LIMIT_MAX_DURATION_MS = 60,000`). Clips exceeding 60s are rejected immediately.
+* **Queue Capacity:** Maximum 10 pending items (`LIMIT_MAX_QUEUE_ITEMS = 10`).
+* **Storage Quota:** Maximum 20 MB total IndexedDB storage allocation (`LIMIT_MAX_TOTAL_BYTES = 20,971,520`).
+* **Time-To-Live Expiration:** 24-hour TTL (`LIMIT_TTL_MS = 86,400,000`). Stale items older than 24h are evicted from the queue with an explicit user notification.
+* **DPDP Consent & Privacy Compliance:**
+  - If the user withdraws voice consent, `KrishiOffline.purgeVoiceQueue()` immediately purges all queued voice clips from IndexedDB while keeping text intact.
+  - When logging out, `KrishiOffline.clearAllData()` wipes the outbox, cached sessions, and evaluations completely.

@@ -570,6 +570,16 @@
             <div class="text-[10px] text-slate-500">5 Acres • Belagavi • ₹1,00,000 Cap</div>
           </div>
         </button>
+
+        <!-- Offline Scheme Guides (Bundled FAQ) -->
+        <button onclick="showOfflineFaqModal()"
+          class="w-full text-left p-2.5 rounded-xl hover:bg-slate-50 text-slate-700 hover:text-slate-900 text-xs flex items-center gap-2.5 transition-colors border border-amber-200/80 bg-amber-50/50 group">
+          <span class="material-symbols-outlined text-amber-600 text-base shrink-0">local_library</span>
+          <div class="truncate">
+            <div class="font-semibold text-slate-800 group-hover:text-amber-800 truncate" id="sb-offline-faq-title">Offline Scheme Guides</div>
+            <div class="text-[10px] text-slate-500" id="sb-offline-faq-sub">Stored Reference • No AI Needed</div>
+          </div>
+        </button>
       </div>
 
     </div>
@@ -1058,144 +1068,86 @@
       }
 
       appendChatMsg('user', queryText);
-      showTypingIndicator();
+
+      // If response data is already provided (e.g. from voice turn or outbox flush), render directly
+      if (responseData) {
+        renderBotResponse(responseData);
+        return;
+      }
 
       const isKn = currentLanguage === 'kn';
+      const idempotencyKey = window.KrishiOffline ? window.KrishiOffline.generateUUID() : ('km_' + Date.now());
+
+      // If client is currently offline, enqueue to outbox immediately
+      if (!navigator.onLine || (window.KrishiOffline && window.KrishiOffline.getState() === 'offline')) {
+        if (window.KrishiOffline) {
+          try {
+            await window.KrishiOffline.enqueueChatMessage({
+              id: idempotencyKey,
+              sessionId: currentSessionId,
+              message: queryText,
+              language: currentLanguage
+            });
+            renderOutboxPendingCard(idempotencyKey, 'chat', 0, queryText);
+          } catch (queueErr) {
+            alert(queueErr.message);
+          }
+        }
+        return;
+      }
+
+      showTypingIndicator();
 
       try {
-        let data = responseData;
-        if (!data) {
-          const authFetch = (window.KrishiAuth && window.KrishiAuth.fetchWithAuth) ? window.KrishiAuth.fetchWithAuth : fetch;
-          const response = await authFetch('/api/chat', {
+        const authFetch = (window.KrishiAuth && window.KrishiAuth.fetchWithAuth) ? window.KrishiAuth.fetchWithAuth : fetch;
+        let response;
+        try {
+          response = await authFetch('/api/chat', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+              'Content-Type': 'application/json',
+              'Idempotency-Key': idempotencyKey
+            },
             body: JSON.stringify({
               session_id: currentSessionId,
               message: queryText,
               language: currentLanguage
             })
           });
-
-          if (!response.ok) {
-            if (response.status === 401 && window.KrishiAuth) {
-              removeTypingIndicator();
-              window.KrishiAuth.showLoginModal(async () => {
-                await processFarmerQuery(queryText);
+        } catch (networkErr) {
+          // Mid-request failure: keep item in outbox with same idempotency key
+          removeTypingIndicator();
+          console.warn('[chat] network failure mid-request; saved to outbox', networkErr);
+          if (window.KrishiOffline) {
+            try {
+              await window.KrishiOffline.enqueueChatMessage({
+                id: idempotencyKey,
+                sessionId: currentSessionId,
+                message: queryText,
+                language: currentLanguage
               });
-              return;
+              renderOutboxPendingCard(idempotencyKey, 'chat', 0, queryText);
+            } catch (queueErr) {
+              alert(queueErr.message);
             }
-            throw new Error('API server returned status ' + response.status);
           }
-          data = await response.json();
+          return;
         }
 
+        if (!response.ok) {
+          if (response.status === 401 && window.KrishiAuth) {
+            removeTypingIndicator();
+            window.KrishiAuth.showLoginModal(async () => {
+              await processFarmerQuery(queryText);
+            });
+            return;
+          }
+          throw new Error('API server returned status ' + response.status);
+        }
+
+        const data = await response.json();
         removeTypingIndicator();
-
-        // Update active profile pills from real NLU extraction
-        if (data.farmer_profile) {
-          if (data.farmer_profile.district) farmerProfile.district = data.farmer_profile.district;
-          if (data.farmer_profile.land_acres !== undefined) farmerProfile.land_acres = data.farmer_profile.land_acres;
-          if (data.farmer_profile.crops && data.farmer_profile.crops.length > 0) {
-            farmerProfile.crop = data.farmer_profile.crops.join(', ');
-          }
-          if (data.farmer_profile.irrigation_type) farmerProfile.irrig = data.farmer_profile.irrigation_type;
-          updateLiveProfileBar();
-        }
-
-        let botHtml = `<p class="leading-relaxed font-medium text-sm sm:text-base text-slate-800">${data.reply}</p>`;
-
-        // If scheme evaluation results exist, render dynamic cards
-        if (data.evaluation_results && data.evaluation_results.length > 0) {
-          botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-100">`;
-
-          data.evaluation_results.forEach((r, idx) => {
-            const isEligible = r.status === 'ELIGIBLE';
-            const isCond = r.status === 'CONDITIONALLY_ELIGIBLE';
-
-            let borderClass = 'border-slate-200 bg-slate-50/70 text-slate-600 opacity-80';
-            let tagClass = 'bg-slate-100 text-slate-600 border-slate-300';
-            let statusLabel = isKn ? 'ಅನರ್ಹರು' : 'INELIGIBLE';
-
-            if (isEligible) {
-              borderClass = 'border-emerald-300 bg-emerald-50/60 shadow-xs';
-              tagClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
-              statusLabel = isKn ? '✔ ಅರ್ಹರು (ELIGIBLE)' : '✔ ELIGIBLE';
-            } else if (isCond) {
-              borderClass = 'border-amber-300 bg-amber-50/60';
-              tagClass = 'bg-amber-100 text-amber-800 border-amber-300';
-              statusLabel = isKn ? '⚠ ಷರತ್ತುಬದ್ಧ' : '⚠ CONDITIONALLY ELIGIBLE';
-            }
-
-            const schemeName = isKn ? r.scheme_name_kn : r.scheme_name_en;
-            const benefit = isKn ? r.benefit_summary_kn : r.benefit_summary_en;
-            const demoBadge = r.is_demo ?
-              `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
-
-            botHtml += `
-              <div class="p-4 border rounded-2xl ${borderClass} space-y-2.5 transition-all">
-                <div class="flex justify-between items-start gap-2">
-                  <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center flex-wrap">
-                    ${idx + 1}. ${schemeName} ${demoBadge}
-                  </div>
-                  <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-bold shrink-0 ${tagClass}">
-                    ${statusLabel}
-                  </span>
-                </div>
-                <p class="text-xs ${isEligible ? 'text-emerald-800 font-semibold' : (isCond ? 'text-amber-800 font-semibold' : 'text-slate-500')}">
-                  ${benefit}
-                </p>
-            `;
-
-            // Audit Trail
-            if (r.audit_trail && r.audit_trail.length > 0 && (isEligible || isCond)) {
-              botHtml += `<div class="text-[11px] text-slate-700 space-y-1.5 bg-white p-3 rounded-xl border border-emerald-200/70 shadow-2xs">`;
-              botHtml += `<div class="text-[10px] uppercase font-bold text-emerald-800">${isKn ? 'ಅರ್ಹತಾ ಕಾರಣಗಳು (Audit Points):' : 'Audit Verification:'}</div>`;
-              r.audit_trail.forEach(reason => {
-                botHtml += `<div class="flex items-start gap-1.5"><span class="text-emerald-600 font-bold shrink-0">✔</span> <span>${reason}</span></div>`;
-              });
-              botHtml += `</div>`;
-            }
-
-            // Disqualification Reasons
-            if (r.disqualification_reasons && r.disqualification_reasons.length > 0 && !isEligible) {
-              botHtml += `<div class="text-[11px] text-rose-800 space-y-1 bg-white p-3 rounded-xl border border-rose-200/70 shadow-2xs">`;
-              r.disqualification_reasons.forEach(dq => {
-                botHtml += `<div class="flex items-start gap-1.5"><span class="text-rose-500 font-bold shrink-0">✕</span> <span>${dq}</span></div>`;
-              });
-              botHtml += `</div>`;
-            }
-
-            // Documents Checklist
-            if (r.required_documents && r.required_documents.length > 0 && (isEligible || isCond)) {
-              const docTitle = isKn ? 'ಅಗತ್ಯ ದಾಖಲೆಗಳ ಪಟ್ಟಿ' : 'Required Document Checklist';
-              botHtml += `
-                <div class="pt-2 border-t border-slate-200/70">
-                  <div class="text-[10px] uppercase font-bold text-slate-500 mb-1.5">${docTitle}:</div>
-                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-700">
-              `;
-              r.required_documents.forEach(doc => {
-                const docName = isKn ? (doc.name_kn || doc.document_name_kn || doc.id) : (doc.name_en || doc.document_name_en || doc.id);
-                const isMand = doc.mandatory !== undefined ? doc.mandatory : true;
-                const badge = isMand ? `<span class="text-rose-600 font-bold text-[10px]">*ಕಡ್ಡಾಯ</span>` : `<span class="text-slate-400 text-[10px]">ಐಚ್ಛಿಕ</span>`;
-                botHtml += `
-                  <label class="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200/80 cursor-pointer hover:border-slate-300 shadow-2xs">
-                    <input type="checkbox" class="rounded text-emerald-600 bg-slate-50 border-slate-300 w-3.5 h-3.5 focus:ring-0" />
-                    <span class="truncate">${docName}</span>
-                    <span class="ml-auto shrink-0">${badge}</span>
-                  </label>
-                `;
-              });
-              botHtml += `</div></div>`;
-            }
-
-            botHtml += `</div>`;
-          });
-
-          botHtml += `</div>`;
-        }
-
-        const replyBubble = appendChatMsg('bot', botHtml);
-        narrateReply(replyBubble, data.reply, data);
+        renderBotResponse(data);
 
       } catch (err) {
         removeTypingIndicator();
@@ -1204,6 +1156,127 @@
           ? 'ಕ್ಷಮಿಸಿ, ಕೃಷಿ ಮಿತ್ರ ಸೇವೆಯನ್ನು ಸಂಪರ್ಕಿಸಲು ಸಾಧ್ಯವಾಗಲಿಲ್ಲ. ದಯವಿಟ್ಟು ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ. '
           : 'Sorry, Krishi Mitra could not be reached. Please try again. ';
         appendChatMsg('bot', `<p class="text-rose-700">${escapeHtml(message + (err.message || ''))}</p>`);
+      }
+    }
+
+    function renderBotResponse(data) {
+      if (!data) return;
+      const isKn = currentLanguage === 'kn';
+
+      // Update active profile pills from real NLU extraction
+      if (data.farmer_profile) {
+        if (data.farmer_profile.district) farmerProfile.district = data.farmer_profile.district;
+        if (data.farmer_profile.land_acres !== undefined) farmerProfile.land_acres = data.farmer_profile.land_acres;
+        if (data.farmer_profile.crops && data.farmer_profile.crops.length > 0) {
+          farmerProfile.crop = data.farmer_profile.crops.join(', ');
+        }
+        if (data.farmer_profile.irrigation_type) farmerProfile.irrig = data.farmer_profile.irrigation_type;
+        updateLiveProfileBar();
+      }
+
+      let botHtml = `<p class="leading-relaxed font-medium text-sm sm:text-base text-slate-800">${data.reply}</p>`;
+
+      // If scheme evaluation results exist, render dynamic cards
+      if (data.evaluation_results && data.evaluation_results.length > 0) {
+        botHtml += `<div class="space-y-3 mt-3 pt-3 border-t border-slate-100">`;
+
+        data.evaluation_results.forEach((r, idx) => {
+          const isEligible = r.status === 'ELIGIBLE';
+          const isCond = r.status === 'CONDITIONALLY_ELIGIBLE';
+
+          let borderClass = 'border-slate-200 bg-slate-50/70 text-slate-600 opacity-80';
+          let tagClass = 'bg-slate-100 text-slate-600 border-slate-300';
+          let statusLabel = isKn ? 'ಅನರ್ಹರು' : 'INELIGIBLE';
+
+          if (isEligible) {
+            borderClass = 'border-emerald-300 bg-emerald-50/60 shadow-xs';
+            tagClass = 'bg-emerald-100 text-emerald-800 border-emerald-300';
+            statusLabel = isKn ? '✔ ಅರ್ಹರು (ELIGIBLE)' : '✔ ELIGIBLE';
+          } else if (isCond) {
+            borderClass = 'border-amber-300 bg-amber-50/60';
+            tagClass = 'bg-amber-100 text-amber-800 border-amber-300';
+            statusLabel = isKn ? '⚠ ಷರತ್ತುಬದ್ಧ' : '⚠ CONDITIONALLY ELIGIBLE';
+          }
+
+          const schemeName = isKn ? r.scheme_name_kn : r.scheme_name_en;
+          const benefit = isKn ? r.benefit_summary_kn : r.benefit_summary_en;
+          const demoBadge = r.is_demo ?
+            `<span class="ml-1.5 px-2 py-0.5 rounded bg-purple-100 text-purple-800 border border-purple-200 text-[10px] font-bold">[DEMO / TEST CASE]</span>` : '';
+
+          botHtml += `
+            <div class="p-4 border rounded-2xl ${borderClass} space-y-2.5 transition-all">
+              <div class="flex justify-between items-start gap-2">
+                <div class="font-bold text-slate-900 text-xs sm:text-sm flex items-center flex-wrap">
+                  ${idx + 1}. ${schemeName} ${demoBadge}
+                </div>
+                <span class="px-2.5 py-0.5 rounded-full border text-[10px] font-bold shrink-0 ${tagClass}">
+                  ${statusLabel}
+                </span>
+              </div>
+              <p class="text-xs ${isEligible ? 'text-emerald-800 font-semibold' : (isCond ? 'text-amber-800 font-semibold' : 'text-slate-500')}">
+                ${benefit}
+              </p>
+          `;
+
+          // Audit Trail
+          if (r.audit_trail && r.audit_trail.length > 0 && (isEligible || isCond)) {
+            botHtml += `<div class="text-[11px] text-slate-700 space-y-1.5 bg-white p-3 rounded-xl border border-emerald-200/70 shadow-2xs">`;
+            botHtml += `<div class="text-[10px] uppercase font-bold text-emerald-800">${isKn ? 'ಅರ್ಹತಾ ಕಾರಣಗಳು (Audit Points):' : 'Audit Verification:'}</div>`;
+            r.audit_trail.forEach(reason => {
+              botHtml += `<div class="flex items-start gap-1.5"><span class="text-emerald-600 font-bold shrink-0">✔</span> <span>${reason}</span></div>`;
+            });
+            botHtml += `</div>`;
+          }
+
+          // Disqualification Reasons
+          if (r.disqualification_reasons && r.disqualification_reasons.length > 0 && !isEligible) {
+            botHtml += `<div class="text-[11px] text-rose-800 space-y-1 bg-white p-3 rounded-xl border border-rose-200/70 shadow-2xs">`;
+            r.disqualification_reasons.forEach(dq => {
+              botHtml += `<div class="flex items-start gap-1.5"><span class="text-rose-500 font-bold shrink-0">✕</span> <span>${dq}</span></div>`;
+            });
+            botHtml += `</div>`;
+          }
+
+          // Documents Checklist
+          if (r.required_documents && r.required_documents.length > 0 && (isEligible || isCond)) {
+            const docTitle = isKn ? 'ಅಗತ್ಯ ದಾಖಲೆಗಳ ಪಟ್ಟಿ' : 'Required Document Checklist';
+            botHtml += `
+              <div class="pt-2 border-t border-slate-200/70">
+                <div class="text-[10px] uppercase font-bold text-slate-500 mb-1.5">${docTitle}:</div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 text-[11px] text-slate-700">
+            `;
+            r.required_documents.forEach(doc => {
+              const docName = isKn ? (doc.name_kn || doc.document_name_kn || doc.id) : (doc.name_en || doc.document_name_en || doc.id);
+              const isMand = doc.mandatory !== undefined ? doc.mandatory : true;
+              const badge = isMand ? `<span class="text-rose-600 font-bold text-[10px]">*ಕಡ್ಡಾಯ</span>` : `<span class="text-slate-400 text-[10px]">ಐಚ್ಛಿಕ</span>`;
+              botHtml += `
+                <label class="flex items-center gap-1.5 bg-white px-2.5 py-1.5 rounded-xl border border-slate-200/80 cursor-pointer hover:border-slate-300 shadow-2xs">
+                  <input type="checkbox" class="rounded text-emerald-600 bg-slate-50 border-slate-300 w-3.5 h-3.5 focus:ring-0" />
+                  <span class="truncate">${docName}</span>
+                  <span class="ml-auto shrink-0">${badge}</span>
+                </label>
+              `;
+            });
+            botHtml += `</div></div>`;
+          }
+
+          botHtml += `</div>`;
+        });
+
+        botHtml += `</div>`;
+      }
+
+      const replyBubble = appendChatMsg('bot', botHtml);
+      narrateReply(replyBubble, data.reply, data);
+
+      // Cache turn in IndexedDB for Offline Read Mode
+      if (window.KrishiOffline) {
+        window.KrishiOffline.saveSessionCache(currentSessionId, [
+          { role: 'assistant', content: botHtml, raw_reply: data.reply }
+        ], farmerProfile);
+        if (data.evaluation_results && data.evaluation_results.length) {
+          window.KrishiOffline.saveEvaluationsCache(data.evaluation_results);
+        }
       }
     }
 
@@ -1405,42 +1478,341 @@
     }
 
     async function processVoiceClip(clip, durationMs) {
+      const isKn = currentLanguage === 'kn';
+      if (durationMs > 60_000) {
+        alert(isKn ? 'ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಗರಿಷ್ಠ 60 ಸೆಕೆಂಡ್‌ಗಿಂತ ಹೆಚ್ಚಾಗಿದೆ.' : 'Voice recording exceeds 60 seconds limit.');
+        return;
+      }
+
       showTypingIndicator();
+      const idempotencyKey = window.KrishiOffline ? window.KrishiOffline.generateUUID() : ('km_' + Date.now());
+
       try {
         const bytes = new Uint8Array(await clip.arrayBuffer());
         let binary = '';
         for (let offset = 0; offset < bytes.length; offset += 0x8000) {
           binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
         }
+        const base64Audio = btoa(binary);
+        const mimeType = (clip.type.split(';')[0] || 'audio/webm');
+
+        // Check connectivity: if offline, save directly to outbox
+        if (!navigator.onLine || (window.KrishiOffline && window.KrishiOffline.getState() === 'offline')) {
+          removeTypingIndicator();
+          if (window.KrishiOffline) {
+            try {
+              await window.KrishiOffline.enqueueVoiceClip({
+                id: idempotencyKey,
+                sessionId: currentSessionId,
+                audioBase64: base64Audio,
+                mimeType: mimeType,
+                durationMs: durationMs,
+                language: currentLanguage
+              });
+              renderOutboxPendingCard(idempotencyKey, 'voice', durationMs);
+            } catch (queueErr) {
+              alert(queueErr.message);
+            }
+          }
+          return;
+        }
+
         const authFetch = (window.KrishiAuth && window.KrishiAuth.fetchWithAuth) ? window.KrishiAuth.fetchWithAuth : fetch;
-        const response = await authFetch('/api/voice-turn', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            session_id: currentSessionId,
-            audio: btoa(binary),
-            mime_type: (clip.type.split(';')[0] || 'audio/webm'),
-            recording_duration_ms: durationMs,
-            language: currentLanguage
-          })
-        });
+        let response;
+        try {
+          response = await authFetch('/api/voice-turn', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Idempotency-Key': idempotencyKey
+            },
+            body: JSON.stringify({
+              session_id: currentSessionId,
+              audio: base64Audio,
+              mime_type: mimeType,
+              recording_duration_ms: durationMs,
+              language: currentLanguage
+            })
+          });
+        } catch (networkErr) {
+          // Mid-request disconnect: keep item in outbox with same idempotency key
+          removeTypingIndicator();
+          console.warn('[voice] network failure mid-request; saved to outbox', networkErr);
+          if (window.KrishiOffline) {
+            try {
+              await window.KrishiOffline.enqueueVoiceClip({
+                id: idempotencyKey,
+                sessionId: currentSessionId,
+                audioBase64: base64Audio,
+                mimeType: mimeType,
+                durationMs: durationMs,
+                language: currentLanguage
+              });
+              renderOutboxPendingCard(idempotencyKey, 'voice', durationMs);
+            } catch (queueErr) {
+              alert(queueErr.message);
+            }
+          }
+          return;
+        }
+
         let data = {};
         try {
           data = await response.json();
         } catch(e) {}
+
         if (!response.ok) {
           if (response.status === 403 && (data.detail?.code === 'CONSENT_REQUIRED' || data.code === 'CONSENT_REQUIRED')) {
             if (window.KrishiConsent) window.KrishiConsent.showConsentModal();
             throw new Error(currentLanguage === 'kn' ? 'ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಅನುಮತಿ ಅಗತ್ಯವಿದೆ.' : 'Voice recording consent is required.');
           }
+          if (response.status === 401 && window.KrishiAuth) {
+            window.KrishiAuth.showLoginModal();
+            throw new Error(currentLanguage === 'kn' ? 'ದಯವಿಟ್ಟು ಲಾಗಿನ್ ಆಗಿ.' : 'Please log in.');
+          }
           throw new Error(data.detail?.message || data.detail || ('Voice API returned status ' + response.status));
         }
+
         removeTypingIndicator();
-        await processFarmerQuery(data.transcript, data);
+        appendChatMsg('user', data.transcript || (currentLanguage === 'kn' ? 'ಧ್ವನಿ ಪ್ರಶ್ನೆ' : 'Voice Query'));
+        renderBotResponse(data);
+
       } catch (error) {
         removeTypingIndicator();
         console.error('[voice] voice turn failed', error);
         appendChatMsg('bot', `<p class="text-rose-700">${escapeHtml(error.message || (currentLanguage === 'kn' ? 'ಧ್ವನಿ ಪ್ರಕ್ರಿಯೆ ವಿಫಲವಾಗಿದೆ. ಮತ್ತೆ ಪ್ರಯತ್ನಿಸಿ.' : 'Voice processing failed. Please try again.'))}</p>`);
+      }
+    }
+
+    // Outbox UI Components
+    function renderOutboxPendingCard(id, type, durationMs = 0, messageText = '') {
+      const isKn = currentLanguage === 'kn';
+      const stream = document.getElementById('chat-stream');
+      const div = document.createElement('div');
+      div.id = `outbox-item-${id}`;
+      div.dataset.outboxId = id;
+      div.className = "flex items-start justify-end gap-3 text-sm animate-slide-down";
+
+      const title = type === 'voice'
+        ? (isKn ? 'ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ — ಕಳುಹಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ' : 'Voice Recording — Waiting to send')
+        : (isKn ? 'ಸಂದೇಶ — ಕಳುಹಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ' : 'Message — Waiting to send');
+
+      const metaBadge = type === 'voice'
+        ? `${Math.round(durationMs / 1000)}s`
+        : `${(messageText || '').slice(0, 20)}...`;
+
+      div.innerHTML = `
+        <div class="bg-amber-500/10 border-2 border-dashed border-amber-500/40 text-amber-950 rounded-3xl rounded-tr-sm p-4 max-w-[85%] shadow-sm space-y-2">
+          <div class="flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2 font-bold text-xs text-amber-900">
+              <span class="material-symbols-outlined text-amber-700 text-base animate-pulse">cloud_off</span>
+              <span>${title}</span>
+            </div>
+            <span class="text-[10px] font-mono font-bold px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-900">${metaBadge}</span>
+          </div>
+          <p class="text-[11px] text-slate-600 leading-relaxed">
+            ${isKn ? 'ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿ ಸಂಗ್ರಹಿಸಲಾಗಿದೆ. ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಬಂದ ತಕ್ಷಣ ಸ್ವಯಂಚಾಲಿತವಾಗಿ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.' : 'Saved safely offline. Will auto-send as soon as connection is restored.'}
+          </p>
+          <div class="flex items-center justify-between pt-1 border-t border-amber-300/50 text-[11px]">
+            <span class="text-amber-800 font-medium outbox-status-label flex items-center gap-1.5">
+              <span class="inline-block w-2 h-2 rounded-full bg-amber-500 animate-ping"></span>
+              <span>${isKn ? 'ಕ್ಯೂನಲ್ಲಿದೆ (Queued)' : 'Queued'}</span>
+            </span>
+            <div class="flex items-center gap-2">
+              <button onclick="handleOutboxRetry('${id}')" type="button" class="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs flex items-center gap-1 shadow-2xs cursor-pointer">
+                <span class="material-symbols-outlined text-xs">refresh</span>
+                <span>${isKn ? 'ಈಗ ಕಳುಹಿಸಿ' : 'Retry'}</span>
+              </button>
+              <button onclick="handleOutboxDelete('${id}')" type="button" class="px-2 py-1 rounded-lg bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold text-xs flex items-center gap-1 cursor-pointer">
+                <span class="material-symbols-outlined text-xs">delete</span>
+                <span>${isKn ? 'ಅಳಿಸಿ' : 'Delete'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+      stream.appendChild(div);
+      stream.scrollTop = stream.scrollHeight;
+    }
+
+    async function handleOutboxRetry(id) {
+      if (window.KrishiOffline) {
+        const itemEl = document.getElementById(`outbox-item-${id}`);
+        if (itemEl) {
+          const statusLabel = itemEl.querySelector('.outbox-status-label span:last-child');
+          if (statusLabel) statusLabel.textContent = currentLanguage === 'kn' ? 'ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...' : 'Sending...';
+        }
+        await window.KrishiOffline.retryOutboxItem(id);
+      }
+    }
+
+    async function handleOutboxDelete(id) {
+      if (window.KrishiOffline) {
+        await window.KrishiOffline.deleteOutboxItem(id);
+        const itemEl = document.getElementById(`outbox-item-${id}`);
+        if (itemEl) itemEl.remove();
+      }
+    }
+
+    // Outbox Event Listeners
+    window.addEventListener('krishi:outbox-item-sent', (e) => {
+      const { item, response } = e.detail;
+      const pendingEl = document.getElementById(`outbox-item-${item.id}`);
+      if (pendingEl) {
+        pendingEl.remove();
+      }
+      const userText = item.type === 'voice'
+        ? (response.transcript || (currentLanguage === 'kn' ? 'ಧ್ವನಿ ಪ್ರಶ್ನೆ' : 'Voice Query'))
+        : item.message;
+      appendChatMsg('user', userText);
+      renderBotResponse(response);
+    });
+
+    window.addEventListener('krishi:outbox-updated', (e) => {
+      const { item } = e.detail;
+      if (!item) return;
+      const pendingEl = document.getElementById(`outbox-item-${item.id}`);
+      if (pendingEl) {
+        const statusLabel = pendingEl.querySelector('.outbox-status-label span:last-child');
+        if (statusLabel) {
+          if (item.status === 'sending') {
+            statusLabel.textContent = currentLanguage === 'kn' ? 'ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...' : 'Sending...';
+          } else if (item.status === 'failed') {
+            statusLabel.textContent = currentLanguage === 'kn' ? `ವಿಫಲವಾಗಿದೆ (${item.attempts}/5)` : `Failed (${item.attempts}/5)`;
+          } else {
+            statusLabel.textContent = currentLanguage === 'kn' ? 'ಕ್ಯೂನಲ್ಲಿದೆ' : 'Queued';
+          }
+        }
+      }
+    });
+
+    window.addEventListener('krishi:outbox-item-expired', (e) => {
+      const { item } = e.detail;
+      const pendingEl = document.getElementById(`outbox-item-${item.id}`);
+      if (pendingEl) {
+        pendingEl.remove();
+      }
+      alert(currentLanguage === 'kn' ? '24 ಗಂಟೆ ಮೀರಿದ್ದರಿಂದ ರೆಕಾರ್ಡಿಂಗ್ ರದ್ದಾಗಿದೆ.' : 'Queued recording expired after 24 hours.');
+    });
+
+    // Offline Schemes FAQ Modal
+    async function showOfflineFaqModal() {
+      let modal = document.getElementById('krishi-offline-faq-modal');
+      const isKn = currentLanguage === 'kn';
+      if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'krishi-offline-faq-modal';
+        modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden';
+        modal.innerHTML = `
+          <div class="bg-[#FAF8F5] text-slate-900 rounded-3xl shadow-2xl max-w-2xl w-full p-6 sm:p-8 border border-amber-300 relative max-h-[85vh] flex flex-col">
+            <button id="offline-faq-close" type="button" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-200/60 transition-colors">
+              <span class="material-symbols-outlined text-lg">close</span>
+            </button>
+            <div class="flex items-center gap-3 mb-3 shrink-0">
+              <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center shadow-xs shrink-0">
+                <span class="material-symbols-outlined text-xl">local_library</span>
+              </div>
+              <div>
+                <h2 id="offline-faq-modal-title" class="font-heading font-extrabold text-base sm:text-lg text-slate-900">
+                  ${isKn ? 'ಆಫ್‌ಲೈನ್ ಮಾಹಿತಿ (ಹಳೆಯದಾಗಿರಬಹುದು)' : 'Offline Help (May be outdated)'}
+                </h2>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                  STORED REFERENCE • NO AI
+                </span>
+              </div>
+            </div>
+            <p id="offline-faq-notice" class="text-xs text-slate-600 mb-4 bg-amber-50 p-3 rounded-xl border border-amber-200 leading-relaxed shrink-0">
+              ${isKn
+                ? 'ಎಐ ವಿಶ್ಲೇಷಣೆಗೆ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಅಗತ್ಯವಿದೆ. ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಸಂಗ್ರಹವಾಗಿರುವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮೂಲ ನಿಯಮಗಳು ಮತ್ತು ಎಲ್ಲಿ ಅರ್ಜಿ ಸಲ್ಲಿಸಬೇಕು ಎಂಬ ವಿವರಗಳನ್ನು ಕೆಳಗೆ ಓದಬಹುದು.'
+                : 'AI reasoning requires an active network. Official government scheme reference guidelines, eligibility, and application channels are available below.'}
+            </p>
+            <div id="offline-faq-cards-container" class="space-y-3 overflow-y-auto pr-1 flex-1 text-xs">
+              <!-- Dynamically populated from offline_faq.json -->
+            </div>
+          </div>
+        `;
+        document.body.appendChild(modal);
+        document.getElementById('offline-faq-close').addEventListener('click', hideOfflineFaqModal);
+        modal.addEventListener('click', (e) => {
+          if (e.target === modal) hideOfflineFaqModal();
+        });
+      }
+
+      const container = document.getElementById('offline-faq-cards-container');
+      container.innerHTML = '<div class="text-center py-6 text-slate-400">Loading offline guides...</div>';
+
+      const data = window.KrishiOffline ? await window.KrishiOffline.loadOfflineFAQ() : null;
+      if (data && data.schemes && data.schemes.length) {
+        container.innerHTML = data.schemes.map((s, idx) => {
+          const title = isKn ? s.title_kn : s.title_en;
+          const benefit = isKn ? s.benefit_kn : s.benefit_en;
+          const elList = isKn ? s.eligibility_kn : s.eligibility_en;
+          const docList = isKn ? s.required_documents_kn : s.required_documents_en;
+          const channel = isKn ? s.application_channel_kn : s.application_channel_en;
+
+          return `
+            <div class="p-4 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div class="font-bold text-slate-900 text-xs sm:text-sm">${idx + 1}. ${title}</div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 shrink-0">OFFLINE REF</span>
+              </div>
+              <p class="text-xs text-emerald-900 font-medium">${benefit}</p>
+              <div class="pt-2 border-t border-slate-100 space-y-1">
+                <div class="font-bold text-[10px] text-slate-500 uppercase">${isKn ? 'ಅರ್ಹತಾ ನಿಯಮಗಳು:' : 'Eligibility Rules:'}</div>
+                <ul class="list-disc list-inside text-[11px] text-slate-600 space-y-0.5">
+                  ${elList.map(item => `<li>${item}</li>`).join('')}
+                </ul>
+              </div>
+              <div class="pt-1.5 border-t border-slate-100">
+                <div class="font-bold text-[10px] text-slate-500 uppercase">${isKn ? 'ಅಗತ್ಯ ದಾಖಲೆಗಳು:' : 'Required Documents:'}</div>
+                <div class="flex flex-wrap gap-1 mt-1">
+                  ${docList.map(doc => `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px]">${doc}</span>`).join('')}
+                </div>
+              </div>
+              <div class="pt-1.5 border-t border-slate-100 text-[11px] text-slate-600">
+                <span class="font-bold text-slate-700">${isKn ? 'ಅರ್ಜಿ ಸಲ್ಲಿಕೆ:' : 'Where to Apply:'}</span> ${channel}
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        container.innerHTML = '<div class="text-center py-6 text-slate-500">Offline guides unavailable.</div>';
+      }
+
+      modal.classList.remove('hidden');
+    }
+
+    function hideOfflineFaqModal() {
+      const modal = document.getElementById('krishi-offline-faq-modal');
+      if (modal) modal.classList.add('hidden');
+    }
+
+    // Offline Read Mode: displays cached conversation when offline
+    async function checkOfflineReadMode() {
+      if (!window.KrishiOffline) return;
+      const isKn = currentLanguage === 'kn';
+      if (!navigator.onLine || window.KrishiOffline.getState() === 'offline') {
+        const latest = await window.KrishiOffline.getLatestSessionCache();
+        if (latest && latest.turns && latest.turns.length) {
+          const stream = document.getElementById('chat-stream');
+          if (!document.getElementById('offline-readonly-badge')) {
+            const badge = document.createElement('div');
+            badge.id = 'offline-readonly-badge';
+            badge.className = 'p-3 bg-amber-500/15 border border-amber-400 text-amber-950 rounded-2xl text-xs font-semibold mb-4 flex items-center justify-between shadow-2xs';
+            badge.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="material-symbols-outlined text-amber-700 text-base">cloud_off</span>
+                <span>${isKn ? 'ಆಫ್‌ಲೈನ್ ಓದುವ ಮೋಡ್ — ಕೊನೆಯ ಸಮಾಲೋಚನೆ ವಿವರಗಳು' : 'Offline Read-Only Mode — Showing last saved consultation'}</span>
+              </div>
+              <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[10px] font-mono font-bold uppercase">READ-ONLY</span>
+            `;
+            stream.appendChild(badge);
+
+            for (const turn of latest.turns) {
+              appendChatMsg(turn.role === 'user' ? 'user' : 'bot', turn.content);
+            }
+          }
+        }
       }
     }
 
@@ -1464,6 +1836,7 @@
     // Initialize
     updateChatLanguage(currentLanguage);
     updateLiveProfileBar();
+    checkOfflineReadMode();
   </script>
 </body>
 

@@ -154,6 +154,9 @@ const KrishiAuth = (() => {
     }
     _accessToken = null;
     _currentUser = null;
+    if (window.KrishiOffline) {
+      try { await window.KrishiOffline.clearAllData(); } catch (e) {}
+    }
     renderAuthUI();
   }
 
@@ -554,10 +557,12 @@ const KrishiAuth = (() => {
     checkAuth();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 
   return {
@@ -581,7 +586,7 @@ const KrishiAuth = (() => {
   };
 })();
 
-window.KrishiAuth = KrishiAuth;
+if (typeof window !== 'undefined') window.KrishiAuth = KrishiAuth;
 
 // Krishi Mitra — Voice Consent & DPDP Privacy Manager
 const KrishiConsent = (() => {
@@ -718,6 +723,9 @@ const KrishiConsent = (() => {
 
   async function withdrawVoiceConsent() {
     releaseMicrophone();
+    if (window.KrishiOffline) {
+      try { await window.KrishiOffline.purgeVoiceQueue(); } catch (e) {}
+    }
     const res = await KrishiAuth.fetchWithAuth('/api/consent/voice', {
       method: 'DELETE',
     });
@@ -745,6 +753,9 @@ const KrishiConsent = (() => {
 
   async function deleteUserData() {
     releaseMicrophone();
+    if (window.KrishiOffline) {
+      try { await window.KrishiOffline.clearAllData(); } catch (e) {}
+    }
     const res = await KrishiAuth.fetchWithAuth('/api/me/data', {
       method: 'DELETE',
     });
@@ -1130,10 +1141,12 @@ const KrishiConsent = (() => {
     checkConsents();
   }
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
   }
 
   return {
@@ -1154,7 +1167,604 @@ const KrishiConsent = (() => {
   };
 })();
 
-window.KrishiConsent = KrishiConsent;
+if (typeof window !== 'undefined') window.KrishiConsent = KrishiConsent;
+
+// Krishi Mitra — Resilient Offline Connectivity, IndexedDB Outbox & App Shell Manager
+const KrishiOffline = (() => {
+  const DB_NAME = 'krishi_mitra_offline_db';
+  const DB_VERSION = 1;
+  const STORE_OUTBOX = 'outbox';
+  const STORE_SESSIONS = 'session_cache';
+  const STORE_EVALUATIONS = 'evaluations_cache';
+  const STORE_FAQ = 'faq_cache';
+
+  const LIMIT_MAX_DURATION_MS = 60_000;            // max 60s per clip
+  const LIMIT_MAX_QUEUE_ITEMS = 10;                // max 10 queued items
+  const LIMIT_MAX_TOTAL_BYTES = 20 * 1024 * 1024;  // 20 MB total
+  const LIMIT_TTL_MS = 24 * 60 * 60 * 1000;        // 24 hours TTL
+
+  let _db = null;
+  let _state = 'online'; // 'online' | 'unstable' | 'offline'
+  let _consecutiveHeartbeatFailures = 0;
+  let _isProcessingOutbox = false;
+  let _heartbeatTimer = null;
+  let _faqData = null;
+
+  const i18n = {
+    kn: {
+      onlineText: 'ಆನ್‌ಲೈನ್ (ಸಂಪರ್ಕಗೊಂಡಿದೆ)',
+      unstableText: 'ನೆಟ್‌ವರ್ಕ್ ಅಸ್ಥಿರವಾಗಿದೆ — ಧ್ವನಿ ಸಂಸ್ಕರಣೆಯಲ್ಲಿ ವಿಳಂಬವಾಗಬಹುದು. ಆಫ್‌ಲೈನ್ ಕ್ಯೂ ಸಕ್ರಿಯವಾಗಿದೆ.',
+      offlineText: 'ನೀವು ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿದ್ದೀರಿ. ರೆಕಾರ್ಡಿಂಗ್‌ಗಳು ನಿಮ್ಮ ಮೊಬೈಲ್‌ನಲ್ಲಿ ಸುರಕ್ಷಿತವಾಗಿ ಉಳಿಯುತ್ತವೆ, ಇಂಟರ್ನೆಟ್ ಬಂದಾಗ ತಾನಾಗಿಯೇ ಕಳುಹಿಸಲಾಗುತ್ತದೆ.',
+      outboxWaiting: 'ಕಳುಹಿಸಲು ಕಾಯಲಾಗುತ್ತಿದೆ (Waiting to send)',
+      outboxRetry: 'ಈಗ ಕಳುಹಿಸಿ',
+      outboxDelete: 'ಅಳಿಸಿ',
+      outboxExpired: '24 ಗಂಟೆ ಮೀರಿದ್ದರಿಂದ ರೆಕಾರ್ಡಿಂಗ್ ರದ್ದಾಗಿದೆ.',
+      offlineReadBadge: 'ಆಫ್‌ಲೈನ್ ಓದುವ ಮೋಡ್',
+      offlineFaqTitle: 'ಆಫ್‌ಲೈನ್ ಮಾಹಿತಿ (ಹಳೆಯದಾಗಿರಬಹುದು)',
+      offlineFaqNotice: 'ಎಐ ವಿಶ್ಲೇಷಣೆಗೆ ಇಂಟರ್ನೆಟ್ ಸಂಪರ್ಕ ಅಗತ್ಯವಿದೆ. ಆಫ್‌ಲೈನ್‌ನಲ್ಲಿ ಸಂಗ್ರಹವಾಗಿರುವ ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ವಿವರಗಳನ್ನು ಕೆಳಗೆ ಓದಬಹುದು.',
+      errDuration: 'ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಗರಿಷ್ಠ 60 ಸೆಕೆಂಡ್‌ಗಿಂತ ಹೆಚ್ಚಾಗಿದೆ.',
+      errQueueFull: 'ಆಫ್‌ಲೈನ್ ಕ್ಯೂ ಮಿತಿ (10 ಐಟಂಗಳು) ತಲುಪಿದೆ. ದಯವಿಟ್ಟು ನೆಟ್‌ವರ್ಕ್ ಬರುವವರೆಗೆ ಕಾಯಿರಿ.',
+      errStorageFull: 'ಆಫ್‌ಲೈನ್ ಸಂಗ್ರಹ ಮಿತಿ (20 MB) ಮೀರಿದೆ.',
+    },
+    en: {
+      onlineText: 'Online (Connected)',
+      unstableText: 'Network is unstable — audio may experience delays. Offline queue active.',
+      offlineText: 'You are offline. Your recording is safely saved on this device and will be sent automatically when online.',
+      outboxWaiting: 'Waiting to send',
+      outboxRetry: 'Retry Now',
+      outboxDelete: 'Delete',
+      outboxExpired: 'Queued item expired after 24 hours.',
+      offlineReadBadge: 'Offline Read-Only Mode',
+      offlineFaqTitle: 'Offline Help (May be outdated)',
+      offlineFaqNotice: 'AI generation requires an active network. Stored government scheme reference guidelines are available below.',
+      errDuration: 'Voice recording exceeds maximum duration limit of 60 seconds.',
+      errQueueFull: 'Offline queue limit reached (maximum 10 items). Please wait for network to clear pending items.',
+      errStorageFull: 'Offline storage limit (20 MB) exceeded.',
+    }
+  };
+
+  function getLang() {
+    if (typeof currentLanguage !== 'undefined' && currentLanguage) return currentLanguage;
+    if (typeof currentLang !== 'undefined' && currentLang) return currentLang;
+    return 'kn';
+  }
+
+  function openDB() {
+    if (_db) return Promise.resolve(_db);
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB_NAME, DB_VERSION);
+      request.onupgradeneeded = (e) => {
+        const db = e.target.result;
+        if (!db.objectStoreNames.contains(STORE_OUTBOX)) {
+          db.createObjectStore(STORE_OUTBOX, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(STORE_SESSIONS)) {
+          db.createObjectStore(STORE_SESSIONS, { keyPath: 'session_id' });
+        }
+        if (!db.objectStoreNames.contains(STORE_EVALUATIONS)) {
+          db.createObjectStore(STORE_EVALUATIONS, { keyPath: 'id' });
+        }
+        if (!db.objectStoreNames.contains(STORE_FAQ)) {
+          db.createObjectStore(STORE_FAQ, { keyPath: 'id' });
+        }
+      };
+      request.onsuccess = (e) => {
+        _db = e.target.result;
+        resolve(_db);
+      };
+      request.onerror = (e) => reject(e.target.error);
+    });
+  }
+
+  function putInStore(storeName, item) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.put(item);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  function getFromStore(storeName, key) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  function getAllFromStore(storeName) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readonly');
+        const store = tx.objectStore(storeName);
+        const req = store.getAll();
+        req.onsuccess = () => resolve(req.result || []);
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  function deleteFromStore(storeName, key) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.delete(key);
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  function clearStore(storeName) {
+    return openDB().then(db => {
+      return new Promise((resolve, reject) => {
+        const tx = db.transaction(storeName, 'readwrite');
+        const store = tx.objectStore(storeName);
+        const req = store.clear();
+        req.onsuccess = () => resolve();
+        req.onerror = () => reject(req.error);
+      });
+    });
+  }
+
+  async function checkHeartbeat() {
+    const wasOnline = navigator.onLine;
+    if (!wasOnline) {
+      setConnectivityState('offline');
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+    const start = performance.now();
+
+    try {
+      const res = await fetch('/api/health', {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      const latency = performance.now() - start;
+
+      if (res.ok) {
+        _consecutiveHeartbeatFailures = 0;
+        if (latency > 2500) {
+          setConnectivityState('unstable');
+        } else {
+          setConnectivityState('online');
+        }
+      } else {
+        _consecutiveHeartbeatFailures++;
+        setConnectivityState(_consecutiveHeartbeatFailures >= 2 ? 'offline' : 'unstable');
+      }
+    } catch (e) {
+      clearTimeout(timeout);
+      _consecutiveHeartbeatFailures++;
+      setConnectivityState(_consecutiveHeartbeatFailures >= 2 ? 'offline' : 'unstable');
+    }
+  }
+
+  function setConnectivityState(newState) {
+    if (_state === newState) return;
+    const oldState = _state;
+    _state = newState;
+    renderConnectivityBanner();
+    window.dispatchEvent(new CustomEvent('krishi:connectivity', {
+      detail: { state: _state, previousState: oldState }
+    }));
+    if (_state === 'online') {
+      processOutbox();
+    }
+  }
+
+  function injectConnectivityBannerHTML() {
+    if (document.getElementById('krishi-connectivity-banner')) return;
+    const banner = document.createElement('div');
+    banner.id = 'krishi-connectivity-banner';
+    banner.className = 'hidden transition-all duration-300 w-full z-40 text-xs px-4 py-2.5 font-medium flex items-center justify-between shadow-xs border-b';
+    banner.innerHTML = `
+      <div class="flex items-center gap-2 max-w-4xl mx-auto w-full">
+        <span id="connectivity-icon" class="material-symbols-outlined text-base"></span>
+        <span id="connectivity-text" class="flex-1 font-semibold leading-tight"></span>
+        <span id="connectivity-badge" class="px-2 py-0.5 rounded text-[10px] font-bold font-mono"></span>
+      </div>
+    `;
+
+    const topHeader = document.querySelector('header, .krishi-nav, #chat-top-brand')?.closest('div.border-b');
+    if (topHeader && topHeader.parentNode) {
+      topHeader.parentNode.insertBefore(banner, topHeader.nextSibling);
+    } else {
+      document.body.prepend(banner);
+    }
+  }
+
+  function renderConnectivityBanner() {
+    const banner = document.getElementById('krishi-connectivity-banner');
+    if (!banner) return;
+    const icon = document.getElementById('connectivity-icon');
+    const text = document.getElementById('connectivity-text');
+    const badge = document.getElementById('connectivity-badge');
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    if (_state === 'online') {
+      banner.classList.add('hidden');
+    } else if (_state === 'unstable') {
+      banner.classList.remove('hidden');
+      banner.className = 'w-full z-40 text-xs px-4 py-2.5 font-medium flex items-center justify-between shadow-xs border-b bg-amber-500/15 border-amber-500/40 text-amber-950 backdrop-blur-md animate-slide-down';
+      if (icon) {
+        icon.className = 'material-symbols-outlined text-base text-amber-600 animate-pulse';
+        icon.textContent = 'wifi_protected_setup';
+      }
+      if (text) text.textContent = t.unstableText;
+      if (badge) {
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-amber-200 text-amber-900 border border-amber-300';
+        badge.textContent = 'UNSTABLE';
+      }
+    } else {
+      banner.classList.remove('hidden');
+      banner.className = 'w-full z-40 text-xs px-4 py-2.5 font-medium flex items-center justify-between shadow-xs border-b bg-rose-600/15 border-rose-500/40 text-rose-950 backdrop-blur-md animate-slide-down';
+      if (icon) {
+        icon.className = 'material-symbols-outlined text-base text-rose-600';
+        icon.textContent = 'cloud_off';
+      }
+      if (text) text.textContent = t.offlineText;
+      if (badge) {
+        badge.className = 'px-2 py-0.5 rounded text-[10px] font-bold font-mono bg-rose-200 text-rose-900 border border-rose-300';
+        badge.textContent = 'OFFLINE';
+      }
+    }
+  }
+
+  function generateUUID() {
+    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+      return crypto.randomUUID();
+    }
+    return 'km_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 10);
+  }
+
+  async function enqueueVoiceClip({
+    id = generateUUID(),
+    sessionId,
+    audioBase64,
+    mimeType = 'audio/webm',
+    durationMs = 0,
+    language = getLang(),
+    transcript = null
+  }) {
+    const lang = getLang();
+    if (durationMs > LIMIT_MAX_DURATION_MS) {
+      throw new Error(i18n[lang].errDuration);
+    }
+
+    const items = await getAllFromStore(STORE_OUTBOX);
+    if (items.length >= LIMIT_MAX_QUEUE_ITEMS) {
+      throw new Error(i18n[lang].errQueueFull);
+    }
+
+    const itemBytes = (audioBase64 ? audioBase64.length : 0) + 1024;
+    const totalBytes = items.reduce((sum, it) => sum + (it.audio_base64 ? it.audio_base64.length : (it.message ? it.message.length : 0)), 0);
+    if (totalBytes + itemBytes > LIMIT_MAX_TOTAL_BYTES) {
+      throw new Error(i18n[lang].errStorageFull);
+    }
+
+    const item = {
+      id,
+      type: 'voice',
+      session_id: sessionId,
+      audio_base64: audioBase64,
+      mime_type: mimeType,
+      duration_ms: durationMs,
+      language,
+      transcript,
+      created_at: Date.now(),
+      attempts: 0,
+      status: 'pending', // 'pending' | 'sending' | 'pending-confirmation' | 'failed'
+      error_message: null
+    };
+
+    await putInStore(STORE_OUTBOX, item);
+    window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { item, action: 'enqueue' } }));
+    return item;
+  }
+
+  async function enqueueChatMessage({
+    id = generateUUID(),
+    sessionId,
+    message,
+    language = getLang()
+  }) {
+    const lang = getLang();
+    const items = await getAllFromStore(STORE_OUTBOX);
+    if (items.length >= LIMIT_MAX_QUEUE_ITEMS) {
+      throw new Error(i18n[lang].errQueueFull);
+    }
+
+    const item = {
+      id,
+      type: 'chat',
+      session_id: sessionId,
+      message,
+      language,
+      created_at: Date.now(),
+      attempts: 0,
+      status: 'pending',
+      error_message: null
+    };
+
+    await putInStore(STORE_OUTBOX, item);
+    window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { item, action: 'enqueue' } }));
+    return item;
+  }
+
+  async function processOutbox() {
+    if (_isProcessingOutbox || _state !== 'online') return;
+    _isProcessingOutbox = true;
+
+    try {
+      const allItems = await getAllFromStore(STORE_OUTBOX);
+      if (!allItems.length) {
+        _isProcessingOutbox = false;
+        return;
+      }
+
+      const now = Date.now();
+      const validItems = [];
+      for (const item of allItems) {
+        if (now - item.created_at > LIMIT_TTL_MS) {
+          await deleteFromStore(STORE_OUTBOX, item.id);
+          window.dispatchEvent(new CustomEvent('krishi:outbox-item-expired', { detail: { item } }));
+        } else {
+          validItems.push(item);
+        }
+      }
+
+      validItems.sort((a, b) => a.created_at - b.created_at);
+
+      for (const item of validItems) {
+        if (_state === 'offline') break;
+        if (item.status === 'failed' && item.attempts >= 5) continue;
+
+        // 1. Pre-flight auth check
+        if (!KrishiAuth.getToken()) {
+          const refreshed = await KrishiAuth.refreshToken();
+          if (!refreshed) {
+            console.warn('[outbox] User not authenticated; pausing outbox queue');
+            break;
+          }
+        }
+
+        // 2. Pre-flight consent check for voice items
+        if (item.type === 'voice') {
+          await KrishiConsent.checkConsents();
+          if (!KrishiConsent.hasVoiceConsent()) {
+            console.warn('[outbox] Voice consent not active; purging voice queue');
+            await purgeVoiceQueue();
+            break;
+          }
+        }
+
+        item.status = 'sending';
+        await putInStore(STORE_OUTBOX, item);
+        window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { item, action: 'status_change' } }));
+
+        try {
+          let responseData = null;
+          if (item.type === 'voice') {
+            const res = await KrishiAuth.fetchWithAuth('/api/voice-turn', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Idempotency-Key': item.id
+              },
+              body: JSON.stringify({
+                session_id: item.session_id,
+                audio: item.audio_base64,
+                mime_type: item.mime_type,
+                recording_duration_ms: item.duration_ms,
+                language: item.language
+              })
+            });
+
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData.detail?.message || errData.detail || ('Voice API returned status ' + res.status));
+            }
+            responseData = await res.json();
+          } else {
+            const res = await KrishiAuth.fetchWithAuth('/api/chat', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Idempotency-Key': item.id
+              },
+              body: JSON.stringify({
+                session_id: item.session_id,
+                message: item.message,
+                language: item.language
+              })
+            });
+
+            if (!res.ok) {
+              const errData = await res.json().catch(() => ({}));
+              throw new Error(errData.detail?.message || errData.detail || ('Chat API returned status ' + res.status));
+            }
+            responseData = await res.json();
+          }
+
+          // Successfully processed!
+          await deleteFromStore(STORE_OUTBOX, item.id);
+          window.dispatchEvent(new CustomEvent('krishi:outbox-item-sent', {
+            detail: { item, response: responseData }
+          }));
+
+        } catch (err) {
+          console.warn('[outbox] send failed for item', item.id, err);
+          item.attempts = (item.attempts || 0) + 1;
+          item.status = item.attempts >= 5 ? 'failed' : 'pending';
+          item.error_message = err.message || 'Network request failed';
+          await putInStore(STORE_OUTBOX, item);
+          window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { item, action: 'error' } }));
+
+          const backoffBase = (typeof window !== 'undefined' && window.__KRISHI_TEST_FAST_RETRY__) ? 10 : 1000;
+          const delay = Math.min(backoffBase * Math.pow(2, item.attempts) + Math.random() * (backoffBase / 2), 10000);
+          await new Promise(r => setTimeout(r, delay));
+        }
+      }
+    } finally {
+      _isProcessingOutbox = false;
+    }
+  }
+
+  async function retryOutboxItem(id) {
+    const item = await getFromStore(STORE_OUTBOX, id);
+    if (!item) return;
+    item.attempts = 0;
+    item.status = 'pending';
+    item.error_message = null;
+    await putInStore(STORE_OUTBOX, item);
+    window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { item, action: 'retry_queued' } }));
+    if (_state === 'online') {
+      processOutbox();
+    }
+  }
+
+  async function deleteOutboxItem(id) {
+    await deleteFromStore(STORE_OUTBOX, id);
+    window.dispatchEvent(new CustomEvent('krishi:outbox-updated', { detail: { id, action: 'delete' } }));
+  }
+
+  async function purgeVoiceQueue() {
+    const items = await getAllFromStore(STORE_OUTBOX);
+    for (const item of items) {
+      if (item.type === 'voice') {
+        await deleteFromStore(STORE_OUTBOX, item.id);
+      }
+    }
+    window.dispatchEvent(new CustomEvent('krishi:outbox-purged', { detail: { type: 'voice' } }));
+  }
+
+  async function clearAllData() {
+    await clearStore(STORE_OUTBOX);
+    await clearStore(STORE_SESSIONS);
+    await clearStore(STORE_EVALUATIONS);
+    window.dispatchEvent(new CustomEvent('krishi:outbox-cleared'));
+  }
+
+  async function saveSessionCache(sessionId, turns, profile = {}) {
+    if (!sessionId) return;
+    await putInStore(STORE_SESSIONS, {
+      session_id: sessionId,
+      turns: turns || [],
+      profile: profile || {},
+      cached_at: Date.now()
+    });
+  }
+
+  async function getSessionCache(sessionId) {
+    if (!sessionId) return null;
+    return await getFromStore(STORE_SESSIONS, sessionId);
+  }
+
+  async function getLatestSessionCache() {
+    const sessions = await getAllFromStore(STORE_SESSIONS);
+    if (!sessions.length) return null;
+    sessions.sort((a, b) => (b.cached_at || 0) - (a.cached_at || 0));
+    return sessions[0];
+  }
+
+  async function saveEvaluationsCache(evaluations) {
+    if (!Array.isArray(evaluations) || !evaluations.length) return;
+    for (const ev of evaluations) {
+      const id = ev.scheme_id || ev.id || ('ev_' + Math.random().toString(36).substring(2, 9));
+      await putInStore(STORE_EVALUATIONS, { id, data: ev, cached_at: Date.now() });
+    }
+  }
+
+  async function getCachedEvaluations() {
+    const items = await getAllFromStore(STORE_EVALUATIONS);
+    return items.map(it => it.data);
+  }
+
+  async function loadOfflineFAQ() {
+    if (_faqData) return _faqData;
+    try {
+      const res = await fetch('/offline_faq.json');
+      if (res.ok) {
+        _faqData = await res.json();
+        return _faqData;
+      }
+    } catch (e) {
+      console.warn('Failed to fetch offline_faq.json', e);
+    }
+    return null;
+  }
+
+  function init() {
+    injectConnectivityBannerHTML();
+    openDB().catch(e => console.warn('IndexedDB init warning', e));
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(err => {
+        console.warn('[sw] registration failed', err);
+      });
+    }
+
+    window.addEventListener('online', () => checkHeartbeat());
+    window.addEventListener('offline', () => setConnectivityState('offline'));
+
+    checkHeartbeat();
+    _heartbeatTimer = setInterval(checkHeartbeat, 5000);
+    if (_heartbeatTimer && typeof _heartbeatTimer.unref === 'function') {
+      _heartbeatTimer.unref();
+    }
+  }
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  }
+
+  return {
+    getState: () => _state,
+    setConnectivityState,
+    checkHeartbeat,
+    openDB,
+    enqueueVoiceClip,
+    enqueueChatMessage,
+    getOutboxItems: () => getAllFromStore(STORE_OUTBOX),
+    getOutboxItem: (id) => getFromStore(STORE_OUTBOX, id),
+    retryOutboxItem,
+    deleteOutboxItem,
+    purgeVoiceQueue,
+    clearAllData,
+    processOutbox,
+    saveSessionCache,
+    getSessionCache,
+    getLatestSessionCache,
+    saveEvaluationsCache,
+    getCachedEvaluations,
+    loadOfflineFAQ,
+    renderConnectivityBanner,
+    generateUUID,
+    init,
+  };
+})();
+
+if (typeof window !== 'undefined') window.KrishiOffline = KrishiOffline;
 
 
 
@@ -1364,3 +1974,11 @@ window.KrishiConsent = KrishiConsent;
     document.getElementById('form-btn-eval').addEventListener('click', evaluateForm);
   }
 })();
+
+if (typeof module !== 'undefined' && module.exports) {
+  module.exports = {
+    KrishiAuth: typeof KrishiAuth !== 'undefined' ? KrishiAuth : null,
+    KrishiConsent: typeof KrishiConsent !== 'undefined' ? KrishiConsent : null,
+    KrishiOffline: typeof KrishiOffline !== 'undefined' ? KrishiOffline : null,
+  };
+}
