@@ -1,25 +1,146 @@
 import base64
+import http.client
 import httpx
 import json
+import os
+import threading
 import unittest
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 
 from backend.web_server import (
     APIError,
+    KrishiMitraHandler,
     _deterministic_extract,
+    _make_demo_session_token,
     _eligibility_results,
     _is_scheme_query,
     _missing_chat_slots,
     _sarvam_request,
+    _valid_demo_session,
+    _demo_access_config,
     handle_chat,
     handle_voice_turn,
     merge_profile,
     normalize_profile_patch,
 )
+from http.server import ThreadingHTTPServer
 
 
 class TestWebServer(unittest.TestCase):
+    def setUp(self):
+        self.server = ThreadingHTTPServer(("127.0.0.1", 0), KrishiMitraHandler)
+        self.server_thread = threading.Thread(target=self.server.serve_forever, daemon=True)
+        self.server_thread.start()
+
+    def tearDown(self):
+        self.server.shutdown()
+        self.server.server_close()
+        self.server_thread.join(timeout=2)
+
+    def request(self, method, path, body=None, cookie=None):
+        connection = http.client.HTTPConnection(
+            "127.0.0.1", self.server.server_address[1], timeout=3
+        )
+        headers = {}
+        encoded_body = None
+        if body is not None:
+            encoded_body = json.dumps(body)
+            headers["Content-Type"] = "application/json"
+        if cookie:
+            headers["Cookie"] = cookie
+        connection.request(method, path, body=encoded_body, headers=headers)
+        response = connection.getresponse()
+        data = response.read()
+        result = (response.status, response.getheaders(), data)
+        connection.close()
+        return result
+
+    def test_demo_access_config_requires_strong_password_and_signing_secret(self):
+        with patch.dict(os.environ, {
+            "REQUIRE_DEMO_PASSWORD": "true",
+            "DEMO_ACCESS_PASSWORD": "x" * 20,
+            "DEMO_SESSION_SECRET": "y" * 32,
+        }, clear=True):
+            self.assertEqual(_demo_access_config(), ("x" * 20, "y" * 32))
+        with patch.dict(os.environ, {
+            "REQUIRE_DEMO_PASSWORD": "true",
+        }, clear=True):
+            with self.assertRaisesRegex(RuntimeError, "at least 20 characters"):
+                _demo_access_config()
+
+    def test_demo_session_is_signed_expiring_and_invalidated_by_password_change(self):
+        expires_at = 4_000_000_000
+        password = "p" * 20
+        secret = "s" * 32
+        token = _make_demo_session_token(expires_at, password, secret)
+        with patch.dict(os.environ, {
+            "DEMO_ACCESS_PASSWORD": password,
+            "DEMO_SESSION_SECRET": secret,
+        }, clear=True):
+            self.assertTrue(_valid_demo_session(f"krishi_demo_session={token}"))
+            self.assertFalse(_valid_demo_session(f"krishi_demo_session={token}x"))
+        with patch.dict(os.environ, {
+            "DEMO_ACCESS_PASSWORD": "q" * 20,
+            "DEMO_SESSION_SECRET": secret,
+        }, clear=True):
+            self.assertFalse(_valid_demo_session(f"krishi_demo_session={token}"))
+
+    def test_demo_password_protects_api_but_health_and_login_remain_available(self):
+        password = "demo-password-" + "x" * 20
+        secret = "session-secret-" + "y" * 24
+        with patch.dict(os.environ, {
+            "REQUIRE_DEMO_PASSWORD": "true",
+            "DEMO_ACCESS_PASSWORD": password,
+            "DEMO_SESSION_SECRET": secret,
+            "DEMO_COOKIE_SECURE": "false",
+        }, clear=True):
+            health_status, _, _ = self.request("GET", "/api/health")
+            self.assertEqual(health_status, 200)
+
+            status, _, body = self.request("POST", "/api/evaluate", {"profile": {}})
+            self.assertEqual(status, 401)
+            self.assertIn(b"demo access password", body)
+
+            status, headers, _ = self.request(
+                "POST", "/api/demo-login", {"password": "wrong password"}
+            )
+            self.assertEqual(status, 401)
+            self.assertFalse(any(name.lower() == "set-cookie" for name, _ in headers))
+
+            status, headers, _ = self.request(
+                "POST", "/api/demo-login", {"password": password}
+            )
+            self.assertEqual(status, 200)
+            cookie_header = next(
+                value for name, value in headers if name.lower() == "set-cookie"
+            )
+            cookie = cookie_header.split(";", 1)[0]
+
+            status, _, body = self.request(
+                "POST", "/api/evaluate", {"profile": {}}, cookie
+            )
+            self.assertEqual(status, 200)
+            self.assertIn(b"evaluations", body)
+
+            status, _, body = self.request("GET", "/api/access-status", cookie=cookie)
+            self.assertEqual(status, 200)
+            self.assertEqual(json.loads(body), {"required": True, "authenticated": True})
+
+            status, headers, _ = self.request("POST", "/api/demo-logout")
+            self.assertEqual(status, 200)
+            self.assertIn("Max-Age=0", next(
+                value for name, value in headers if name.lower() == "set-cookie"
+            ))
+            status, _, _ = self.request("POST", "/api/evaluate", {"profile": {}}, cookie)
+            self.assertEqual(status, 401)
+
+    def test_demo_access_misconfiguration_fails_closed(self):
+        with patch.dict(os.environ, {"REQUIRE_DEMO_PASSWORD": "true"}, clear=True):
+            status, _, body = self.request("GET", "/api/access-status")
+        self.assertEqual(status, 503)
+        self.assertIn(b"not configured safely", body)
+
     def test_extracts_kannada_and_english_farmer_facts(self):
         profile = _deterministic_extract(
             "ನಮಸ್ಕಾರ, ಕಲಬುರಗಿ ನಮ್ಮ ಹೊಲ ಮೂರ್ ಎಕರೆ, ತೊಗರಿ ಬೆಳೆದಿದ್ದೇನೆ, ಬರಗಾಲ."

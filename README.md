@@ -11,6 +11,17 @@ python -m backend.web_server
 
 Open `http://127.0.0.1:8000`. Do not open `index.html` directly: the pages use `/api` endpoints served by this process.
 
+## Deploy a protected demo on Render
+
+The repository includes a `render.yaml` Blueprint for a public demo service. It binds to `0.0.0.0`, uses Render's `PORT`, enables a shared-password gate, and leaves provider credentials as dashboard-managed secrets. It does not create personal accounts or private per-user chat history; the shared password is only a demo access gate.
+
+1. Push this branch to GitHub and create a Render Blueprint from the repository, or create a Python web service with the settings in `render.yaml`.
+2. In Render's environment settings, set `DEMO_ACCESS_PASSWORD` to a randomly generated value of at least 20 characters and `DEMO_SESSION_SECRET` to a separate random value of at least 32 characters. Keep both private and share the access password only with judges. Set `GROQ_API_KEY` and `SARVAM_API_KEY` there if those features are needed. Never commit these values or put them in browser code.
+3. Keep `REQUIRE_DEMO_PASSWORD=true`, `DEMO_COOKIE_SECURE=true`, and `BIND_HOST=0.0.0.0`. Render provides `PORT`; do not hardcode it.
+4. Wait for the deploy and health check, then open the HTTPS URL and verify the password gate, typed chat, scheme evaluation, and voice if configured. Rotate the shared password after the demo.
+
+The password gate uses a signed, HTTP-only, SameSite cookie that expires after 12 hours. The password is shared, so this is not authentication for individual farmers and does not provide saved-history isolation. Use a high-entropy password; do not treat the gate as a substitute for identity, authorization, rate limiting, or production security. The service remains publicly reachable at the network layer, and platform quotas/costs should be monitored.
+
 Typed and voice chat use Groq `openai/gpt-oss-120b` for natural, multi-turn farming advice. Sarvam is used for speech-to-text and speech synthesis; scheme screening remains deterministic and rule-based. Scheme cards are shown only when the farmer asks about government support or eligibility. The last eight chat messages are sent as context so follow-up questions make sense. Kannada typed replies use Sarvam Bulbul v4 Flash speech when configured; English typed replies use the browser's speech engine. Voice chat uses Sarvam Saaras v4 for transcription and Bulbul v4 Flash for speech synthesis. Add your keys to the ignored `.env` file:
 
 ```powershell

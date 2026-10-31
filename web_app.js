@@ -1,6 +1,110 @@
 (() => {
   const microphoneSoundThreshold = 0.001;
 
+  function showDemoAccessBadge() {
+    if (document.getElementById('demo-access-badge')) return;
+    const badge = document.createElement('div');
+    badge.id = 'demo-access-badge';
+    badge.className = 'fixed top-3 right-3 z-[100] flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-900 px-3 py-2 text-xs text-slate-200 shadow-xl';
+    const label = document.createElement('span');
+    label.textContent = 'Shared demo access';
+    const logout = document.createElement('button');
+    logout.type = 'button';
+    logout.className = 'rounded-lg bg-slate-700 px-2 py-1 font-semibold hover:bg-slate-600';
+    logout.textContent = 'Lock';
+    logout.addEventListener('click', async () => {
+      try {
+        await fetch('/api/demo-logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+        });
+        badge.remove();
+        showDemoAccessGate();
+      } catch (error) {
+        console.error('[access] could not end demo session', { message: error.message });
+      }
+    });
+    badge.append(label, logout);
+    document.body.appendChild(badge);
+  }
+
+  function showDemoAccessGate(message = '') {
+    if (document.getElementById('demo-access-gate')) return;
+    const overlay = document.createElement('div');
+    overlay.id = 'demo-access-gate';
+    overlay.className = 'fixed inset-0 z-[110] flex items-center justify-center bg-slate-950/95 p-4';
+    overlay.setAttribute('role', 'dialog');
+    overlay.setAttribute('aria-modal', 'true');
+    overlay.setAttribute('aria-labelledby', 'demo-access-title');
+    const panel = document.createElement('form');
+    panel.className = 'w-full max-w-sm space-y-4 rounded-2xl border border-slate-700 bg-slate-900 p-6 shadow-2xl';
+    const title = document.createElement('h1');
+    title.id = 'demo-access-title';
+    title.className = 'text-xl font-bold text-white';
+    title.textContent = 'Demo access';
+    const description = document.createElement('p');
+    description.className = 'text-sm text-slate-300';
+    description.textContent = 'Enter the shared hackathon demo password to continue. This is shared access, not a personal account.';
+    const input = document.createElement('input');
+    input.type = 'password';
+    input.name = 'password';
+    input.autocomplete = 'current-password';
+    input.required = true;
+    input.className = 'w-full rounded-xl border border-slate-600 bg-slate-800 px-3 py-2 text-white outline-none focus:border-emerald-500';
+    input.setAttribute('aria-label', 'Demo access password');
+    const error = document.createElement('p');
+    error.className = 'min-h-5 text-sm text-rose-300';
+    error.setAttribute('role', 'alert');
+    error.textContent = message;
+    const submit = document.createElement('button');
+    submit.type = 'submit';
+    submit.className = 'w-full rounded-xl bg-emerald-600 px-4 py-2.5 font-bold text-white hover:bg-emerald-500 disabled:opacity-50';
+    submit.textContent = 'Continue';
+    panel.append(title, description, input, error, submit);
+    panel.addEventListener('submit', async event => {
+      event.preventDefault();
+      submit.disabled = true;
+      error.textContent = '';
+      try {
+        const response = await fetch('/api/demo-login', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: input.value }),
+        });
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.error || 'Could not verify the demo password.');
+        overlay.remove();
+        showDemoAccessBadge();
+        document.dispatchEvent(new Event('demo-access-ready'));
+      } catch (loginError) {
+        error.textContent = loginError.message || 'Sign-in failed. Try again.';
+        input.select();
+      } finally {
+        submit.disabled = false;
+      }
+    });
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+    input.focus();
+  }
+
+  async function initializeDemoAccess() {
+    try {
+      const response = await fetch('/api/access-status', { credentials: 'same-origin' });
+      const status = await response.json();
+      if (!response.ok) throw new Error(status.error || 'Could not check demo access.');
+      if (!status.required) return;
+      if (status.authenticated) showDemoAccessBadge();
+      else showDemoAccessGate();
+    } catch (error) {
+      showDemoAccessGate('Could not verify access. Reload the page or contact the demo host.');
+      console.error('[access] access status check failed', { message: error.message });
+    }
+  }
+
+  initializeDemoAccess();
+
   const profileDefaults = () => ({
     district: null,
     land_acres: null,
@@ -33,6 +137,7 @@
     const timeout = setTimeout(() => controller.abort(), 50000);
     return fetch(path, {
       method: 'POST',
+      credentials: 'same-origin',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
       signal: controller.signal,
@@ -40,6 +145,9 @@
       const data = await response.json();
       const requestId = response.headers.get('X-Request-ID');
       if (!response.ok) {
+        if (response.status === 401) {
+          showDemoAccessGate(data.error || 'Enter the demo access password to continue.');
+        }
         const reference = requestId ? ` (reference: ${requestId})` : '';
         const error = new Error(
           `${data.error || `Request failed (${response.status}).`}${reference}`,
@@ -809,19 +917,23 @@
     };
 
     updateProfileBar();
-    fetch('/api/health')
-      .then(response => {
-        if (!response.ok) throw new Error('Backend is unavailable.');
-        return response.json();
-      })
-      .then(data => {
-        setServiceStatus(`${data.model_mode} · ${data.voice_mode}`);
-      })
-      .catch(() => {
-        setServiceStatus(currentLanguage === 'kn'
-          ? 'ಹಿಂಬದಿ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ — python -m backend.web_server ಚಾಲನೆ ಮಾಡಿ.'
-          : 'Backend unavailable — start it with: python -m backend.web_server');
-      });
+    const refreshServiceStatus = () => {
+      fetch('/api/health')
+        .then(response => {
+          if (!response.ok) throw new Error('Backend is unavailable.');
+          return response.json();
+        })
+        .then(data => {
+          setServiceStatus(`${data.model_mode} · ${data.voice_mode}`);
+        })
+        .catch(() => {
+          setServiceStatus(currentLanguage === 'kn'
+            ? 'ಹಿಂಬದಿ ಸೇವೆ ಲಭ್ಯವಿಲ್ಲ — python -m backend.web_server ಚಾಲನೆ ಮಾಡಿ.'
+            : 'Backend unavailable — start it with: python -m backend.web_server');
+        });
+    };
+    refreshServiceStatus();
+    document.addEventListener('demo-access-ready', refreshServiceStatus);
   }
 
   if (document.getElementById('form-results-container')) {

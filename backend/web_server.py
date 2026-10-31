@@ -4,8 +4,11 @@ from __future__ import annotations
 
 import base64
 import binascii
+from http.cookies import SimpleCookie
 from dataclasses import asdict
 from io import BytesIO
+import hashlib
+import hmac
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
 import logging
@@ -68,6 +71,8 @@ BOOLEAN_FIELDS = {
 LIST_FIELDS = {"crops", "soil_deficiencies"}
 EVALUATOR = SchemeEvaluator()
 LOGGER = logging.getLogger("krishi_mitra")
+DEMO_SESSION_COOKIE = "krishi_demo_session"
+DEMO_SESSION_TTL_SECONDS = 12 * 60 * 60
 
 
 def _load_environment_file() -> None:
@@ -82,6 +87,60 @@ def _load_environment_file() -> None:
 
 
 _load_environment_file()
+
+
+def _demo_access_config() -> tuple[str | None, str | None]:
+    password = os.environ.get("DEMO_ACCESS_PASSWORD", "")
+    secret = os.environ.get("DEMO_SESSION_SECRET", "")
+    required = os.environ.get("REQUIRE_DEMO_PASSWORD", "").strip().lower() in {
+        "1", "true", "yes", "on",
+    }
+
+    if not password and not secret and not required:
+        return None, None
+    if len(password) < 20:
+        raise RuntimeError(
+            "DEMO_ACCESS_PASSWORD must contain at least 20 characters when demo "
+            "access protection is enabled."
+        )
+    if len(secret) < 32:
+        raise RuntimeError(
+            "DEMO_SESSION_SECRET must contain at least 32 characters when demo "
+            "access protection is enabled."
+        )
+    return password, secret
+
+
+def _make_demo_session_token(expires_at: int, password: str, secret: str) -> str:
+    payload = str(expires_at)
+    signature = hmac.new(
+        secret.encode("utf-8"),
+        f"{payload}:{password}".encode("utf-8"),
+        hashlib.sha256,
+    ).hexdigest()
+    return f"{payload}.{signature}"
+
+
+def _valid_demo_session(cookie_header: str | None) -> bool:
+    try:
+        password, secret = _demo_access_config()
+        if password is None or secret is None or not cookie_header:
+            return False
+        cookie = SimpleCookie()
+        cookie.load(cookie_header)
+        morsel = cookie.get(DEMO_SESSION_COOKIE)
+        if morsel is None:
+            return False
+        expires_text, separator, supplied_signature = morsel.value.partition(".")
+        if not separator:
+            return False
+        expires_at = int(expires_text)
+        if expires_at <= int(time.time()):
+            return False
+        expected = _make_demo_session_token(expires_at, password, secret).partition(".")[2]
+        return hmac.compare_digest(supplied_signature, expected)
+    except (RuntimeError, ValueError):
+        return False
 
 
 class APIError(Exception):
@@ -906,20 +965,50 @@ class KrishiMitraHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args: Any, **kwargs: Any):
         super().__init__(*args, directory=str(ROOT), **kwargs)
 
-    def _send_json(self, status: int, data: dict[str, Any]) -> None:
+    def _send_json(
+        self,
+        status: int,
+        data: dict[str, Any],
+        headers: dict[str, str] | None = None,
+    ) -> None:
         encoded = json.dumps(data, ensure_ascii=False).encode("utf-8")
         self.send_response(status)
         self.send_header("Content-Type", "application/json; charset=utf-8")
         self.send_header("Content-Length", str(len(encoded)))
         self.send_header("Cache-Control", "no-store")
+        for name, value in (headers or {}).items():
+            self.send_header(name, value)
         request_id = getattr(self, "request_id", None)
         if request_id:
             self.send_header("X-Request-ID", request_id)
         self.end_headers()
         self.wfile.write(encoded)
 
+    def _demo_access_required(self) -> bool:
+        password, _ = _demo_access_config()
+        return password is not None
+
+    def _require_demo_session(self) -> None:
+        if self._demo_access_required() and not _valid_demo_session(
+            self.headers.get("Cookie")
+        ):
+            raise APIError(401, "Enter the demo access password to use this service.")
+
     def do_GET(self) -> None:
         path = urlparse(self.path).path
+        if path == "/api/access-status":
+            try:
+                self._send_json(200, {
+                    "required": self._demo_access_required(),
+                    "authenticated": (
+                        not self._demo_access_required()
+                        or _valid_demo_session(self.headers.get("Cookie"))
+                    ),
+                })
+            except RuntimeError as error:
+                LOGGER.error("Demo access configuration is invalid: %s", error)
+                self._send_json(503, {"error": "Demo access is not configured safely."})
+            return
         if path == "/api/health":
             self._send_json(200, {
                 "ok": True,
@@ -935,6 +1024,16 @@ class KrishiMitraHandler(SimpleHTTPRequestHandler):
                 ),
             })
             return
+        if path.startswith("/api/"):
+            try:
+                self._require_demo_session()
+            except (APIError, RuntimeError) as error:
+                self._send_json(
+                    error.status if isinstance(error, APIError) else 503,
+                    {"error": str(error) if isinstance(error, APIError)
+                     else "Demo access is not configured safely."},
+                )
+                return
         if path not in {
             "/", "/index.html", "/chat.html", "/web_app.js",
             "/assets/hero_video.mp4", "/assets/hero_video_2.mp4",
@@ -951,6 +1050,17 @@ class KrishiMitraHandler(SimpleHTTPRequestHandler):
         started_at = time.monotonic()
         LOGGER.info("request_id=%s route=%s status=started", request_id, route)
         try:
+            if route == "/api/demo-logout":
+                self._send_json(200, {"ok": True}, {
+                    "Set-Cookie": (
+                        f"{DEMO_SESSION_COOKIE}=; Path=/; HttpOnly; SameSite=Strict; "
+                        "Max-Age=0"
+                        + ("; Secure" if os.environ.get(
+                            "DEMO_COOKIE_SECURE", ""
+                        ).strip().lower() in {"1", "true", "yes", "on"} else "")
+                    ),
+                })
+                return
             length = int(self.headers.get("Content-Length", "0"))
             max_request_bytes = (
                 MAX_VOICE_REQUEST_BYTES if route == "/api/voice-turn" else MAX_REQUEST_BYTES
@@ -960,6 +1070,39 @@ class KrishiMitraHandler(SimpleHTTPRequestHandler):
             payload = json.loads(self.rfile.read(length).decode("utf-8"))
             if not isinstance(payload, dict):
                 raise APIError(400, "Request body must be a JSON object.")
+            if route == "/api/demo-login":
+                try:
+                    password, secret = _demo_access_config()
+                except RuntimeError as error:
+                    LOGGER.error("Demo access configuration is invalid: %s", error)
+                    raise APIError(
+                        503, "Demo access is not configured safely."
+                    ) from error
+                supplied_password = payload.get("password")
+                if (
+                    password is None
+                    or secret is None
+                    or not isinstance(supplied_password, str)
+                    or not hmac.compare_digest(supplied_password, password)
+                ):
+                    raise APIError(401, "The demo access password is incorrect.")
+                expires_at = int(time.time()) + DEMO_SESSION_TTL_SECONDS
+                token = _make_demo_session_token(expires_at, password, secret)
+                cookie = (
+                    f"{DEMO_SESSION_COOKIE}={token}; Path=/; HttpOnly; "
+                    f"SameSite=Strict; Max-Age={DEMO_SESSION_TTL_SECONDS}"
+                )
+                if os.environ.get("DEMO_COOKIE_SECURE", "").strip().lower() in {
+                    "1", "true", "yes", "on",
+                }:
+                    cookie += "; Secure"
+                self._send_json(200, {"ok": True}, {"Set-Cookie": cookie})
+                return
+            try:
+                self._require_demo_session()
+            except RuntimeError as error:
+                LOGGER.error("Demo access configuration is invalid: %s", error)
+                raise APIError(503, "Demo access is not configured safely.") from error
             if route == "/api/chat":
                 self._send_json(200, handle_chat(payload, request_id))
             elif route == "/api/evaluate":
@@ -1006,9 +1149,14 @@ def main() -> None:
         level=os.environ.get("LOG_LEVEL", "INFO").upper(),
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
+    try:
+        _demo_access_config()
+    except RuntimeError as error:
+        raise SystemExit(str(error)) from error
     port = int(os.environ.get("PORT", "8000"))
-    server = ThreadingHTTPServer(("127.0.0.1", port), KrishiMitraHandler)
-    print(f"Krishi Mitra web app: http://127.0.0.1:{port}")
+    host = os.environ.get("BIND_HOST", "127.0.0.1")
+    server = ThreadingHTTPServer((host, port), KrishiMitraHandler)
+    print(f"Krishi Mitra web app listening on {host}:{port}")
     print(
         "Chat assistant: "
         + (f"Groq {GROQ_CHAT_MODEL} ready"
