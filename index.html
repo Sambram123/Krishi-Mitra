@@ -592,20 +592,19 @@
           </a>
         </nav>
 
-        <!-- Right Side: Auth, Translate to Kannada & Contact Us -->
-        <div id="auth-header-container" class="krishi-auth-container flex items-center gap-2"></div>
+        <!-- Right Side: Translate & Farmer Login (replaces Contact Us) -->
         <div class="flex items-center gap-3 shrink-0">
           <button id="lang-toggle-btn" type="button" class="flex items-center gap-2 bg-white/90 hover:bg-white text-neutral-800 px-4 py-2 rounded-full border border-neutral-300/80 hover:border-neutral-400 text-xs font-semibold shadow-xs transition-all cursor-pointer">
             <span class="material-symbols-outlined text-base text-emerald-700">translate</span>
             <span id="lang-btn-label">ಕನ್ನಡಕ್ಕೆ ಬದಲಿಸಿ</span>
           </button>
 
-          <a href="#footer-section" class="flex items-center gap-3 bg-black hover:bg-neutral-900 text-white pl-5 sm:pl-6 pr-2 py-2 rounded-full transition-all group shadow-md hover:shadow-lg">
-            <span class="text-xs sm:text-sm font-medium tracking-tight">Contact Us</span>
-            <div class="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white text-black flex items-center justify-center group-hover:scale-105 transition-transform shrink-0">
-              <span class="material-symbols-outlined text-sm sm:text-base font-bold">arrow_outward</span>
-            </div>
-          </a>
+          <div id="auth-header-container" class="krishi-auth-container flex items-center gap-2">
+            <button onclick="if(window.KrishiAuth) window.KrishiAuth.showLoginModal()" type="button" class="flex items-center gap-1.5 bg-[#1B5E20] hover:bg-[#2E7D32] text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer">
+              <span class="material-symbols-outlined text-sm">login</span>
+              <span id="nav-login-label">ರೈತರ ಲಾಗಿನ್</span>
+            </button>
+          </div>
         </div>
 
       </div>
@@ -922,6 +921,10 @@
       safeSetText('footer-copy', t.footerCopy);
       safeSetText('footer-helpline', t.footerHelpline);
       safeSetText('footer-aesthetics', t.footerAesthetics);
+
+      if (window.KrishiAuth) {
+        window.KrishiAuth.setLang(lang);
+      }
     }
 
     document.getElementById('lang-toggle-btn').addEventListener('click', () => {
