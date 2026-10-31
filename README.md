@@ -142,6 +142,17 @@ python -m pytest backend
 ```text
 Krishi-Mitra/
 ├── backend/                      # Backend application package
+│   ├── auth/                     # Authentication & authorization module
+│   │   ├── config.py             # JWT & rate limit configuration
+│   │   ├── dependencies.py       # get_current_user & require_role RBAC
+│   │   ├── rate_limiter.py       # Sliding-window rate limiting per phone & IP
+│   │   ├── router.py             # Phone+OTP, refresh rotation & user routes
+│   │   ├── security.py           # JWT creation, HMAC hashing & OTP generation
+│   │   └── sms.py                # Pluggable SMSProvider & dev ConsoleProvider
+│   ├── db/                       # Database persistence & migrations
+│   │   ├── alembic/              # Alembic migration revisions & environment
+│   │   ├── database.py           # SQLAlchemy 2.0 engine & session factory
+│   │   └── models.py             # Users, OTPCode & RefreshToken models
 │   ├── conversation/             # Multi-turn dialogue management & state tracking
 │   │   ├── dialogue.py           # Dialogue orchestration
 │   │   └── state.py              # Conversation state & slot tracking
@@ -167,6 +178,22 @@ Krishi-Mitra/
 ├── .env.example                  # Environment configuration template
 └── README.md                     # Project documentation & run guide
 ```
+
+---
+
+---
+
+## 🔐 Authentication, Authorization & Security
+
+Krishi Mitra provides a production-grade, privacy-first authentication layer:
+- **Phone + OTP Login**: 6-digit OTP hashed at rest with HMAC-SHA256, 5-minute expiry, max 5 attempts.
+- **Rate-Limiting**: Sliding-window rate limiter per phone number and IP address to prevent SMS abuse.
+- **Short-Lived Access Tokens (15 min)**: Kept in memory by the vanilla JS frontend to mitigate XSS attacks.
+- **Rotating Refresh Tokens (7 days)**: Stored in `httpOnly`, `SameSite=Lax`, `Secure` cookies with automatic compromise detection (reuse of a revoked token revokes the entire token family).
+- **IDOR Protection**: Conversation sessions are bound to `user_id`; cross-user reads/writes are blocked with `403 Forbidden`.
+- **Role-Based Access Control**: `require_role('admin')` dependency protects administrative metrics and routes.
+- **Zero Secret Logging**: Production mode suppresses all raw phone numbers, OTP codes, and tokens.
+- **Database & Migrations**: Backed by SQLAlchemy 2.0 and Alembic (default SQLite, PostgreSQL ready via `DATABASE_URL`).
 
 ---
 

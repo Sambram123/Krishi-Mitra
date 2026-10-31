@@ -2,17 +2,20 @@
 Krishi Mitra — FastAPI Backend Server
 Integrates conversational AI dialogue management with the web frontend.
 Provides:
-  - POST /api/chat: Multi-turn farmer dialogue processing with NLU and deterministic evaluation
-  - GET /api/health: Service status and model configuration
-  - Static file serving for index.html, chat.html, stitch_design.html, and assets/
+  - Authentication & Authorization: Phone + OTP, JWT, Rotating Refresh Tokens, RBAC
+  - POST /api/chat: Multi-turn farmer dialogue processing with NLU and deterministic evaluation (Protected)
+  - POST /api/voice-turn: Audio processing with Sarvam transcription and Groq (Protected)
+  - GET /api/health: Service status and model configuration (Public)
+  - Static file serving for index.html, chat.html, stitch_design.html, web_app.js, and assets/
 """
 
 import os
 import sys
 import uuid
 from typing import Dict, Any, List, Optional
+from contextlib import asynccontextmanager
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Depends, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
@@ -27,8 +30,26 @@ if BASE_DIR not in sys.path:
 load_dotenv(os.path.join(BASE_DIR, ".env"), override=False)
 
 from backend.web_server import APIError, handle_chat as run_groq_chat, handle_voice_turn
+from backend.db.database import init_db
+from backend.db.models import User
+from backend.auth import (
+    auth_router,
+    admin_router,
+    get_current_user,
+    assert_production_config,
+)
 
-app = FastAPI(title="Krishi Mitra API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Verify production requirements
+    assert_production_config()
+    # Ensure database tables exist
+    init_db()
+    yield
+
+
+app = FastAPI(title="Krishi Mitra API", version="1.0.0", lifespan=lifespan)
 
 # Enable CORS for local development and web clients
 app.add_middleware(
@@ -39,7 +60,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# In-memory session store (DPDP 2023 data minimisation: in-process per-session state)
+# Register Authentication & Admin Sub-Routers
+app.include_router(auth_router)
+app.include_router(admin_router)
+
+# In-memory session store (DPDP 2023 data minimisation: in-process per-session state bound to user_id)
 sessions: Dict[str, Dict[str, Any]] = {}
 
 
@@ -91,8 +116,23 @@ def health_check():
     }
 
 
-def _session_context(session_id: str, profile: Dict[str, Any], history: List[Dict[str, str]]):
-    session = sessions.setdefault(session_id, {"profile": {}, "history": []})
+def _session_context(session_id: str, profile: Dict[str, Any], history: List[Dict[str, str]], user_id: str):
+    """
+    Retrieves or initializes session state bound to user_id.
+    Prevents IDOR by blocking cross-user session reads or writes.
+    """
+    if session_id in sessions:
+        session = sessions[session_id]
+        owner_id = session.get("user_id")
+        if owner_id and owner_id != user_id:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Access denied: session belongs to another user",
+            )
+    else:
+        session = sessions.setdefault(session_id, {"profile": {}, "history": [], "user_id": user_id})
+
+    session["user_id"] = user_id
     session["profile"].update(profile)
     if history:
         session["history"] = history[-8:]
@@ -133,9 +173,10 @@ def _record_turn(session: Dict[str, Any], message: str, reply: str) -> None:
 
 
 @app.post("/api/chat", response_model=ChatResponse)
-def handle_chat(req: ChatRequest):
+def handle_chat(req: ChatRequest, current_user: User = Depends(get_current_user)):
+    user_id = str(current_user.id)
     session_id = req.session_id or str(uuid.uuid4())[:8]
-    session = _session_context(session_id, req.profile, req.history)
+    session = _session_context(session_id, req.profile, req.history, user_id)
     payload = {
         "message": req.message,
         "language": req.language,
@@ -153,9 +194,10 @@ def handle_chat(req: ChatRequest):
 
 
 @app.post("/api/voice-turn", response_model=ChatResponse)
-def voice_turn(req: VoiceTurnRequest):
+def voice_turn(req: VoiceTurnRequest, current_user: User = Depends(get_current_user)):
+    user_id = str(current_user.id)
     session_id = req.session_id or str(uuid.uuid4())[:8]
-    session = _session_context(session_id, req.profile, req.history)
+    session = _session_context(session_id, req.profile, req.history, user_id)
     payload = req.model_dump(exclude={"session_id"})
     payload["profile"] = dict(session["profile"])
     payload["history"] = [dict(turn) for turn in session["history"]]
@@ -196,6 +238,14 @@ def serve_stitch():
     if os.path.exists(stitch_path):
         return FileResponse(stitch_path)
     return {"message": "stitch_design.html not found"}
+
+
+@app.get("/web_app.js")
+def serve_web_app():
+    js_path = os.path.join(BASE_DIR, "web_app.js")
+    if os.path.exists(js_path):
+        return FileResponse(js_path, media_type="application/javascript")
+    raise HTTPException(status_code=404, detail="web_app.js not found")
 
 
 # Mount assets folder for videos, images, and audio

@@ -1,3 +1,585 @@
+// Krishi Mitra — Shared Authentication & Web App Helper
+// Provides in-memory JWT storage, silent refresh on 401, phone+OTP login modal, and auth UI bindings.
+const KrishiAuth = (() => {
+  let _accessToken = null;
+  let _currentUser = null;
+  let _isRefreshing = false;
+  let _refreshSubscribers = [];
+  let _loginSuccessCallback = null;
+  let _pendingPhone = '';
+
+  const i18n = {
+    kn: {
+      loginTitle: 'ರೈತರ ಸುರಕ್ಷಿತ ಲಾಗಿನ್',
+      loginSubtitle: 'ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮಾಹಿತಿ ಮತ್ತು ಸಂವಾದಕ್ಕಾಗಿ ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.',
+      phoneLabel: 'ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (10 ಅಂಕಿಗಳು)',
+      phonePlaceholder: '9876543210',
+      nameLabel: 'ರೈತರ ಹೆಸರು (ಐಚ್ಛಿಕ)',
+      namePlaceholder: 'ಉದಾ: ಬಸವರಾಜ',
+      sendOtpBtn: 'ಒಟಿಪಿ ಪಡೆಯಿರಿ (Send OTP)',
+      sendingOtp: 'ಒಟಿಪಿ ಕಳುಹಿಸಲಾಗುತ್ತಿದೆ...',
+      otpLabel: '6-ಅಂಕಿಯ ಒಟಿಪಿ ಕೋಡ್',
+      otpPlaceholder: '123456',
+      verifyBtn: 'ದೃಢೀಕರಿಸಿ ಮತ್ತು ಮುಂದುವರಿಯಿರಿ',
+      verifying: 'ಪರಿಶೀಲಿಸಲಾಗುತ್ತಿದೆ...',
+      changePhone: 'ಸಂಖ್ಯೆ ಬದಲಿಸಿ',
+      resendOtp: 'ಮತ್ತೆ ಒಟಿಪಿ ಕಳುಹಿಸಿ',
+      otpSentTo: 'ಒಟಿಪಿಯನ್ನು ಈ ಸಂಖ್ಯೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ:',
+      loginSuccess: 'ಲಾಗಿನ್ ಯಶಸ್ವಿಯಾಗಿದೆ!',
+      logoutBtn: 'ಲಾಗ್‌ಔಟ್',
+      loginBtn: 'ರೈತರ ಲಾಗಿನ್',
+      devNotice: 'ಡೆವಲಪ್‌ಮೆಂಟ್ ಮೋಡ್: ಒಟಿಪಿ ಕೋಡ್ ಸರ್ವರ್ ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ ಪ್ರಿಂಟ್ ಆಗುತ್ತದೆ.',
+      errPhone: 'ದಯವಿಟ್ಟು ಮಾನ್ಯವಾದ 10-ಅಂಕಿಯ ಮೊಬೈಲ್ ಸಂಖ್ಯೆಯನ್ನು ನಮೂದಿಸಿ.',
+      errOtp: 'ದಯವಿಟ್ಟು 6-ಅಂಕಿಯ ಒಟಿಪಿ ಕೋಡ್ ನಮೂದಿಸಿ.',
+      sessionExpired: 'ಅಧಿವೇಶನ ಮುಕ್ತಾಯಗೊಂಡಿದೆ. ದಯವಿಟ್ಟು ಪುನಃ ಲಾಗಿನ್ ಆಗಿ.'
+    },
+    en: {
+      loginTitle: 'Farmer Secure Login',
+      loginSubtitle: 'Enter your mobile phone number to check government schemes and consult Krishi Mitra.',
+      phoneLabel: 'Mobile Number (10 digits)',
+      phonePlaceholder: '9876543210',
+      nameLabel: 'Farmer Name (Optional)',
+      namePlaceholder: 'e.g. Basavaraj',
+      sendOtpBtn: 'Send OTP',
+      sendingOtp: 'Sending OTP...',
+      otpLabel: '6-Digit OTP Code',
+      otpPlaceholder: '123456',
+      verifyBtn: 'Verify & Continue',
+      verifying: 'Verifying OTP...',
+      changePhone: 'Change Number',
+      resendOtp: 'Resend OTP',
+      otpSentTo: 'OTP has been dispatched to:',
+      loginSuccess: 'Logged in successfully!',
+      logoutBtn: 'Logout',
+      loginBtn: 'Farmer Login',
+      devNotice: 'Dev Mode: The 6-digit OTP is printed to the backend server terminal.',
+      errPhone: 'Please enter a valid 10-digit mobile number.',
+      errOtp: 'Please enter the 6-digit OTP code.',
+      sessionExpired: 'Session expired. Please log in again.'
+    }
+  };
+
+  function getLang() {
+    if (typeof currentLanguage !== 'undefined' && currentLanguage) return currentLanguage;
+    if (typeof currentLang !== 'undefined' && currentLang) return currentLang;
+    return 'kn';
+  }
+
+  function getToken() {
+    return _accessToken;
+  }
+
+  function setToken(token) {
+    _accessToken = token;
+  }
+
+  function getUser() {
+    return _currentUser;
+  }
+
+  function setUser(user) {
+    _currentUser = user;
+    renderAuthUI();
+  }
+
+  async function requestOtp(phone) {
+    const res = await fetch('/api/auth/request-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'Failed to request OTP');
+    }
+    return data;
+  }
+
+  async function verifyOtp(phone, otp, name = '', preferredLanguage = '') {
+    const lang = preferredLanguage || getLang();
+    const res = await fetch('/api/auth/verify-otp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({
+        phone,
+        otp,
+        name: name || undefined,
+        preferred_language: lang,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) {
+      throw new Error(data.detail || 'OTP verification failed');
+    }
+    _accessToken = data.access_token;
+    _currentUser = data.user;
+    renderAuthUI();
+    return data;
+  }
+
+  async function refreshToken() {
+    try {
+      const res = await fetch('/api/auth/refresh', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+      });
+      if (!res.ok) {
+        _accessToken = null;
+        _currentUser = null;
+        renderAuthUI();
+        return null;
+      }
+      const data = await res.json();
+      _accessToken = data.access_token;
+      return _accessToken;
+    } catch (e) {
+      _accessToken = null;
+      _currentUser = null;
+      renderAuthUI();
+      return null;
+    }
+  }
+
+  async function logout() {
+    try {
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+      });
+    } catch (e) {
+      console.warn('Logout error', e);
+    }
+    _accessToken = null;
+    _currentUser = null;
+    renderAuthUI();
+  }
+
+  async function getMe() {
+    if (!_accessToken) return null;
+    try {
+      const res = await fetchWithAuth('/api/auth/me');
+      if (res.ok) {
+        _currentUser = await res.json();
+        renderAuthUI();
+        return _currentUser;
+      }
+    } catch (e) {
+      console.warn('getMe error', e);
+    }
+    return null;
+  }
+
+  async function checkAuth() {
+    const token = await refreshToken();
+    if (token) {
+      await getMe();
+    } else {
+      renderAuthUI();
+    }
+    return _currentUser;
+  }
+
+  async function fetchWithAuth(url, options = {}) {
+    options = { ...options };
+    options.headers = new Headers(options.headers || {});
+    options.credentials = 'same-origin';
+
+    if (_accessToken) {
+      options.headers.set('Authorization', `Bearer ${_accessToken}`);
+    }
+
+    let response = await fetch(url, options);
+
+    if (response.status === 401) {
+      if (!_isRefreshing) {
+        _isRefreshing = true;
+        const newToken = await refreshToken();
+        _isRefreshing = false;
+        if (newToken) {
+          _refreshSubscribers.forEach(cb => cb(newToken));
+          _refreshSubscribers = [];
+          options.headers.set('Authorization', `Bearer ${newToken}`);
+          response = await fetch(url, options);
+          return response;
+        } else {
+          _refreshSubscribers.forEach(cb => cb(null));
+          _refreshSubscribers = [];
+          showLoginModal();
+          return response;
+        }
+      } else {
+        const retryPromise = new Promise(resolve => {
+          _refreshSubscribers.push(async (newToken) => {
+            if (newToken) {
+              options.headers.set('Authorization', `Bearer ${newToken}`);
+              resolve(await fetch(url, options));
+            } else {
+              showLoginModal();
+              resolve(response);
+            }
+          });
+        });
+        return await retryPromise;
+      }
+    }
+
+    return response;
+  }
+
+  function injectModalHTML() {
+    if (document.getElementById('krishi-auth-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'krishi-auth-modal';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden';
+    modal.innerHTML = `
+      <div class="bg-[#FAF8F5] text-slate-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-emerald-900/10 relative">
+        <button id="auth-modal-close" type="button" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-200/60 transition-colors">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+
+        <div class="flex items-center gap-3 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-[#1B5E20] text-white flex items-center justify-center shadow-md shrink-0">
+            <span class="material-symbols-outlined text-2xl">eco</span>
+          </div>
+          <div>
+            <h2 id="auth-modal-title" class="font-heading font-extrabold text-xl text-slate-900 tracking-tight leading-snug">
+              ರೈತರ ಸುರಕ್ಷಿತ ಲಾಗಿನ್
+            </h2>
+            <p id="auth-modal-subtitle" class="text-xs text-slate-600 mt-0.5 leading-relaxed">
+              ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಮಾಹಿತಿ ಮತ್ತು ಸಂವಾದಕ್ಕಾಗಿ ನಿಮ್ಮ ಮೊಬೈಲ್ ಸಂಖ್ಯೆ ನಮೂದಿಸಿ.
+            </p>
+          </div>
+        </div>
+
+        <div id="auth-modal-error" class="hidden mb-4 p-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm shrink-0">error</span>
+          <span id="auth-modal-error-text"></span>
+        </div>
+
+        <div id="auth-modal-success" class="hidden mb-4 p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-medium flex items-center gap-2">
+          <span class="material-symbols-outlined text-sm shrink-0">check_circle</span>
+          <span id="auth-modal-success-text"></span>
+        </div>
+
+        <div id="auth-step-phone" class="space-y-4">
+          <div>
+            <label id="auth-label-phone" for="auth-phone-input" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+              ಮೊಬೈಲ್ ಸಂಖ್ಯೆ (10 ಅಂಕಿಗಳು)
+            </label>
+            <div class="relative flex items-center">
+              <span class="absolute left-3.5 text-xs font-bold text-slate-500 font-mono select-none">+91</span>
+              <input id="auth-phone-input" type="tel" maxlength="10" inputmode="numeric" placeholder="9876543210"
+                class="w-full pl-12 pr-4 py-3.5 bg-white border-2 border-slate-200 focus:border-[#1B5E20] focus:ring-2 focus:ring-[#1B5E20]/20 rounded-xl text-base font-semibold text-slate-900 tracking-wider placeholder:text-slate-400 outline-none transition-all shadow-inner" />
+            </div>
+          </div>
+
+          <div>
+            <label id="auth-label-name" for="auth-name-input" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+              ರೈತರ ಹೆಸರು (ಐಚ್ಛಿಕ)
+            </label>
+            <input id="auth-name-input" type="text" placeholder="ಉದಾ: ಬಸವರಾಜ"
+              class="w-full px-4 py-3 bg-white border border-slate-200 focus:border-[#1B5E20] focus:ring-1 focus:ring-[#1B5E20] rounded-xl text-sm font-medium text-slate-900 placeholder:text-slate-400 outline-none transition-all" />
+          </div>
+
+          <button id="auth-send-otp-btn" type="button"
+            class="w-full min-h-[52px] py-3.5 px-4 rounded-xl bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+            <span class="material-symbols-outlined text-lg">send</span>
+            <span id="auth-send-otp-text">ಒಟಿಪಿ ಪಡೆಯಿರಿ (Send OTP)</span>
+          </button>
+        </div>
+
+        <div id="auth-step-otp" class="space-y-4 hidden">
+          <div class="p-3 bg-slate-100/80 rounded-xl border border-slate-200/80 flex items-center justify-between">
+            <div class="text-xs text-slate-700">
+              <span id="auth-otp-sent-to-label">ಒಟಿಪಿಯನ್ನು ಈ ಸಂಖ್ಯೆಗೆ ಕಳುಹಿಸಲಾಗಿದೆ:</span>
+              <span id="auth-target-phone" class="font-bold font-mono ml-1 text-slate-900">+91 ******</span>
+            </div>
+            <button id="auth-change-phone-btn" type="button" class="text-xs text-[#1B5E20] hover:underline font-bold">
+              ಸಂಖ್ಯೆ ಬದಲಿಸಿ
+            </button>
+          </div>
+
+          <div>
+            <label id="auth-label-otp" for="auth-otp-input" class="block text-xs font-bold text-slate-700 mb-1.5 uppercase tracking-wider">
+              6-ಅಂಕಿಯ ಒಟಿಪಿ ಕೋಡ್
+            </label>
+            <input id="auth-otp-input" type="text" maxlength="6" inputmode="numeric" placeholder="123456"
+              class="w-full px-4 py-3.5 bg-white border-2 border-slate-200 focus:border-[#1B5E20] focus:ring-2 focus:ring-[#1B5E20]/20 rounded-xl text-center text-2xl font-bold font-mono tracking-[0.4em] text-slate-900 placeholder:text-slate-300 outline-none transition-all shadow-inner" />
+          </div>
+
+          <button id="auth-verify-otp-btn" type="button"
+            class="w-full min-h-[52px] py-3.5 px-4 rounded-xl bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-bold text-sm shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+            <span class="material-symbols-outlined text-lg">verified_user</span>
+            <span id="auth-verify-otp-text">ದೃಢೀಕರಿಸಿ ಮತ್ತು ಮುಂದುವರಿಯಿರಿ</span>
+          </button>
+
+          <div class="text-center pt-1">
+            <button id="auth-resend-otp-btn" type="button" class="text-xs text-slate-500 hover:text-slate-800 font-semibold hover:underline">
+              ಮತ್ತೆ ಒಟಿಪಿ ಕಳುಹಿಸಿ (Resend OTP)
+            </button>
+          </div>
+        </div>
+
+        <div class="mt-4 pt-3 border-t border-slate-200 text-[11px] text-slate-400 flex items-center gap-1.5">
+          <span class="material-symbols-outlined text-xs text-amber-600">info</span>
+          <span id="auth-dev-notice">ಡೆವಲಪ್‌ಮೆಂಟ್ ಮೋಡ್: ಒಟಿಪಿ ಕೋಡ್ ಸರ್ವರ್ ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ ಪ್ರಿಂಟ್ ಆಗುತ್ತದೆ.</span>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    const closeBtn = document.getElementById('auth-modal-close');
+    const sendBtn = document.getElementById('auth-send-otp-btn');
+    const verifyBtn = document.getElementById('auth-verify-otp-btn');
+    const changeBtn = document.getElementById('auth-change-phone-btn');
+    const resendBtn = document.getElementById('auth-resend-otp-btn');
+
+    closeBtn.addEventListener('click', hideLoginModal);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) hideLoginModal();
+    });
+
+    sendBtn.addEventListener('click', handleSendOtpClick);
+    verifyBtn.addEventListener('click', handleVerifyOtpClick);
+    changeBtn.addEventListener('click', () => showStep(1));
+    resendBtn.addEventListener('click', handleSendOtpClick);
+
+    document.getElementById('auth-phone-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleSendOtpClick();
+    });
+    document.getElementById('auth-otp-input').addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') handleVerifyOtpClick();
+    });
+  }
+
+  function showStep(step) {
+    const step1 = document.getElementById('auth-step-phone');
+    const step2 = document.getElementById('auth-step-otp');
+    const errBox = document.getElementById('auth-modal-error');
+    const succBox = document.getElementById('auth-modal-success');
+    if (errBox) errBox.classList.add('hidden');
+    if (succBox) succBox.classList.add('hidden');
+
+    if (step === 1) {
+      if (step1) step1.classList.remove('hidden');
+      if (step2) step2.classList.add('hidden');
+      setTimeout(() => document.getElementById('auth-phone-input')?.focus(), 100);
+    } else {
+      if (step1) step1.classList.add('hidden');
+      if (step2) step2.classList.remove('hidden');
+      setTimeout(() => document.getElementById('auth-otp-input')?.focus(), 100);
+    }
+  }
+
+  function showModalError(msg) {
+    const errBox = document.getElementById('auth-modal-error');
+    const errText = document.getElementById('auth-modal-error-text');
+    if (errBox && errText) {
+      errText.textContent = msg;
+      errBox.classList.remove('hidden');
+    }
+  }
+
+  function showModalSuccess(msg) {
+    const succBox = document.getElementById('auth-modal-success');
+    const succText = document.getElementById('auth-modal-success-text');
+    if (succBox && succText) {
+      succText.textContent = msg;
+      succBox.classList.remove('hidden');
+    }
+  }
+
+  async function handleSendOtpClick() {
+    const phoneInput = document.getElementById('auth-phone-input');
+    const raw = (phoneInput?.value || '').trim().replace(/\D/g, '');
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    if (raw.length !== 10) {
+      showModalError(t.errPhone);
+      return;
+    }
+
+    _pendingPhone = '+91' + raw;
+    const sendBtn = document.getElementById('auth-send-otp-btn');
+    const sendText = document.getElementById('auth-send-otp-text');
+    if (sendBtn) sendBtn.disabled = true;
+    if (sendText) sendText.textContent = t.sendingOtp;
+
+    try {
+      const result = await requestOtp(_pendingPhone);
+      document.getElementById('auth-target-phone').textContent = result.phone || _pendingPhone;
+      showStep(2);
+      showModalSuccess(t.otpSentTo + ' ' + (result.phone || _pendingPhone));
+    } catch (err) {
+      showModalError(err.message || 'Failed to send OTP. Please check your connection.');
+    } finally {
+      if (sendBtn) sendBtn.disabled = false;
+      if (sendText) sendText.textContent = t.sendOtpBtn;
+    }
+  }
+
+  async function handleVerifyOtpClick() {
+    const otpInput = document.getElementById('auth-otp-input');
+    const nameInput = document.getElementById('auth-name-input');
+    const otp = (otpInput?.value || '').trim();
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    if (otp.length !== 6) {
+      showModalError(t.errOtp);
+      return;
+    }
+
+    const verifyBtn = document.getElementById('auth-verify-otp-btn');
+    const verifyText = document.getElementById('auth-verify-otp-text');
+    if (verifyBtn) verifyBtn.disabled = true;
+    if (verifyText) verifyText.textContent = t.verifying;
+
+    try {
+      const name = nameInput?.value?.trim() || '';
+      await verifyOtp(_pendingPhone, otp, name, lang);
+      showModalSuccess(t.loginSuccess);
+      setTimeout(() => {
+        hideLoginModal();
+        if (_loginSuccessCallback) {
+          const cb = _loginSuccessCallback;
+          _loginSuccessCallback = null;
+          cb();
+        }
+      }, 600);
+    } catch (err) {
+      showModalError(err.message || 'Invalid OTP code. Please try again.');
+    } finally {
+      if (verifyBtn) verifyBtn.disabled = false;
+      if (verifyText) verifyText.textContent = t.verifyBtn;
+    }
+  }
+
+  function updateModalLang() {
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    const elTitle = document.getElementById('auth-modal-title');
+    const elSubtitle = document.getElementById('auth-modal-subtitle');
+    const elPhoneLabel = document.getElementById('auth-label-phone');
+    const elNameLabel = document.getElementById('auth-label-name');
+    const elSendText = document.getElementById('auth-send-otp-text');
+    const elOtpSentTo = document.getElementById('auth-otp-sent-to-label');
+    const elChangePhone = document.getElementById('auth-change-phone-btn');
+    const elOtpLabel = document.getElementById('auth-label-otp');
+    const elVerifyText = document.getElementById('auth-verify-otp-text');
+    const elResend = document.getElementById('auth-resend-otp-btn');
+    const elDevNotice = document.getElementById('auth-dev-notice');
+
+    if (elTitle) elTitle.textContent = t.loginTitle;
+    if (elSubtitle) elSubtitle.textContent = t.loginSubtitle;
+    if (elPhoneLabel) elPhoneLabel.textContent = t.phoneLabel;
+    if (elNameLabel) elNameLabel.textContent = t.nameLabel;
+    if (elSendText) elSendText.textContent = t.sendOtpBtn;
+    if (elOtpSentTo) elOtpSentTo.textContent = t.otpSentTo;
+    if (elChangePhone) elChangePhone.textContent = t.changePhone;
+    if (elOtpLabel) elOtpLabel.textContent = t.otpLabel;
+    if (elVerifyText) elVerifyText.textContent = t.verifyBtn;
+    if (elResend) elResend.textContent = t.resendOtp;
+    if (elDevNotice) elDevNotice.textContent = t.devNotice;
+  }
+
+  function showLoginModal(onSuccess) {
+    injectModalHTML();
+    _loginSuccessCallback = onSuccess || null;
+    updateModalLang();
+    showStep(1);
+    const modal = document.getElementById('krishi-auth-modal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function hideLoginModal() {
+    const modal = document.getElementById('krishi-auth-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function renderAuthUI() {
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+    const containers = document.querySelectorAll('.krishi-auth-container, #auth-header-container');
+
+    containers.forEach(container => {
+      container.innerHTML = '';
+      if (_currentUser) {
+        const pill = document.createElement('div');
+        pill.className = 'flex items-center gap-2 bg-emerald-50 text-emerald-950 border border-emerald-300/80 px-3 py-1.5 rounded-full text-xs font-semibold shadow-xs';
+        const displayName = _currentUser.name || _currentUser.phone;
+        pill.innerHTML = `
+          <span class="material-symbols-outlined text-emerald-700 text-sm">account_circle</span>
+          <span class="truncate max-w-[130px] font-bold">${displayName}</span>
+          ${_currentUser.role === 'admin' ? '<span class="bg-amber-100 text-amber-800 border border-amber-300 px-1 rounded text-[9px] font-bold uppercase font-mono">ADMIN</span>' : ''}
+        `;
+
+        const logoutBtn = document.createElement('button');
+        logoutBtn.type = 'button';
+        logoutBtn.className = 'flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-1.5 rounded-full text-xs font-semibold transition-colors cursor-pointer border border-slate-200';
+        logoutBtn.innerHTML = `
+          <span class="material-symbols-outlined text-sm">logout</span>
+          <span>${t.logoutBtn}</span>
+        `;
+        logoutBtn.onclick = () => logout();
+
+        container.append(pill, logoutBtn);
+      } else {
+        const loginBtn = document.createElement('button');
+        loginBtn.type = 'button';
+        loginBtn.className = 'flex items-center gap-1.5 bg-[#1B5E20] hover:bg-[#2E7D32] text-white px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all cursor-pointer';
+        loginBtn.innerHTML = `
+          <span class="material-symbols-outlined text-sm">login</span>
+          <span>${t.loginBtn}</span>
+        `;
+        loginBtn.onclick = () => showLoginModal();
+        container.appendChild(loginBtn);
+      }
+    });
+  }
+
+  function init() {
+    injectModalHTML();
+    renderAuthUI();
+    checkAuth();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  return {
+    getToken,
+    setToken,
+    getUser,
+    setUser,
+    getLang,
+    setLang: (lang) => { updateModalLang(); renderAuthUI(); },
+    fetchWithAuth,
+    requestOtp,
+    verifyOtp,
+    refreshToken,
+    logout,
+    getMe,
+    checkAuth,
+    showLoginModal,
+    hideLoginModal,
+    renderAuthUI,
+    init,
+  };
+})();
+
+window.KrishiAuth = KrishiAuth;
+
 (() => {
   const microphoneSoundThreshold = 0.001;
 
@@ -31,7 +613,7 @@
   function postJson(path, payload) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 50000);
-    return fetch(path, {
+    return KrishiAuth.fetchWithAuth(path, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),

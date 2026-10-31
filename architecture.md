@@ -202,3 +202,38 @@ sequenceDiagram
   "audio_response_url": "/api/v1/audio/stream/resp_492.mp3"
 }
 ```
+
+---
+
+## 5. Authentication, Authorization & Session Security Architecture
+
+Krishi Mitra implements passwordless Phone + OTP authentication with role-based access control and IDOR defense:
+
+```mermaid
+flowchart TD
+    subgraph FarmerAuth ["Farmer Authentication Flow"]
+        REQ["POST /api/auth/request-otp\n(Rate-limited per phone & IP)"] --> SMS["Pluggable SMS Gateway\n(ConsoleProvider in Dev / SMS Gateway in Prod)"]
+        SMS --> VER["POST /api/auth/verify-otp\n(Hashed at rest, 5-min expiry, max 5 attempts)"]
+        VER --> TOK["Issue Short-lived JWT (15 min)\n+ Rotating Refresh Token in httpOnly Cookie"]
+    end
+
+    subgraph TokenLifecycle ["Token Rotation & Family Reuse Detection"]
+        REF["POST /api/auth/refresh"] --> CHECK{"Is Refresh Token\nRevoked?"}
+        CHECK -->|Yes (Compromise Detected)| REVOKE_ALL["Revoke Entire Token Family\nTerminate All Sessions"]
+        CHECK -->|No (Valid)| ROTATE["Revoke Old Token\nIssue New Token (Same Family)\nSet New Cookie"]
+    end
+
+    subgraph SecurityPolicy ["Access Control & IDOR Defense"]
+        DEP["FastAPI Dependency: get_current_user"]
+        RBAC["FastAPI Dependency: require_role('admin')"]
+        SESSION_LOCK["Conversation Session Isolation:\nsession['user_id'] == current_user.id\n(Cross-user access denied with 403 Forbidden)"]
+    end
+```
+
+### 5.1 Security Specifications
+1. **Zero Secret Logging**: Neither OTPs, raw tokens, nor raw phone numbers are logged in production mode (`APP_ENV=production`).
+2. **In-Memory JWT & httpOnly Refresh Cookie**: Access tokens remain exclusively in client memory (resistant to XSS localStorage theft), while rotating refresh tokens are stored in `httpOnly`, `SameSite=Lax`, `Secure` cookies.
+3. **Token Family Reuse Detection**: If an attacker attempts to replay a revoked refresh token, the system detects token theft and immediately revokes all refresh tokens sharing that `family_id`.
+4. **Session IDOR Prevention**: Conversation sessions in `/api/chat` and `/api/voice-turn` are strictly bound to the authenticated `user_id`. Attempting to read or write another user's session yields `403 Forbidden`.
+5. **Database Persistence**: SQLAlchemy 2.0 with Alembic migrations (`DATABASE_URL`, defaulting to SQLite for local development and PostgreSQL-ready for production).
+

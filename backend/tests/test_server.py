@@ -1,11 +1,30 @@
 """Tests for FastAPI backend server endpoints."""
 
+import uuid
 from unittest.mock import patch
+import pytest
 
 from fastapi.testclient import TestClient
 from backend.server import app, sessions
+from backend.db.models import User
+from backend.auth import get_current_user
 
 client = TestClient(app)
+
+
+@pytest.fixture(autouse=True)
+def override_auth():
+    """Provides a default authenticated farmer user for endpoint integration tests."""
+    test_user = User(
+        id=uuid.UUID("11111111-1111-1111-1111-111111111111"),
+        phone="+919876543210",
+        name="Test Farmer",
+        preferred_language="kn",
+        role="farmer",
+    )
+    app.dependency_overrides[get_current_user] = lambda: test_user
+    yield
+    app.dependency_overrides.pop(get_current_user, None)
 
 
 def test_health_endpoint():

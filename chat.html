@@ -600,6 +600,7 @@
 
       <!-- Action items -->
       <div class="flex items-center gap-3">
+        <div id="auth-header-container" class="krishi-auth-container flex items-center gap-2"></div>
         <!-- Language button on header for mobile -->
         <button id="mobile-lang-btn"
           class="md:hidden flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 text-emerald-700 text-xs font-bold border border-slate-200">
@@ -799,6 +800,7 @@
 
     function updateChatLanguage(lang) {
       currentLanguage = lang;
+      if (window.KrishiAuth) window.KrishiAuth.setLang(lang);
       localStorage.setItem('krishi_lang', lang);
       const t = CHAT_I18N[lang];
 
@@ -955,7 +957,8 @@
       try {
         let data = responseData;
         if (!data) {
-          const response = await fetch('/api/chat', {
+          const authFetch = (window.KrishiAuth && window.KrishiAuth.fetchWithAuth) ? window.KrishiAuth.fetchWithAuth : fetch;
+          const response = await authFetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
@@ -1282,7 +1285,8 @@
         for (let offset = 0; offset < bytes.length; offset += 0x8000) {
           binary += String.fromCharCode(...bytes.subarray(offset, offset + 0x8000));
         }
-        const response = await fetch('/api/voice-turn', {
+        const authFetch = (window.KrishiAuth && window.KrishiAuth.fetchWithAuth) ? window.KrishiAuth.fetchWithAuth : fetch;
+        const response = await authFetch('/api/voice-turn', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -1328,6 +1332,7 @@
     updateLiveProfileBar();
   </script>
 
+  <script src="/web_app.js"></script>
 </body>
 
 </html>

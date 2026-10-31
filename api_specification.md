@@ -112,3 +112,106 @@ Returns all 5 reference schemes, their deterministic rule definitions, document 
 
 ### `POST /api/v1/schemes/evaluate-direct`
 Stateless endpoint allowing developers or automated tests to pass any `FarmerProfile` JSON payload and inspect the exact deterministic rule output without invoking the LLM.
+
+---
+
+## 5. Authentication & Authorization Endpoints
+
+Krishi Mitra secures all core conversational endpoints using JWT Bearer authentication and rotating refresh tokens.
+
+### `POST /api/auth/request-otp`
+Generates and delivers a 6-digit OTP code to the farmer's mobile number.
+* **Rate Limits**: Max 5 requests per 10 minutes per phone number; max 10 requests per IP.
+* **Request Body**:
+  ```json
+  {
+    "phone": "+919876543210"
+  }
+  ```
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "message": "OTP sent successfully",
+    "phone": "+91******3210"
+  }
+  ```
+
+### `POST /api/auth/verify-otp`
+Validates 6-digit OTP (5-minute lifetime, max 5 attempts), provisions or updates user account, and issues credentials.
+* **Request Body**:
+  ```json
+  {
+    "phone": "+919876543210",
+    "otp": "123456",
+    "name": "Basavaraj",
+    "preferred_language": "kn"
+  }
+  ```
+* **Response (`200 OK`)**:
+  * Set-Cookie: `krishi_refresh_token=<opaque_token>; HttpOnly; Secure; SameSite=Lax; Path=/api/auth`
+  * Body:
+    ```json
+    {
+      "access_token": "eyJhbGciOi...",
+      "token_type": "bearer",
+      "user": {
+        "id": "c1f7b022-7f28-4e55-8732-cf12e4e1320f",
+        "phone": "+919876543210",
+        "name": "Basavaraj",
+        "preferred_language": "kn",
+        "role": "farmer"
+      }
+    }
+    ```
+
+### `POST /api/auth/refresh`
+Rotates the refresh token and issues a fresh 15-minute access token. If a previously revoked refresh token is presented, the system detects compromise and automatically revokes all tokens within that token family.
+* **Headers/Cookies**: Cookie `krishi_refresh_token`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "access_token": "eyJhbGciOi...",
+    "token_type": "bearer"
+  }
+  ```
+
+### `POST /api/auth/logout`
+Revokes active refresh token and invalidates the session cookie.
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Logged out successfully"
+  }
+  ```
+
+### `GET /api/auth/me`
+Retrieves currently authenticated farmer profile.
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "id": "c1f7b022-7f28-4e55-8732-cf12e4e1320f",
+    "phone": "+919876543210",
+    "name": "Basavaraj",
+    "preferred_language": "kn",
+    "role": "farmer"
+  }
+  ```
+
+### `GET /api/admin/stats`
+Admin-only monitoring and metrics endpoint.
+* **Headers**: `Authorization: Bearer <admin_access_token>`
+* **Response (`200 OK` / `403 Forbidden` for farmers)**:
+  ```json
+  {
+    "total_users": 142,
+    "active_refresh_tokens": 89,
+    "admin_caller": "+919000000002"
+  }
+  ```
+
+### Conversation Session IDOR Protection
+Calls to `POST /api/chat` and `POST /api/voice-turn` require a valid `Authorization: Bearer <access_token>`. Sessions are bound to `user_id`. Any attempt to access or modify a session belonging to another user returns `403 Forbidden`.
+
