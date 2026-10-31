@@ -13,7 +13,7 @@ if BASE_DIR not in sys.path:
     sys.path.insert(0, BASE_DIR)
 
 from backend.db.database import Base, DATABASE_URL
-from backend.db.models import User, OTPCode, RefreshToken
+from backend.db.models import User, OTPCode, RefreshToken, Consent
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

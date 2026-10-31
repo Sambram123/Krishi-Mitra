@@ -580,6 +580,571 @@ const KrishiAuth = (() => {
 
 window.KrishiAuth = KrishiAuth;
 
+// Krishi Mitra — Voice Consent & DPDP Privacy Manager
+const KrishiConsent = (() => {
+  let _hasVoiceConsent = null;
+  let _saveHistory = false;
+  let _currentPolicy = null;
+  let _activeStream = null;
+  let _consentDecisionCallback = null;
+
+  const i18n = {
+    kn: {
+      modalTitle: 'ಧ್ವನಿ ಗೌಪ್ಯತೆ ಮತ್ತು ಅನುಮತಿ (Voice Privacy Consent)',
+      modalSubtitle: 'ಕೃಷಿ ಮಿತ್ರದೊಂದಿಗೆ ಕನ್ನಡದಲ್ಲಿ ಧ್ವನಿಯ ಮೂಲಕ ಮಾತನಾಡಲು ಡಿಪಿಡಿಪಿ (DPDP 2023) ಕಾಯ್ದೆಯನ್ವಯ ನಿಮ್ಮ ಸ್ಪಷ್ಟ ಒಪ್ಪಿಗೆ ಅಗತ್ಯವಿದೆ.',
+      whatTitle: 'ಏನು ರೆಕಾರ್ಡ್ ಮಾಡಲಾಗುತ್ತದೆ?',
+      whatDesc: 'ಮೈಕ್ರೊಫೋನ್ ಬಟನ್ ಒತ್ತಿದಾಗ ನೀವು ಮಾತನಾಡುವ ಧ್ವನಿ ಆಡಿಯೋ ಮಾತ್ರ.',
+      whyTitle: 'ಏಕೆ ಬಳಸಲಾಗುತ್ತದೆ?',
+      whyDesc: 'ನಿಮ್ಮ ಆಡುಭಾಷೆಯ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಂಡು ಯೋಜನೆಗಳ ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಲು.',
+      thirdPartiesTitle: 'ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವವರು ಯಾರು?',
+      thirdPartiesDesc: 'ಸರ್ವಮ್ ಎಐ (Sarvam AI — ಕನ್ನಡ ASR/TTS) ಮತ್ತು ಗ್ರೋಕ್ (Groq — ಭಾಷಾ ಮಾದರಿ).',
+      retentionTitle: 'ಡೇಟಾ ಉಳಿಸುವಿಕೆ & ಭದ್ರತೆ:',
+      retentionDesc: 'ಆಡಿಯೋವನ್ನು ತಾತ್ಕಾಲಿಕ ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಸಂಸ್ಕರಿಸಲಾಗುತ್ತದೆ. ಎಂದಿಗೂ ಡಿಸ್ಕ್ ಅಥವಾ ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಉಳಿಸುವುದಿಲ್ಲ.',
+      revocationTitle: 'ಹಿಂಪಡೆಯುವ ಹಕ್ಕು:',
+      revocationDesc: 'ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಈ ಅನುಮತಿಯನ್ನು ಹಿಂಪಡೆಯಬಹುದು ಅಥವಾ ಡೇಟಾ ಅಳಿಸಬಹುದು.',
+      allowBtn: 'ಒಪ್ಪಿಗೆ ನೀಡಿ (Allow Voice)',
+      denyBtn: 'ಬೇಡ (No thanks)',
+      settingsTitle: 'ಗೌಪ್ಯತೆ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್ಸ್ (Privacy Settings)',
+      voiceStatusLabel: 'ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಸ್ಥಿತಿ:',
+      voiceStatusActive: 'ಸಕ್ರಿಯವಾಗಿದೆ (Active)',
+      voiceStatusInactive: 'ಹಿಂಪಡೆಯಲಾಗಿದೆ / ನಿಷ್ಕ್ರಿಯ (Withdrawn)',
+      withdrawBtn: 'ಧ್ವನಿ ಅನುಮತಿ ಹಿಂಪಡೆಯಿರಿ',
+      historyLabel: 'ಸಂಭಾಷಣಾ ಇತಿಹಾಸ ಉಳಿಸಿ (Save Conversation History)',
+      historyHint: 'ಪೂರ್ವನಿಯೋಜಿತವಾಗಿ ಆಫ್ ಆಗಿದೆ. ಆನ್ ಮಾಡಿದರೆ ಮಾತ್ರ ಸಂಭಾಷಣಾ ವಿವರಗಳನ್ನು ಉಳಿಸಲಾಗುತ್ತದೆ.',
+      deleteDataBtn: 'ನನ್ನ ಎಲ್ಲಾ ಡೇಟಾ ಅಳಿಸಿ (Delete My Data)',
+      deleteConfirm: 'ಖಚಿತಪಡಿಸಿ: ನಿಮ್ಮ ಎಲ್ಲಾ ಸಕ್ರಿಯ ಸಂಭಾಷಣೆ, ಇತಿಹಾಸ ಮತ್ತು ಡೇಟಾವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುವುದೇ?',
+      deleteSuccess: 'ನಿಮ್ಮ ಎಲ್ಲಾ ಡೇಟಾ ಮತ್ತು ಸಂಭಾಷಣೆಗಳನ್ನು ಯಶಸ್ವಿಯಾಗಿ ಅಳಿಸಲಾಗಿದೆ.',
+      withdrawnSuccess: 'ಧ್ವನಿ ಅನುಮತಿಯನ್ನು ಹಿಂಪಡೆಯಲಾಗಿದೆ. ಮೈಕ್ರೊಫೋನ್ ಸಂಪರ್ಕ ಕಡಿತಗೊಂಡಿದೆ.',
+      consentRequired: 'ಧ್ವನಿ ಬಳಸಲು ಅನುಮತಿ ಅಗತ್ಯವಿದೆ. ದಯವಿಟ್ಟು ಅನುಮತಿ ನೀಡಿ.'
+    },
+    en: {
+      modalTitle: 'Voice Privacy & Informed Consent',
+      modalSubtitle: 'Under DPDP 2023, explicit and informed consent is required to process your voice with Krishi Mitra.',
+      whatTitle: 'What is recorded?',
+      whatDesc: 'Your microphone audio only while you are actively speaking after pressing the mic button.',
+      whyTitle: 'Why is it processed?',
+      whyDesc: 'To transcribe your spoken agricultural queries and determine your government scheme eligibility.',
+      thirdPartiesTitle: 'Third-Party Processors:',
+      thirdPartiesDesc: 'Sarvam AI (Kannada speech-to-text & TTS) and Groq (language reasoning).',
+      retentionTitle: 'Retention & Storage:',
+      retentionDesc: 'In-memory processing only. Audio is immediately discarded and never stored on disk or in the database.',
+      revocationTitle: 'Your Rights & Revocation:',
+      revocationDesc: 'You may withdraw consent at any time from the settings panel or delete your session data.',
+      allowBtn: 'Allow Voice Processing',
+      denyBtn: 'No thanks',
+      settingsTitle: 'Privacy & Data Settings',
+      voiceStatusLabel: 'Voice Recording Consent:',
+      voiceStatusActive: 'Active & Granted',
+      voiceStatusInactive: 'Withdrawn / Inactive',
+      withdrawBtn: 'Withdraw Voice Consent',
+      historyLabel: 'Save Conversation History',
+      historyHint: 'Default is off. Transcripts are only retained if you explicitly turn this on.',
+      deleteDataBtn: 'Delete My Data (Right to Erasure)',
+      deleteConfirm: 'Are you sure? This will permanently delete all your conversation sessions, history, and active consents.',
+      deleteSuccess: 'All your session data and transcripts have been permanently deleted.',
+      withdrawnSuccess: 'Voice consent has been withdrawn and the microphone released.',
+      consentRequired: 'Voice processing consent is required to use audio features.'
+    }
+  };
+
+  function getLang() {
+    if (typeof currentLanguage !== 'undefined' && currentLanguage) return currentLanguage;
+    if (typeof currentLang !== 'undefined' && currentLang) return currentLang;
+    return 'kn';
+  }
+
+  async function getPolicy() {
+    if (_currentPolicy) return _currentPolicy;
+    try {
+      const res = await fetch('/api/consent/policy');
+      if (res.ok) {
+        _currentPolicy = await res.json();
+      }
+    } catch (e) {
+      console.warn('Failed to fetch consent policy', e);
+    }
+    return _currentPolicy;
+  }
+
+  async function checkConsents() {
+    if (!KrishiAuth.getToken()) {
+      _hasVoiceConsent = false;
+      return { voice_consent_active: false, save_history: false };
+    }
+    try {
+      const res = await KrishiAuth.fetchWithAuth('/api/me/consents');
+      if (res.ok) {
+        const data = await res.json();
+        _hasVoiceConsent = Boolean(data.voice_consent_active);
+        _saveHistory = Boolean(data.save_history);
+        renderSettingsUI();
+        return data;
+      }
+    } catch (e) {
+      console.warn('Failed to check user consents', e);
+    }
+    return { voice_consent_active: false, save_history: false };
+  }
+
+  async function grantVoiceConsent(saveHistory = null) {
+    const policy = await getPolicy();
+    const version = policy?.version || '1.0';
+    const payload = {
+      purpose: 'voice_recording',
+      policy_version: version,
+      granted: true,
+    };
+    if (saveHistory !== null) {
+      payload.save_history = saveHistory;
+    }
+    const res = await KrishiAuth.fetchWithAuth('/api/consent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail?.message || err.detail || 'Consent recording failed');
+    }
+    const data = await res.json();
+    _hasVoiceConsent = true;
+    if (data.save_history !== undefined) _saveHistory = data.save_history;
+    renderSettingsUI();
+    return data;
+  }
+
+  async function withdrawVoiceConsent() {
+    releaseMicrophone();
+    const res = await KrishiAuth.fetchWithAuth('/api/consent/voice', {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail?.message || err.detail || 'Failed to withdraw consent');
+    }
+    _hasVoiceConsent = false;
+    renderSettingsUI();
+    return await res.json();
+  }
+
+  async function updateHistoryPreference(enabled) {
+    const res = await KrishiAuth.fetchWithAuth('/api/me/history-preference', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ save_history: enabled }),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      _saveHistory = Boolean(data.save_history);
+      renderSettingsUI();
+    }
+  }
+
+  async function deleteUserData() {
+    releaseMicrophone();
+    const res = await KrishiAuth.fetchWithAuth('/api/me/data', {
+      method: 'DELETE',
+    });
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.detail?.message || err.detail || 'Data deletion failed');
+    }
+    _hasVoiceConsent = false;
+    _saveHistory = false;
+    renderSettingsUI();
+    return await res.json();
+  }
+
+  function registerActiveStream(stream) {
+    _activeStream = stream;
+  }
+
+  function releaseMicrophone() {
+    if (_activeStream) {
+      try {
+        _activeStream.getTracks().forEach(track => {
+          track.stop();
+          track.enabled = false;
+        });
+      } catch (e) {}
+      _activeStream = null;
+    }
+    if (typeof stopRecording === 'function' && typeof isRecording !== 'undefined' && isRecording) {
+      try { stopRecording(); } catch (e) {}
+    }
+  }
+
+  function injectConsentModalHTML() {
+    if (document.getElementById('krishi-consent-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'krishi-consent-modal';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 backdrop-blur-md hidden';
+    modal.innerHTML = `
+      <div class="bg-[#FAF8F5] text-slate-900 rounded-3xl shadow-2xl max-w-lg w-full p-6 sm:p-8 border border-emerald-900/10 relative">
+        <div class="flex items-start gap-3.5 mb-5">
+          <div class="w-12 h-12 rounded-2xl bg-[#1B5E20] text-white flex items-center justify-center shadow-md shrink-0">
+            <span class="material-symbols-outlined text-2xl">mic</span>
+          </div>
+          <div>
+            <h2 id="consent-modal-title" class="font-heading font-extrabold text-lg sm:text-xl text-slate-900 tracking-tight leading-snug">
+              ಧ್ವನಿ ಗೌಪ್ಯತೆ ಮತ್ತು ಅನುಮತಿ (Voice Privacy Consent)
+            </h2>
+            <p id="consent-modal-subtitle" class="text-xs text-slate-600 mt-1 leading-relaxed">
+              ಕೃಷಿ ಮಿತ್ರದೊಂದಿಗೆ ಕನ್ನಡದಲ್ಲಿ ಧ್ವನಿಯ ಮೂಲಕ ಮಾತನಾಡಲು ಡಿಪಿಡಿಪಿ (DPDP 2023) ಕಾಯ್ದೆಯನ್ವಯ ನಿಮ್ಮ ಸ್ಪಷ್ಟ ಒಪ್ಪಿಗೆ ಅಗತ್ಯವಿದೆ.
+            </p>
+          </div>
+        </div>
+
+        <div class="space-y-3 mb-6 max-h-[55vh] overflow-y-auto pr-1 text-xs">
+          <div class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+            <div class="font-bold text-slate-900 flex items-center gap-1.5 mb-0.5">
+              <span class="material-symbols-outlined text-emerald-700 text-sm">graphic_eq</span>
+              <span id="consent-what-title">ಏನು ರೆಕಾರ್ಡ್ ಮಾಡಲಾಗುತ್ತದೆ?</span>
+            </div>
+            <p id="consent-what-desc" class="text-slate-600 leading-relaxed">
+              ಮೈಕ್ರೊಫೋನ್ ಬಟನ್ ಒತ್ತಿದಾಗ ನೀವು ಮಾತನಾಡುವ ಧ್ವನಿ ಆಡಿಯೋ ಮಾತ್ರ.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+            <div class="font-bold text-slate-900 flex items-center gap-1.5 mb-0.5">
+              <span class="material-symbols-outlined text-emerald-700 text-sm">agriculture</span>
+              <span id="consent-why-title">ಏಕೆ ಬಳಸಲಾಗುತ್ತದೆ?</span>
+            </div>
+            <p id="consent-why-desc" class="text-slate-600 leading-relaxed">
+              ನಿಮ್ಮ ಆಡುಭಾಷೆಯ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಂಡು ಯೋಜನೆಗಳ ಅರ್ಹತೆ ಪರಿಶೀಲಿಸಲು.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+            <div class="font-bold text-slate-900 flex items-center gap-1.5 mb-0.5">
+              <span class="material-symbols-outlined text-emerald-700 text-sm">hub</span>
+              <span id="consent-third-title">ಪ್ರಕ್ರಿಯೆಗೊಳಿಸುವವರು ಯಾರು?</span>
+            </div>
+            <p id="consent-third-desc" class="text-slate-600 leading-relaxed">
+              ಸರ್ವಮ್ ಎಐ (Sarvam AI — ಕನ್ನಡ ASR/TTS) ಮತ್ತು ಗ್ರೋಕ್ (Groq — ಭಾಷಾ ಮಾದರಿ).
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-emerald-50/80 border border-emerald-200 shadow-2xs">
+            <div class="font-bold text-emerald-950 flex items-center gap-1.5 mb-0.5">
+              <span class="material-symbols-outlined text-emerald-700 text-sm">security</span>
+              <span id="consent-retention-title">ಡೇಟಾ ಉಳಿಸುವಿಕೆ & ಭದ್ರತೆ:</span>
+            </div>
+            <p id="consent-retention-desc" class="text-emerald-900 leading-relaxed">
+              ಆಡಿಯೋವನ್ನು ತಾತ್ಕಾಲಿಕ ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಸಂಸ್ಕರಿಸಲಾಗುತ್ತದೆ. ಎಂದಿಗೂ ಡಿಸ್ಕ್ ಅಥವಾ ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಉಳಿಸುವುದಿಲ್ಲ.
+            </p>
+          </div>
+
+          <div class="p-3 rounded-2xl bg-white border border-slate-200/90 shadow-2xs">
+            <div class="font-bold text-slate-900 flex items-center gap-1.5 mb-0.5">
+              <span class="material-symbols-outlined text-emerald-700 text-sm">cancel</span>
+              <span id="consent-revocation-title">ಹಿಂಪಡೆಯುವ ಹಕ್ಕು:</span>
+            </div>
+            <p id="consent-revocation-desc" class="text-slate-600 leading-relaxed">
+              ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್ಸ್‌ನಲ್ಲಿ ಈ ಅನುಮತಿಯನ್ನು ಹಿಂಪಡೆಯಬಹುದು ಅಥವಾ ಡೇಟಾ ಅಳಿಸಬಹುದು.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button id="consent-btn-deny" type="button"
+            class="flex-1 min-h-[50px] py-3 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors flex items-center justify-center cursor-pointer">
+            <span id="consent-deny-text">ಬೇಡ (No thanks)</span>
+          </button>
+          <button id="consent-btn-allow" type="button"
+            class="flex-1 min-h-[50px] py-3 px-4 rounded-xl bg-[#1B5E20] hover:bg-[#2E7D32] text-white font-bold text-xs shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-[0.99]">
+            <span class="material-symbols-outlined text-base">check</span>
+            <span id="consent-allow-text">ಒಪ್ಪಿಗೆ ನೀಡಿ (Allow Voice)</span>
+          </button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('consent-btn-allow').addEventListener('click', handleConsentAllow);
+    document.getElementById('consent-btn-deny').addEventListener('click', handleConsentDeny);
+  }
+
+  function injectSettingsDrawerHTML() {
+    if (document.getElementById('krishi-settings-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'krishi-settings-modal';
+    modal.className = 'fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm hidden';
+    modal.innerHTML = `
+      <div class="bg-[#FAF8F5] text-slate-900 rounded-3xl shadow-2xl max-w-md w-full p-6 sm:p-8 border border-slate-200 relative">
+        <button id="settings-modal-close" type="button" class="absolute top-5 right-5 text-slate-400 hover:text-slate-700 w-8 h-8 rounded-full flex items-center justify-center hover:bg-slate-200/60 transition-colors">
+          <span class="material-symbols-outlined text-lg">close</span>
+        </button>
+
+        <div class="flex items-center gap-3 mb-5">
+          <div class="w-10 h-10 rounded-xl bg-[#1B5E20] text-white flex items-center justify-center shadow-md shrink-0">
+            <span class="material-symbols-outlined text-xl">tune</span>
+          </div>
+          <div>
+            <h2 id="settings-title" class="font-heading font-extrabold text-lg text-slate-900">
+              ಗೌಪ್ಯತೆ ಮತ್ತು ಸೆಟ್ಟಿಂಗ್ಸ್ (Privacy Settings)
+            </h2>
+          </div>
+        </div>
+
+        <div class="space-y-4 text-xs">
+          <!-- Voice Consent Status -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span id="settings-voice-label" class="font-bold text-slate-800">ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಸ್ಥಿತಿ:</span>
+              <span id="settings-voice-badge" class="px-2 py-0.5 rounded text-[11px] font-bold"></span>
+            </div>
+            <button id="settings-withdraw-btn" type="button"
+              class="w-full py-2 px-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5">
+              <span class="material-symbols-outlined text-sm">block</span>
+              <span id="settings-withdraw-text">ಧ್ವನಿ ಅನುಮತಿ ಹಿಂಪಡೆಯಿರಿ</span>
+            </button>
+          </div>
+
+          <!-- History Saving Toggle -->
+          <div class="p-3.5 rounded-2xl bg-white border border-slate-200 shadow-2xs space-y-1.5">
+            <div class="flex items-center justify-between">
+              <label for="settings-history-toggle" id="settings-history-label" class="font-bold text-slate-800 cursor-pointer">
+                ಸಂಭಾಷಣಾ ಇತಿಹಾಸ ಉಳಿಸಿ
+              </label>
+              <input id="settings-history-toggle" type="checkbox"
+                class="w-5 h-5 rounded text-[#1B5E20] focus:ring-[#1B5E20] border-slate-300 cursor-pointer" />
+            </div>
+            <p id="settings-history-hint" class="text-[11px] text-slate-500 leading-relaxed">
+              ಪೂರ್ವನಿಯೋಜಿತವಾಗಿ ಆಫ್ ಆಗಿದೆ. ಆನ್ ಮಾಡಿದರೆ ಮಾತ್ರ ಸಂಭಾಷಣಾ ವಿವರಗಳನ್ನು ಉಳಿಸಲಾಗುತ್ತದೆ.
+            </p>
+          </div>
+
+          <!-- Delete My Data -->
+          <div class="p-3.5 rounded-2xl bg-rose-50/70 border border-rose-200/80 shadow-2xs space-y-2">
+            <div class="font-bold text-rose-950 flex items-center gap-1.5">
+              <span class="material-symbols-outlined text-sm text-rose-700">delete_forever</span>
+              <span>ಡಿಪಿಡಿಪಿ ಡೇಟಾ ಅಳಿಸುವಿಕೆ (Right to Erasure)</span>
+            </div>
+            <button id="settings-delete-btn" type="button"
+              class="w-full py-2.5 px-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs transition-colors shadow-xs flex items-center justify-center gap-1.5 cursor-pointer">
+              <span class="material-symbols-outlined text-sm">delete</span>
+              <span id="settings-delete-text">ನನ್ನ ಎಲ್ಲಾ ಡೇಟಾ ಅಳಿಸಿ (Delete My Data)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(modal);
+
+    document.getElementById('settings-modal-close').addEventListener('click', hideSettingsPanel);
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) hideSettingsPanel();
+    });
+
+    document.getElementById('settings-withdraw-btn').addEventListener('click', async () => {
+      const lang = getLang();
+      const t = i18n[lang] || i18n.kn;
+      try {
+        await withdrawVoiceConsent();
+        alert(t.withdrawnSuccess);
+      } catch (e) {
+        alert(e.message);
+      }
+    });
+
+    document.getElementById('settings-history-toggle').addEventListener('change', async (e) => {
+      await updateHistoryPreference(e.target.checked);
+    });
+
+    document.getElementById('settings-delete-btn').addEventListener('click', async () => {
+      const lang = getLang();
+      const t = i18n[lang] || i18n.kn;
+      if (confirm(t.deleteConfirm)) {
+        try {
+          await deleteUserData();
+          alert(t.deleteSuccess);
+          hideSettingsPanel();
+          if (typeof startNewChat === 'function') startNewChat();
+        } catch (e) {
+          alert(e.message);
+        }
+      }
+    });
+  }
+
+  function updateConsentModalLang() {
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    const elTitle = document.getElementById('consent-modal-title');
+    const elSub = document.getElementById('consent-modal-subtitle');
+    const elWhatT = document.getElementById('consent-what-title');
+    const elWhatD = document.getElementById('consent-what-desc');
+    const elWhyT = document.getElementById('consent-why-title');
+    const elWhyD = document.getElementById('consent-why-desc');
+    const elThirdT = document.getElementById('consent-third-title');
+    const elThirdD = document.getElementById('consent-third-desc');
+    const elRetT = document.getElementById('consent-retention-title');
+    const elRetD = document.getElementById('consent-retention-desc');
+    const elRevT = document.getElementById('consent-revocation-title');
+    const elRevD = document.getElementById('consent-revocation-desc');
+    const elAllow = document.getElementById('consent-allow-text');
+    const elDeny = document.getElementById('consent-deny-text');
+
+    if (elTitle) elTitle.textContent = t.modalTitle;
+    if (elSub) elSub.textContent = t.modalSubtitle;
+    if (elWhatT) elWhatT.textContent = t.whatTitle;
+    if (elWhatD) elWhatD.textContent = t.whatDesc;
+    if (elWhyT) elWhyT.textContent = t.whyTitle;
+    if (elWhyD) elWhyD.textContent = t.whyDesc;
+    if (elThirdT) elThirdT.textContent = t.thirdPartiesTitle;
+    if (elThirdD) elThirdD.textContent = t.thirdPartiesDesc;
+    if (elRetT) elRetT.textContent = t.retentionTitle;
+    if (elRetD) elRetD.textContent = t.retentionDesc;
+    if (elRevT) elRevT.textContent = t.revocationTitle;
+    if (elRevD) elRevD.textContent = t.revocationDesc;
+    if (elAllow) elAllow.textContent = t.allowBtn;
+    if (elDeny) elDeny.textContent = t.denyBtn;
+  }
+
+  function renderSettingsUI() {
+    const lang = getLang();
+    const t = i18n[lang] || i18n.kn;
+
+    const badge = document.getElementById('settings-voice-badge');
+    const withdrawBtn = document.getElementById('settings-withdraw-btn');
+    const historyToggle = document.getElementById('settings-history-toggle');
+
+    if (badge) {
+      if (_hasVoiceConsent) {
+        badge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300';
+        badge.textContent = t.voiceStatusActive;
+        if (withdrawBtn) withdrawBtn.disabled = false;
+      } else {
+        badge.className = 'px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-600 border border-slate-300';
+        badge.textContent = t.voiceStatusInactive;
+        if (withdrawBtn) withdrawBtn.disabled = true;
+      }
+    }
+    if (historyToggle) {
+      historyToggle.checked = Boolean(_saveHistory);
+    }
+  }
+
+  function showConsentModal(callback) {
+    injectConsentModalHTML();
+    updateConsentModalLang();
+    _consentDecisionCallback = callback || null;
+    const modal = document.getElementById('krishi-consent-modal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function hideConsentModal() {
+    const modal = document.getElementById('krishi-consent-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function showSettingsPanel() {
+    injectSettingsDrawerHTML();
+    checkConsents();
+    renderSettingsUI();
+    const modal = document.getElementById('krishi-settings-modal');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function hideSettingsPanel() {
+    const modal = document.getElementById('krishi-settings-modal');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  async function handleConsentAllow() {
+    const btn = document.getElementById('consent-btn-allow');
+    if (btn) btn.disabled = true;
+    try {
+      await grantVoiceConsent();
+      hideConsentModal();
+      if (_consentDecisionCallback) {
+        const cb = _consentDecisionCallback;
+        _consentDecisionCallback = null;
+        cb(true);
+      }
+    } catch (e) {
+      alert(e.message);
+    } finally {
+      if (btn) btn.disabled = false;
+    }
+  }
+
+  function handleConsentDeny() {
+    hideConsentModal();
+    if (_consentDecisionCallback) {
+      const cb = _consentDecisionCallback;
+      _consentDecisionCallback = null;
+      cb(false);
+    }
+  }
+
+  async function ensureVoiceConsent() {
+    // 1. Ensure user is authenticated
+    if (!KrishiAuth.getToken()) {
+      return new Promise((resolve) => {
+        KrishiAuth.showLoginModal(async () => {
+          const ok = await ensureVoiceConsent();
+          resolve(ok);
+        });
+      });
+    }
+
+    // 2. Check if active consent exists
+    if (_hasVoiceConsent === null) {
+      await checkConsents();
+    }
+
+    if (_hasVoiceConsent) {
+      return true;
+    }
+
+    // 3. Prompt consent modal
+    return new Promise((resolve) => {
+      showConsentModal((granted) => {
+        resolve(Boolean(granted));
+      });
+    });
+  }
+
+  function init() {
+    injectConsentModalHTML();
+    injectSettingsDrawerHTML();
+    checkConsents();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+
+  return {
+    ensureVoiceConsent,
+    showConsentModal,
+    hideConsentModal,
+    showSettingsPanel,
+    hideSettingsPanel,
+    grantVoiceConsent,
+    withdrawVoiceConsent,
+    updateHistoryPreference,
+    deleteUserData,
+    checkConsents,
+    registerActiveStream,
+    releaseMicrophone,
+    hasVoiceConsent: () => Boolean(_hasVoiceConsent),
+    init,
+  };
+})();
+
+window.KrishiConsent = KrishiConsent;
+
+
+
 (() => {
   const microphoneSoundThreshold = 0.001;
 

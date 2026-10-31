@@ -1,0 +1,28 @@
+{
+  "version": "1.0",
+  "effective_date": "2026-10-31",
+  "policy_name": "Krishi Mitra Voice & Data Privacy Consent Policy",
+  "purposes": {
+    "voice_recording": {
+      "title_kn": "ಧ್ವನಿ ರೆಕಾರ್ಡಿಂಗ್ ಮತ್ತು ಸಂಸ್ಕರಣಾ ಒಪ್ಪಿಗೆ",
+      "title_en": "Voice Recording & Processing Consent",
+      "what_is_recorded_kn": "ನೀವು ಮೈಕ್ರೊಫೋನ್ ಬಟನ್ ಒತ್ತಿ ಮಾತನಾಡುವಾಗ ನಿಮ್ಮ ಧ್ವನಿ ಆಡಿಯೋವನ್ನು ತಾತ್ಕಾಲಿಕವಾಗಿ ರೆಕಾರ್ಡ್ ಮಾಡಲಾಗುತ್ತದೆ.",
+      "what_is_recorded_en": "Your voice audio is temporarily recorded only while you speak after tapping the microphone button.",
+      "why_kn": "ನಿಮ್ಮ ಆಡುಭಾಷೆಯ ಕನ್ನಡ ಅಥವಾ ಇಂಗ್ಲಿಷ್ ಕೃಷಿ ಪ್ರಶ್ನೆಗಳನ್ನು ಅರ್ಥಮಾಡಿಕೊಂಡು, ಸರ್ಕಾರಿ ಯೋಜನೆಗಳ ಅರ್ಹತೆಯನ್ನು ತಕ್ಷಣವೇ ಪರಿಶೀಲಿಸಲು.",
+      "why_en": "To transcribe your spoken Kannada or English queries and evaluate your eligibility for government agricultural schemes.",
+      "third_parties_kn": "ಸರ್ವಮ್ ಎಐ (Sarvam AI — ಭಾರತೀಯ ಧ್ವನಿ ಗುರುತಿಸುವಿಕೆ ಮತ್ತು ಸಂಶ್ಲೇಷಣೆ) ಮತ್ತು ಗ್ರೋಕ್ (Groq — ಸುರಕ್ಷಿತ ಭಾಷಾ ಮಾದರಿ).",
+      "third_parties_en": "Sarvam AI (Indian Kannada/English speech-to-text and text-to-speech) and Groq (secure language processing).",
+      "retention_kn": "ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಸಂಸ್ಕರಿಸಲಾಗುತ್ತದೆ. ಪ್ರಕ್ರಿಯೆ ಮುಗಿದ ತಕ್ಷಣ ಆಡಿಯೋ ಡೇಟಾವನ್ನು ಸಂಪೂರ್ಣವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ. ಇದನ್ನು ಡಿಸ್ಕ್ ಅಥವಾ ಡೇಟಾಬೇಸ್‌ನಲ್ಲಿ ಎಂದಿಗೂ ಉಳಿಸಲಾಗುವುದಿಲ್ಲ.",
+      "retention_en": "Processed strictly in transient memory. Raw audio is immediately discarded after processing and is never stored on disk or in any database.",
+      "revocation_kn": "ನೀವು ಯಾವುದೇ ಸಮಯದಲ್ಲಿ ಸೆಟ್ಟಿಂಗ್ಸ್ ಫಲಕದಲ್ಲಿ ಧ್ವನಿ ಒಪ್ಪಿಗೆಯನ್ನು ಹಿಂಪಡೆಯಬಹುದು ಅಥವಾ ನಿಮ್ಮ ಡೇಟಾವನ್ನು ಅಳಿಸಬಹುದು.",
+      "revocation_en": "You may revoke your voice consent or delete your session data at any time from the settings panel."
+    },
+    "save_history": {
+      "title_kn": "ಸಂಭಾಷಣಾ ಇತಿಹಾಸ ಉಳಿಸುವಿಕೆ (ಐಚ್ಛಿಕ)",
+      "title_en": "Conversation History Retention (Optional)",
+      "description_kn": "ಪೂರ್ವನಿಯೋಜಿತವಾಗಿ ನಿಮ್ಮ ಸಂಭಾಷಣಾ ವಿವರಗಳನ್ನು ಉಳಿಸಲಾಗುವುದಿಲ್ಲ. ನೀವು ಬಯಸಿದರೆ ಮಾತ್ರ ನಿಮ್ಮ ಅನುಕೂಲಕ್ಕಾಗಿ ಇತಿಹಾಸವನ್ನು ಉಳಿಸಬಹುದು.",
+      "description_en": "By default, conversation transcripts are not retained. You may optionally opt in to save your conversation history for future reference.",
+      "default_opt_in": false
+    }
+  }
+}

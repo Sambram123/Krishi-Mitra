@@ -3,8 +3,9 @@ Krishi Mitra — FastAPI Backend Server
 Integrates conversational AI dialogue management with the web frontend.
 Provides:
   - Authentication & Authorization: Phone + OTP, JWT, Rotating Refresh Tokens, RBAC
+  - DPDP Consent Management: Explicit, informed, revocable voice consent & right to erasure
   - POST /api/chat: Multi-turn farmer dialogue processing with NLU and deterministic evaluation (Protected)
-  - POST /api/voice-turn: Audio processing with Sarvam transcription and Groq (Protected)
+  - POST /api/voice-turn: Audio processing with Sarvam and Groq (Protected by require_voice_consent)
   - GET /api/health: Service status and model configuration (Public)
   - Static file serving for index.html, chat.html, stitch_design.html, web_app.js, and assets/
 """
@@ -38,6 +39,11 @@ from backend.auth import (
     get_current_user,
     assert_production_config,
 )
+from backend.consent import (
+    consent_router,
+    user_privacy_router,
+    require_voice_consent,
+)
 
 
 @asynccontextmanager
@@ -60,9 +66,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Register Authentication & Admin Sub-Routers
+# Register Sub-Routers
 app.include_router(auth_router)
 app.include_router(admin_router)
+app.include_router(consent_router)
+app.include_router(user_privacy_router)
 
 # In-memory session store (DPDP 2023 data minimisation: in-process per-session state bound to user_id)
 sessions: Dict[str, Dict[str, Any]] = {}
@@ -189,12 +197,14 @@ def handle_chat(req: ChatRequest, current_user: User = Depends(get_current_user)
         raise HTTPException(status_code=error.status, detail=str(error)) from error
 
     session["profile"] = result["profile"]
-    _record_turn(session, req.message.strip(), result["reply"])
+    # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
+    if getattr(current_user, "save_history", False):
+        _record_turn(session, req.message.strip(), result["reply"])
     return _format_response(session_id, result)
 
 
 @app.post("/api/voice-turn", response_model=ChatResponse)
-def voice_turn(req: VoiceTurnRequest, current_user: User = Depends(get_current_user)):
+def voice_turn(req: VoiceTurnRequest, current_user: User = Depends(require_voice_consent)):
     user_id = str(current_user.id)
     session_id = req.session_id or str(uuid.uuid4())[:8]
     session = _session_context(session_id, req.profile, req.history, user_id)
@@ -207,7 +217,9 @@ def voice_turn(req: VoiceTurnRequest, current_user: User = Depends(get_current_u
         raise HTTPException(status_code=error.status, detail=str(error)) from error
 
     session["profile"] = result["profile"]
-    _record_turn(session, result["transcript"], result["reply"])
+    # DPDP 2023: Retain transcript turns only if user explicitly opted in to history saving
+    if getattr(current_user, "save_history", False):
+        _record_turn(session, result["transcript"], result["reply"])
     return _format_response(session_id, result)
 
 

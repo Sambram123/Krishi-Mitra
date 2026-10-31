@@ -214,4 +214,123 @@ Admin-only monitoring and metrics endpoint.
 
 ### Conversation Session IDOR Protection
 Calls to `POST /api/chat` and `POST /api/voice-turn` require a valid `Authorization: Bearer <access_token>`. Sessions are bound to `user_id`. Any attempt to access or modify a session belonging to another user returns `403 Forbidden`.
+### 5.2 Voice Privacy & Informed Consent Endpoints (DPDP 2023)
 
+Every audio processing request requires active, unrevoked consent for the active policy version. If consent is absent, revoked, or outdated, `/api/voice-turn` returns `403 Forbidden` with error code `CONSENT_REQUIRED`.
+
+#### `GET /api/consent/policy`
+Returns the current versioned privacy policy text in Kannada and English.
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "version": "1.0",
+    "effective_date": "2026-10-31",
+    "policy_name": "Krishi Mitra Voice & Data Privacy Consent Policy",
+    "purposes": {
+      "voice_recording": { ... },
+      "save_history": { ... }
+    }
+  }
+  ```
+
+#### `POST /api/consent`
+Records an explicit consent grant or preference update. Follows an append-only audit trail.
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Request Body**:
+  ```json
+  {
+    "purpose": "voice_recording",
+    "policy_version": "1.0",
+    "granted": true,
+    "save_history": false
+  }
+  ```
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Consent recorded successfully",
+    "voice_consent_active": true,
+    "save_history": false
+  }
+  ```
+
+#### `DELETE /api/consent/voice`
+Revokes/withdraws voice recording consent immediately. Releases microphone tracks and appends an immutable revocation row to the audit trail.
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "message": "Voice recording consent has been withdrawn successfully",
+    "voice_consent_active": false
+  }
+  ```
+
+#### `GET /api/me/consents`
+Returns the caller's active consent status, current policy version, history-saving preference, and immutable audit trail. Strictly isolated to the authenticated user.
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "user_id": "c1f7b022-7f28-4e55-8732-cf12e4e1320f",
+    "voice_consent_active": true,
+    "policy_version": "1.0",
+    "save_history": false,
+    "audit_trail": [
+      {
+        "id": "...",
+        "purpose": "voice_recording",
+        "policy_version": "1.0",
+        "granted": true,
+        "granted_at": "2026-10-31T05:30:00Z",
+        "revoked_at": null
+      }
+    ]
+  }
+  ```
+
+#### `PUT /api/me/history-preference`
+Updates user opt-in preference for retaining conversation transcripts (default off).
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Request Body**:
+  ```json
+  {
+    "save_history": true
+  }
+  ```
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "save_history": true
+  }
+  ```
+
+#### `DELETE /api/me/data`
+DPDP Right to Erasure: Permanently purges user's conversation sessions, transcripts, and records consent revocation.
+* **Headers**: `Authorization: Bearer <access_token>`
+* **Response (`200 OK`)**:
+  ```json
+  {
+    "status": "success",
+    "message": "All user sessions, transcripts, and session data have been deleted.",
+    "purged_sessions": 1,
+    "voice_consent_active": false,
+    "save_history": false
+  }
+  ```
+
+#### Consent Gatekeeper (`require_voice_consent`) Error Contract
+When calling `/api/voice-turn` without active consent for the current policy version:
+* **Response (`403 Forbidden`)**:
+  ```json
+  {
+    "detail": {
+      "code": "CONSENT_REQUIRED",
+      "error": "CONSENT_REQUIRED",
+      "message": "Explicit consent for voice recording and processing is required.",
+      "policy_version": "1.0"
+    }
+  }
+  ```

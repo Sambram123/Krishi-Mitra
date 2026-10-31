@@ -209,7 +209,14 @@ Krishi Mitra provides a production-grade, privacy-first authentication layer:
 
 ---
 
-## 🛡️ Privacy & Compliance Notice
+## 🛡️ Privacy & Compliance Notice (DPDP Act 2023)
 
-- **DPDP Act (2023) Alignment**: Data minimisation principles are adhered to. Session data is stored in memory and not permanently retained without explicit user authorization.
-- **Decision-Support Disclaimer**: Krishi Mitra is an informational decision-support tool. Final eligibility and disbursement depend on verified government verification at Grama One / Raitha Samparka Kendras.
+Krishi Mitra implements **Digital Personal Data Protection (DPDP Act 2023)** compliance by design:
+- **No Microphone Access Without Consent**: The browser never prompts for `getUserMedia` until the farmer explicitly reviews the bilingual consent modal and clicks "Allow". Declining leaves text chat completely usable with no nagging.
+- **Server-Side Consent Enforcement (`require_voice_consent`)**: Every voice turn and audio upload endpoint is gated by a server-side dependency. Without active consent for the active policy version, the server rejects the request with HTTP `403` and error code `CONSENT_REQUIRED`.
+- **Transient In-Memory Audio Processing**: Audio clips are processed strictly in-memory (using `BytesIO`), routed to Sarvam AI / Groq, and discarded immediately. Raw audio is **never written to disk or database**.
+- **Transcript Storage Opt-in (Default OFF)**: In-memory session history and transcripts are only saved if the farmer explicitly toggles on *"Save conversation history"*.
+- **Zero Audio & Transcript Logging**: The system logs only audio payload byte lengths and transcript character counts. Raw audio bytes and transcript texts are never printed to logs.
+- **Append-Only Immutable Audit Trail**: All consent grants, withdrawals, and updates are recorded as new rows in the `consents` table, preserving an immutable compliance record.
+- **Right to Erasure & Immediate Withdrawal**: Farmers can withdraw voice consent at any time in the settings panel (which immediately cuts active recording and releases the microphone tracks) or click *"Delete My Data"* (`DELETE /api/me/data`) to purge all active sessions and transcripts.
+- **Decision-Support Disclaimer**: Krishi Mitra is an informational decision-support tool. Final eligibility and disbursement depend on verified government records at Grama One / Raitha Samparka Kendras.

@@ -1,12 +1,12 @@
 """
 Krishi Mitra — SQLAlchemy 2.0 Database Models
-Defines User, OTPCode, and RefreshToken models with timezone-aware datetime support.
+Defines User, OTPCode, RefreshToken, and Consent models with timezone-aware datetime support.
 """
 
 import uuid
 from datetime import datetime, timezone
 from typing import Optional
-from sqlalchemy import String, Integer, DateTime, ForeignKey, Uuid, TypeDecorator
+from sqlalchemy import String, Integer, Boolean, DateTime, ForeignKey, Uuid, TypeDecorator
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from backend.db.database import Base
 
@@ -55,12 +55,18 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String(32), default="farmer", nullable=False
     )
+    save_history: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
     created_at: Mapped[datetime] = mapped_column(
         TZDateTime, default=utc_now, nullable=False
     )
 
     refresh_tokens: Mapped[list["RefreshToken"]] = relationship(
         "RefreshToken", back_populates="user", cascade="all, delete-orphan"
+    )
+    consents: Mapped[list["Consent"]] = relationship(
+        "Consent", back_populates="user", cascade="all, delete-orphan"
     )
 
     def to_dict(self):
@@ -70,6 +76,7 @@ class User(Base):
             "name": self.name or "",
             "preferred_language": self.preferred_language,
             "role": self.role,
+            "save_history": self.save_history,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -126,3 +133,53 @@ class RefreshToken(Base):
     )
 
     user: Mapped["User"] = relationship("User", back_populates="refresh_tokens")
+
+
+class Consent(Base):
+    """
+    Append-only audit trail for user consents under DPDP 2023.
+    Never overwrite or mutate records; every grant or revocation appends a new audit record.
+    """
+    __tablename__ = "consents"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        Uuid(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    purpose: Mapped[str] = mapped_column(
+        String(64), nullable=False, default="voice_recording"
+    )
+    policy_version: Mapped[str] = mapped_column(
+        String(32), nullable=False, default="1.0"
+    )
+    granted: Mapped[bool] = mapped_column(
+        Boolean, nullable=False, default=False
+    )
+    granted_at: Mapped[datetime] = mapped_column(
+        TZDateTime, default=utc_now, nullable=False
+    )
+    revoked_at: Mapped[Optional[datetime]] = mapped_column(
+        TZDateTime, nullable=True, default=None
+    )
+    user_agent: Mapped[Optional[str]] = mapped_column(
+        String(256), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        TZDateTime, default=utc_now, nullable=False
+    )
+
+    user: Mapped["User"] = relationship("User", back_populates="consents")
+
+    def to_dict(self):
+        return {
+            "id": str(self.id),
+            "user_id": str(self.user_id),
+            "purpose": self.purpose,
+            "policy_version": self.policy_version,
+            "granted": self.granted,
+            "granted_at": self.granted_at.isoformat() if self.granted_at else None,
+            "revoked_at": self.revoked_at.isoformat() if self.revoked_at else None,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+        }

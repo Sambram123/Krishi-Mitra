@@ -3,7 +3,7 @@ Krishi Mitra — Database Package
 """
 
 from backend.db.database import Base, SessionLocal, engine, get_db, init_db, DATABASE_URL
-from backend.db.models import User, OTPCode, RefreshToken
+from backend.db.models import User, OTPCode, RefreshToken, Consent
 
 __all__ = [
     "Base",
@@ -15,4 +15,5 @@ __all__ = [
     "User",
     "OTPCode",
     "RefreshToken",
+    "Consent",
 ]

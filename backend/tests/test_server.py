@@ -8,6 +8,7 @@ from fastapi.testclient import TestClient
 from backend.server import app, sessions
 from backend.db.models import User
 from backend.auth import get_current_user
+from backend.consent import require_voice_consent
 
 client = TestClient(app)
 
@@ -21,10 +22,13 @@ def override_auth():
         name="Test Farmer",
         preferred_language="kn",
         role="farmer",
+        save_history=True,
     )
     app.dependency_overrides[get_current_user] = lambda: test_user
+    app.dependency_overrides[require_voice_consent] = lambda: test_user
     yield
     app.dependency_overrides.pop(get_current_user, None)
+    app.dependency_overrides.pop(require_voice_consent, None)
 
 
 def test_health_endpoint():
