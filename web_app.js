@@ -445,6 +445,9 @@ const KrishiAuth = (() => {
       const name = nameInput?.value?.trim() || '';
       await verifyOtp(_pendingPhone, otp, name, lang);
       showModalSuccess(t.loginSuccess);
+      window.dispatchEvent(new CustomEvent('krishi:auth-success', {
+        detail: { user: _currentUser, phone: _pendingPhone }
+      }));
       setTimeout(() => {
         hideLoginModal();
         if (_loginSuccessCallback) {

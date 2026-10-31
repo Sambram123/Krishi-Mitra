@@ -464,6 +464,20 @@
         filter: hue-rotate(0deg);
       }
     }
+
+    @keyframes slide-down {
+      from {
+        opacity: 0;
+        transform: translateY(-8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    .animate-slide-down {
+      animation: slide-down 0.25s ease-out forwards;
+    }
   </style>
   <script src="/web_app.js"></script>
 </head>
@@ -686,6 +700,36 @@
           </div>
         </div>
 
+        <!-- Claude-Style Floating Voice Recording Warning Notification -->
+        <div id="voice-recording-warning-banner"
+          class="hidden animate-slide-down p-3 sm:p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-950 backdrop-blur-md shadow-md flex items-start sm:items-center justify-between gap-3">
+          <div class="flex items-start sm:items-center gap-3">
+            <div class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-800 flex items-center justify-center shrink-0">
+              <span class="material-symbols-outlined text-lg">mic</span>
+            </div>
+            <div class="text-xs space-y-0.5">
+              <div class="font-bold flex items-center gap-1.5 text-amber-900">
+                <span id="voice-warn-title">ಗಮನಿಸಿ: AI ಧ್ವನಿ ಸಂಸ್ಕರಣೆ ಮತ್ತು ಗೌಪ್ಯತೆ</span>
+                <span id="voice-warn-badge" class="px-1.5 py-0.5 text-[9px] font-mono font-bold rounded bg-amber-200/80 text-amber-900">DPDP 2023</span>
+              </div>
+              <p id="voice-warn-desc" class="text-slate-600 leading-relaxed text-[11px] sm:text-xs">
+                ನೀವು ಮಾತನಾಡುವಾಗ ನಿಮ್ಮ ಧ್ವನಿಯನ್ನು AI ನೇರವಾಗಿ ಗ್ರಹಿಸುತ್ತದೆ. ಆಡಿಯೋವನ್ನು ತಾತ್ಕಾಲಿಕ ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಸಂಸ್ಕರಿಸಲಾಗುತ್ತದೆ, ಡಿಸ್ಕ್‌ನಲ್ಲಿ ಉಳಿಸುವುದಿಲ್ಲ.
+              </p>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button onclick="if(window.KrishiConsent)window.KrishiConsent.showSettingsPanel()" type="button"
+              class="text-[11px] font-bold text-emerald-800 hover:text-emerald-950 hover:underline px-2.5 py-1 rounded-lg bg-white/70 border border-amber-300/80 shadow-2xs transition-colors cursor-pointer">
+              <span id="voice-warn-settings">ಗೌಪ್ಯತೆ ಸೆಟ್ಟಿಂಗ್ಸ್</span>
+            </button>
+            <button onclick="dismissVoiceWarning()" type="button"
+              class="text-slate-400 hover:text-slate-700 w-6 h-6 rounded-full flex items-center justify-center hover:bg-black/5 transition-colors cursor-pointer"
+              title="Dismiss warning">
+              <span class="material-symbols-outlined text-sm">close</span>
+            </button>
+          </div>
+        </div>
+
         <!-- Main Input Container -->
         <div class="flex items-center gap-3">
 
@@ -772,7 +816,11 @@
         pillReset: "Reset",
         latency: "⚡ Sub-1.8s Response Latency",
         disclaimer: "Zero-Hallucination Government Rule Evaluator",
-        pageTitle: "Krishi Mitra AI — Voice Chat Assistant"
+        pageTitle: "Krishi Mitra AI — Voice Chat Assistant",
+        warnVoiceTitle: "Notice: AI Voice Processing & Privacy",
+        warnVoiceDesc: "When you speak, your voice is processed in real time by AI (Sarvam AI & Groq). Audio is held transiently in memory and never stored on disk.",
+        warnVoiceBadge: "DPDP 2023",
+        warnVoiceSettings: "Privacy Settings"
       },
       kn: {
         newChat: "ಹೊಸ ಸಮಾಲೋಚನೆ",
@@ -800,7 +848,11 @@
         pillReset: "ಮರುಹೊಂದಿಸಿ",
         latency: "⚡ 1.8 ಸೆಕೆಂಡ್‌ಗಿಂತ ವೇಗದ ಧ್ವನಿ ಪ್ರತಿಕ್ರಿಯೆ",
         disclaimer: "ಕರ್ನಾಟಕ ಕೃಷಿ ಇಲಾಖೆ ನಿಯಮಾನುಸಾರ ಅಧಿಕೃತ ಪರಿಶೀಲನೆ",
-        pageTitle: "ಕೃಷಿ ಮಿತ್ರ ಎಐ — ಧ್ವನಿ ಸಹಾಯಕ"
+        pageTitle: "ಕೃಷಿ ಮಿತ್ರ ಎಐ — ಧ್ವನಿ ಸಹಾಯಕ",
+        warnVoiceTitle: "ಗಮನಿಸಿ: AI ಧ್ವನಿ ಸಂಸ್ಕರಣೆ ಮತ್ತು ಗೌಪ್ಯತೆ",
+        warnVoiceDesc: "ನೀವು ಮಾತನಾಡುವಾಗ ನಿಮ್ಮ ಧ್ವನಿಯನ್ನು AI (Sarvam AI & Groq) ನೇರವಾಗಿ ಗ್ರಹಿಸುತ್ತದೆ. ಆಡಿಯೋವನ್ನು ತಾತ್ಕಾಲಿಕ ಮೆಮೊರಿಯಲ್ಲಿ ಮಾತ್ರ ಸಂಸ್ಕರಿಸಲಾಗುತ್ತದೆ, ಡಿಸ್ಕ್‌ನಲ್ಲಿ ಉಳಿಸುವುದಿಲ್ಲ.",
+        warnVoiceBadge: "ಡಿಪಿಡಿಪಿ 2023",
+        warnVoiceSettings: "ಗೌಪ್ಯತೆ ಸೆಟ್ಟಿಂಗ್ಸ್"
       }
     };
 
@@ -864,7 +916,42 @@
       if (pillLand) {
         pillLand.textContent = farmerProfile.land_acres + (lang === 'kn' ? ' ಎಕರೆ' : ' Acres');
       }
+
+      updateVoiceWarningLang();
     }
+
+    function updateVoiceWarningLang() {
+      const t = CHAT_I18N[currentLanguage] || CHAT_I18N.en;
+      const title = document.getElementById('voice-warn-title');
+      const desc = document.getElementById('voice-warn-desc');
+      const badge = document.getElementById('voice-warn-badge');
+      const settings = document.getElementById('voice-warn-settings');
+      if (title && t.warnVoiceTitle) title.textContent = t.warnVoiceTitle;
+      if (desc && t.warnVoiceDesc) desc.textContent = t.warnVoiceDesc;
+      if (badge && t.warnVoiceBadge) badge.textContent = t.warnVoiceBadge;
+      if (settings && t.warnVoiceSettings) settings.textContent = t.warnVoiceSettings;
+    }
+
+    function showVoiceRecordingWarning() {
+      const banner = document.getElementById('voice-recording-warning-banner');
+      if (banner) {
+        banner.classList.remove('hidden');
+        updateVoiceWarningLang();
+      }
+    }
+
+    function dismissVoiceWarning() {
+      const banner = document.getElementById('voice-recording-warning-banner');
+      if (banner) {
+        banner.classList.add('hidden');
+      }
+      sessionStorage.setItem('krishi_voice_warn_dismissed', 'true');
+    }
+
+    // Claude-style warning notification trigger once OTP is verified
+    window.addEventListener('krishi:auth-success', () => {
+      showVoiceRecordingWarning();
+    });
 
     document.getElementById('chat-lang-btn').addEventListener('click', () => {
       updateChatLanguage(currentLanguage === 'en' ? 'kn' : 'en');
@@ -963,6 +1050,11 @@
           await processFarmerQuery(queryText);
         });
         return;
+      }
+
+      // Show Claude-style voice recording warning notice when starting conversation
+      if (sessionStorage.getItem('krishi_voice_warn_dismissed') !== 'true') {
+        showVoiceRecordingWarning();
       }
 
       appendChatMsg('user', queryText);
